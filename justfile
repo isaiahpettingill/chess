@@ -17,3 +17,6 @@ run-client:
 run-server:
     mvn -pl server exec:java -DskipTests
 
+run-client-compiled: package
+    java -jar client/target/client-jar-with-dependencies.jar
+    
