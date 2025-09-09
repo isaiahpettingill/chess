@@ -11,7 +11,7 @@ package chess;
 public class ChessBoard {
   private ChessPiece[][] board;
 
-  private static Boolean isInRange(ChessPosition position)
+  private static boolean isInRange(ChessPosition position)
   {
     var row = position.getZeroRow();
     var col = position.getZeroColumn();

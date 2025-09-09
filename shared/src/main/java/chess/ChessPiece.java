@@ -3,6 +3,9 @@ package chess;
 import java.util.Collection;
 import chess.ChessGame.TeamColor;
 import java.util.HashSet;
+import java.util.Arrays;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Represents a single chess piece
@@ -59,8 +62,20 @@ public record ChessPiece(TeamColor pieceColor, PieceType type) {
 
   }
 
+  private Collection<ChessMove> _getMovesFromPositions(ChessPosition start, int[][] positions) {
+    Stream<int[]> streamed = Stream.of(positions);
+    return streamed.filter(c -> (c[0] > 0 && c[0] < 8 && c[1] > 0 && c[0] < 8))
+        .map(c -> new ChessMove(start, new ChessPosition(c[0] + 1, c[1] + 1)))
+        .collect(Collectors.toSet());
+  }
+
   private Collection<ChessMove> _getKingMoves(ChessPosition position) {
-    return new HashSet<ChessMove>();
+    int x = position.getZeroRow();
+    int y = position.getZeroColumn();
+    int[][] positions = { { x + 1, y }, { x - 1, y }, { x, y - 1 },
+        { x, y + 1 }, { x - 1, y - 1 }, { x + 1, y + 1 },
+        { x - 1, y + 1 }, { x + 1, y - 1 } };
+    return _getMovesFromPositions(position, positions);
   }
 
   private Collection<ChessMove> _getQueenMoves(ChessPosition position) {
