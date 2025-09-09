@@ -27,7 +27,12 @@ public class ChessBoard {
    * @param piece    the piece to add
    */
   public void addPiece(ChessPosition position, ChessPiece piece) {
-    
+    if (isInRange(position)){
+      board[position.getRow()][position.getColumn()] = piece;
+    }
+    else {
+      throw new IllegalArgumentException("Your piece went off the board");
+    }     
   }
 
   /**
@@ -41,7 +46,7 @@ public class ChessBoard {
     if (isInRange(position))
       return board[position.getRow()][position.getColumn()];
     else
-      throw new IllegalArgumentException("Your piece would have fallen off the board");
+      throw new IllegalArgumentException("Not on the board");
   }
 
   /**
