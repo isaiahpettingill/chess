@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-
+import java.util.HashSet;
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -9,16 +9,18 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private TeamColor _teamTurn;
+    private ChessBoard _board;
     public ChessGame() {
-
+      _teamTurn = TeamColor.WHITE;
+      _board = new ChessBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+      return _teamTurn;
     }
 
     /**
@@ -27,7 +29,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+      _teamTurn = team;
     }
 
     /**
@@ -46,8 +48,9 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
-    }
+      var piece = _board.getPiece(startPosition);
+      return moves;
+   }
 
     /**
      * Makes a move in a chess game
@@ -107,4 +110,6 @@ public class ChessGame {
     public ChessBoard getBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+
 }

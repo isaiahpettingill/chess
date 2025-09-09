@@ -1,5 +1,7 @@
 package chess;
 
+
+
 /*
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -11,8 +13,8 @@ public class ChessBoard {
 
   private static Boolean isInRange(ChessPosition position)
   {
-    var row = position.getRow();
-    var col = position.getColumn();
+    var row = position.getZeroRow();
+    var col = position.getZeroColumn();
     return row > 0 && row < 8 && col > 0 && col < 8;
   }
   
@@ -28,10 +30,10 @@ public class ChessBoard {
    */
   public void addPiece(ChessPosition position, ChessPiece piece) {
     if (isInRange(position)){
-      board[position.getRow()][position.getColumn()] = piece;
+      board[position.getZeroRow()][position.getZeroColumn()] = piece;
     }
     else {
-      throw new IllegalArgumentException("Your piece went off the board");
+      throw new IllegalArgumentException("Target coordinates are off the board");
     }     
   }
 
@@ -42,11 +44,12 @@ public class ChessBoard {
    * @return Either the piece at the position, or null if no piece is at that
    *         position
    */
-  public ChessPiece getPiece(ChessPosition position) {
-    if (isInRange(position))
-      return board[position.getRow()][position.getColumn()];
-    else
-      throw new IllegalArgumentException("Not on the board");
+  public ChessPiece getPiece(ChessPosition position){
+    if (isInRange(position)) {
+      return board[position.getZeroRow()][position.getZeroColumn()];
+    } else {
+      throw new IllegalArgumentException("Target coordinates are off the board");
+    }
   }
 
   /**

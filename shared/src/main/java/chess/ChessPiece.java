@@ -2,21 +2,15 @@ package chess;
 
 import java.util.Collection;
 import chess.ChessGame.TeamColor;
+import java.util.HashSet;
+
 /**
  * Represents a single chess piece
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
-  private PieceType _type;
-  private TeamColor _color;
-  
-  public ChessPiece(TeamColor pieceColor, PieceType type) {
-    _type = type;
-    _color = pieceColor;
-  }
-
+public record ChessPiece(TeamColor pieceColor, PieceType type) {
   /**
    * The various different chess piece options
    */
@@ -33,14 +27,14 @@ public class ChessPiece {
    * @return Which team this chess piece belongs to
    */
   public ChessGame.TeamColor getTeamColor() {
-    return _color;
+    return pieceColor;
   }
 
   /**
    * @return which type of chess piece this piece is
    */
   public PieceType getPieceType() {
-    return _type;
+    return type;
   }
 
   /**
@@ -51,6 +45,57 @@ public class ChessPiece {
    * @return Collection of valid moves
    */
   public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-    throw new RuntimeException("Not implemented");
+
+    var moves = switch (type) {
+      case KING -> _getKingMoves(myPosition);
+      case QUEEN -> _getQueenMoves(myPosition);
+      case PAWN -> _getPawnMoves(myPosition);
+      case KNIGHT -> _getKnightMoves(myPosition);
+      case BISHOP -> _getBishopMoves(myPosition);
+      case ROOK -> _getRookMoves(myPosition);
+      default -> new HashSet<ChessMove>();
+    };
+    return moves;
+
+  }
+
+  private Collection<ChessMove> _getKingMoves(ChessPosition position) {
+    return new HashSet<ChessMove>();
+  }
+
+  private Collection<ChessMove> _getQueenMoves(ChessPosition position) {
+
+    return new HashSet<ChessMove>();
+  }
+
+  private Collection<ChessMove> _getKnightMoves(ChessPosition position) {
+
+    return new HashSet<ChessMove>();
+  }
+
+  private Collection<ChessMove> _getRookMoves(ChessPosition position) {
+
+    return new HashSet<ChessMove>();
+  }
+
+  private Collection<ChessMove> _getPawnMoves(ChessPosition position) {
+
+    return new HashSet<ChessMove>();
+  }
+
+  private Collection<ChessMove> _getBishopMoves(ChessPosition position) {
+
+    return new HashSet<ChessMove>();
+  }
+
+  public String getBoardCode() {
+    return switch (type) {
+      case KING -> (pieceColor == TeamColor.WHITE ? "K" : "k");
+      case QUEEN -> (pieceColor == TeamColor.WHITE ? "Q" : "q");
+      case BISHOP -> (pieceColor == TeamColor.WHITE ? "B" : "b");
+      case ROOK -> (pieceColor == TeamColor.WHITE ? "R" : "r");
+      case PAWN -> (pieceColor == TeamColor.WHITE ? "P" : "p");
+      case KNIGHT -> (pieceColor == TeamColor.WHITE ? "K" : "k");
+    };
   }
 }

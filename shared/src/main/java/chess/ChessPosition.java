@@ -22,7 +22,10 @@ public class ChessPosition {
     public int getRow() {
       return _row;
     }
-    
+
+    public int getZeroRow(){
+      return _row - 1;
+    }
 
     /**
      * @return which column this position is in
@@ -30,5 +33,9 @@ public class ChessPosition {
      */
     public int getColumn() {
       return _column;
+    }
+
+    public int getZeroColumn() {
+      return _column - 1;
     }
 }
