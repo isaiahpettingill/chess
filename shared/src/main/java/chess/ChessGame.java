@@ -60,7 +60,13 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        var valid = validMoves(move.getStartPosition());
+        if (!valid.contains(move)) {
+          throw new InvalidMoveException();
+        }
+        else {
+          // TODO: Make move
+        }
     }
 
     /**
@@ -91,7 +97,13 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+      var sum = _board.allPieces()
+         .filter(x -> x.piece().getTeamColor() == teamColor)
+         .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
+         .takeWhile(x -> x == 0)
+         .limit(1) 
+         .sum();
+      return sum == 0;
     }
 
     /**
@@ -109,7 +121,7 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+      return _board;
     }
 
 

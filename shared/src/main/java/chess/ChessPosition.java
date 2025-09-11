@@ -6,36 +6,40 @@ package chess;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPosition {
-    private int _row;
-    private int _column;
-    
-    public ChessPosition(int row, int col) {
-      _row = row;
-      _column = col;
-    }
+public record ChessPosition(int row, int column) {
+  /**
+   * @return which row this position is in
+   *         1 codes for the bottom row
+   */
+  public int getRow() {
+    return row;
+  }
 
-    /**
-     * @return which row this position is in
-     * 1 codes for the bottom row
-     */
-    public int getRow() {
-      return _row;
-    }
+  public int getZeroRow() {
+    return row - 1;
+  }
 
-    public int getZeroRow(){
-      return _row - 1;
-    }
+  /**
+   * @return which column this position is in
+   *         1 codes for the left row
+   */
+  public int getColumn() {
+    return column;
+  }
 
-    /**
-     * @return which column this position is in
-     * 1 codes for the left row
-     */
-    public int getColumn() {
-      return _column;
-    }
+  public int getZeroColumn() {
+    return column - 1;
+  }
 
-    public int getZeroColumn() {
-      return _column - 1;
-    }
+  public boolean isInRange() {
+    return row > 0 && row < 9 && column > 0 && column < 9;
+  }
+
+  public ChessPosition add(int x, int y) {
+    return new ChessPosition(row + x, column + y);
+  }
+
+  public ChessPosition(ChessPosition position) {
+    this(position.getRow(), position.getColumn());
+  }
 }

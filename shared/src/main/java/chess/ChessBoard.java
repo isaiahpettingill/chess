@@ -1,6 +1,7 @@
 package chess;
 
-
+import java.util.ArrayList;
+import java.util.stream.Stream;
 
 /*
  * A chessboard that can hold and rearrange chess pieces.
@@ -19,7 +20,7 @@ public class ChessBoard {
   }
   
   public ChessBoard() {
-    board = new ChessPiece[8][8];
+    /* board = new ChessPiece[8][8]; */
   }
 
   /**
@@ -50,6 +51,21 @@ public class ChessBoard {
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
+  }
+
+  public record PieceWithPosition(ChessPiece piece, ChessPosition pos){}
+
+  public Stream<PieceWithPosition> allPieces(){
+    var pieces = new ArrayList<PieceWithPosition>();
+    for (int x = 0; x < 8; x++) {
+      for (int y = 0; y < 8; y++) {
+        var piece = board[x][y];
+        if (piece != null) {
+          pieces.add(new PieceWithPosition(piece, new ChessPosition(x + 1, y + 1)));
+        }
+      }
+    }
+    return pieces.stream();
   }
 
   /**
