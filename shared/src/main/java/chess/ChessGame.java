@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-import java.util.HashSet;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -49,6 +49,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
       var piece = _board.getPiece(startPosition);
+      var moves = piece.pieceMoves(_board, startPosition); 
       return moves;
    }
 
