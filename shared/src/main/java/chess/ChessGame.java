@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -61,12 +62,23 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         var valid = validMoves(move.getStartPosition());
+        var piece = _board.getPiece(move.getStartPosition());
+
         if (!valid.contains(move)) {
           throw new InvalidMoveException();
         }
-        else {
-          // TODO: Make move
+        else if(isInCheck(piece.getTeamColor())) {
+            
         }
+        else {
+          _movePiece(move);
+        }
+    }
+
+    private void _movePiece(ChessMove move){
+      var piece = _board.getPiece(move.getStartPosition());
+      _board.addPiece(move.getEndPosition(), piece);
+      _board.addPiece(move.getStartPosition(), null);
     }
 
     /**
@@ -76,9 +88,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+      throw new RuntimeException("Not implemented"); //TODO: implement check
     }
-
     /**
      * Determines if the given team is in checkmate
      *
@@ -86,7 +97,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented"); //TODO: implement checkmate
     }
 
     /**
@@ -112,7 +123,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+      _board = board;
     }
 
     /**
@@ -124,5 +135,10 @@ public class ChessGame {
       return _board;
     }
 
-
+    private boolean _pieceCanBeKilledAt(TeamColor teamColor, ChessPosition position){
+      Stream<ChessMove> moves = _board.allPieces().filter(x -> x.piece().getTeamColor() == teamColor)
+        .flatMap(x -> validMoves(x.pos()).stream());
+      var canBeKilled = moves.map(x -> x.getEndPosition()).filter(x -> position.equals(x)).count() == 0;
+      return canBeKilled;
+    }
 }

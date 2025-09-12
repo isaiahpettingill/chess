@@ -75,4 +75,17 @@ public class ChessBoard {
   public void resetBoard() {
     board = new ChessPiece[8][8];
   }
+
+  public String toString(){
+    var builder = new StringBuilder();
+    for (var row : board){
+      builder.append('|');
+      for (var piece : row){
+        builder.append(piece == null ? ' ' : piece.toString());
+        builder.append('|');
+      }
+      builder.append('\n');
+    }
+    return builder.toString();
+  }
 }
