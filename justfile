@@ -8,7 +8,7 @@ restore:
     mvn install -DskipTests
 
 test:
-    mvn test
+    mvn test -q
     mvn -p1 shared test
 
 run-client:

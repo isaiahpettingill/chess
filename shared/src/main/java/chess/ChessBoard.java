@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /*
@@ -10,7 +11,7 @@ import java.util.stream.Stream;
  * signature of the existing methods.
  */
 public class ChessBoard {
-  private ChessPiece[][] board;
+  private ChessPiece[][] _board;
 
   private static boolean isInRange(ChessPosition position)
   {
@@ -20,7 +21,7 @@ public class ChessBoard {
   }
   
   public ChessBoard() {
-    /* board = new ChessPiece[8][8]; */
+    _board = new ChessPiece[8][8];
   }
 
   /**
@@ -31,7 +32,7 @@ public class ChessBoard {
    */
   public void addPiece(ChessPosition position, ChessPiece piece) {
     if (isInRange(position)){
-      board[position.getZeroRow()][position.getZeroColumn()] = piece;
+      _board[position.getZeroRow()][position.getZeroColumn()] = piece;
     }
     else {
       throw new IllegalArgumentException("Target coordinates are off the board");
@@ -47,7 +48,7 @@ public class ChessBoard {
    */
   public ChessPiece getPiece(ChessPosition position){
     if (isInRange(position)) {
-      return board[position.getZeroRow()][position.getZeroColumn()];
+      return _board[position.getZeroRow()][position.getZeroColumn()];
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
@@ -59,7 +60,7 @@ public class ChessBoard {
     var pieces = new ArrayList<PieceWithPosition>();
     for (int x = 0; x < 8; x++) {
       for (int y = 0; y < 8; y++) {
-        var piece = board[x][y];
+        var piece = _board[x][y];
         if (piece != null) {
           pieces.add(new PieceWithPosition(piece, new ChessPosition(x + 1, y + 1)));
         }
@@ -73,12 +74,12 @@ public class ChessBoard {
    * (How the game of chess normally starts)
    */
   public void resetBoard() {
-    board = new ChessPiece[8][8];
+    _board = new ChessPiece[8][8];
   }
 
   public String toString(){
     var builder = new StringBuilder();
-    for (var row : board){
+    for (var row : _board){
       builder.append('|');
       for (var piece : row){
         builder.append(piece == null ? ' ' : piece.toString());
@@ -87,5 +88,16 @@ public class ChessBoard {
       builder.append('\n');
     }
     return builder.toString();
+  }
+
+  public int hashCode(){
+    return _board.hashCode();
+  }
+
+  public boolean equals(Object o){
+    if (o == this) return true;
+    if (o == null || !(o instanceof ChessBoard)) return false;
+    var b = (ChessBoard) o;
+    return b._board.equals(_board);
   }
 }

@@ -7,44 +7,55 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
-    private ChessPosition _startPosition;
-    private ChessPosition _endPosition;
-    private ChessPiece.PieceType _promotionPiece;
+  private ChessPosition _startPosition;
+  private ChessPosition _endPosition;
+  private ChessPiece.PieceType _promotionPiece;
 
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition){
-      _startPosition = startPosition;
-      _endPosition = endPosition;
-      _promotionPiece = null;
-    }
-    
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
-                     ChessPiece.PieceType promotionPiece) {
-      _startPosition = startPosition;
-      _endPosition = endPosition;
-      _promotionPiece = promotionPiece;
-    }
+  public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
+    _startPosition = startPosition;
+    _endPosition = endPosition;
+    _promotionPiece = null;
+  }
 
-    /**
-     * @return ChessPosition of starting location
-     */
-    public ChessPosition getStartPosition() {
-      return _startPosition;
-    }
+  public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
+      ChessPiece.PieceType promotionPiece) {
+    _startPosition = startPosition;
+    _endPosition = endPosition;
+    _promotionPiece = promotionPiece;
+  }
 
-    /**
-     * @return ChessPosition of ending location
-     */
-    public ChessPosition getEndPosition() {
-      return _endPosition;
-    }
+  /**
+   * @return ChessPosition of starting location
+   */
+  public ChessPosition getStartPosition() {
+    return _startPosition;
+  }
 
-    /**
-     * Gets the type of piece to promote a pawn to if pawn promotion is part of this
-     * chess move
-     *
-     * @return Type of piece to promote a pawn to, or null if no promotion
-     */
-    public ChessPiece.PieceType getPromotionPiece() {
-      return _promotionPiece;
-    }
+  /**
+   * @return ChessPosition of ending location
+   */
+  public ChessPosition getEndPosition() {
+    return _endPosition;
+  }
+
+  /**
+   * Gets the type of piece to promote a pawn to if pawn promotion is part of this
+   * chess move
+   *
+   * @return Type of piece to promote a pawn to, or null if no promotion
+   */
+  public ChessPiece.PieceType getPromotionPiece() {
+    return _promotionPiece;
+  }
+
+  public boolean equals(Object o) {
+    if (o == this)
+      return true;
+    if (o == null || !(o instanceof ChessMove))
+      return false;
+    var m = (ChessMove) o;
+    return m.getStartPosition().equals(getStartPosition())
+        && m.getEndPosition().equals(getEndPosition())
+        && m.getPromotionPiece().equals(_promotionPiece);
+  }
 }

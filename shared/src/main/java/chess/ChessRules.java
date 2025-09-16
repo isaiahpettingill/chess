@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.stream.Stream;
 
 import chess.ChessGame.TeamColor;
@@ -9,18 +8,18 @@ final class ChessRules {
 
   public static Stream<ChessPosition> kingMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
     return Stream.of(
-        getHorizontalMotion(1, 0, position, board, piece).limit(1),
-        getHorizontalMotion(-1, 0, position, board, piece).limit(1),
-        getHorizontalMotion(0, 1, position, board, piece).limit(1),
-        getHorizontalMotion(0, -1, position, board, piece).limit(1),
-        getHorizontalMotion(1, 1, position, board, piece).limit(1),
-        getHorizontalMotion(-1, -1, position, board, piece).limit(1),
-        getHorizontalMotion(-1, 1, position, board, piece).limit(1),
-        getHorizontalMotion(-1, 1, position, board, piece).limit(1))
+        _getHorizontalMotion(1, 0, position, board, piece).limit(1),
+        _getHorizontalMotion(-1, 0, position, board, piece).limit(1),
+        _getHorizontalMotion(0, 1, position, board, piece).limit(1),
+        _getHorizontalMotion(0, -1, position, board, piece).limit(1),
+        _getHorizontalMotion(1, 1, position, board, piece).limit(1),
+        _getHorizontalMotion(-1, -1, position, board, piece).limit(1),
+        _getHorizontalMotion(-1, 1, position, board, piece).limit(1),
+        _getHorizontalMotion(-1, 1, position, board, piece).limit(1))
         .flatMap(s -> s);
   }
 
-  private static Stream<ChessPosition> getHorizontalMotion(int dx, int dy, ChessPosition position, ChessBoard board,
+  private static Stream<ChessPosition> _getHorizontalMotion(int dx, int dy, ChessPosition position, ChessBoard board,
       ChessPiece piece) {
     return Stream.iterate(0, n -> n + 1)
         .map(n -> position.add(dx, dy))
@@ -31,14 +30,14 @@ final class ChessRules {
 
   public static Stream<ChessPosition> queenMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
     return Stream.of(
-        getHorizontalMotion(1, 0, position, board, piece),
-        getHorizontalMotion(-1, 0, position, board, piece),
-        getHorizontalMotion(0, 1, position, board, piece),
-        getHorizontalMotion(0, -1, position, board, piece),
-        getHorizontalMotion(1, 1, position, board, piece),
-        getHorizontalMotion(-1, -1, position, board, piece),
-        getHorizontalMotion(-1, 1, position, board, piece),
-        getHorizontalMotion(-1, 1, position, board, piece))
+        _getHorizontalMotion(1, 0, position, board, piece),
+        _getHorizontalMotion(-1, 0, position, board, piece),
+        _getHorizontalMotion(0, 1, position, board, piece),
+        _getHorizontalMotion(0, -1, position, board, piece),
+        _getHorizontalMotion(1, 1, position, board, piece),
+        _getHorizontalMotion(-1, -1, position, board, piece),
+        _getHorizontalMotion(-1, 1, position, board, piece),
+        _getHorizontalMotion(-1, 1, position, board, piece))
         .flatMap(s -> s);
   }
 
@@ -50,15 +49,16 @@ final class ChessRules {
         position.add(1, -2),
         position.add(-2, -1),
         position.add(-2, 1))
-        .filter(p -> p.isInRange() && board.getPiece(p) == null || board.getPiece(p).getTeamColor() != piece.getTeamColor());
+        .filter(p -> p.isInRange() && board.getPiece(p) == null
+            || board.getPiece(p).getTeamColor() != piece.getTeamColor());
   }
 
   public static Stream<ChessPosition> rookMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
     return Stream.of(
-        getHorizontalMotion(1, 0, position, board, piece),
-        getHorizontalMotion(-1, 0, position, board, piece),
-        getHorizontalMotion(0, 1, position, board, piece),
-        getHorizontalMotion(0, -1, position, board, piece))
+        _getHorizontalMotion(1, 0, position, board, piece),
+        _getHorizontalMotion(-1, 0, position, board, piece),
+        _getHorizontalMotion(0, 1, position, board, piece),
+        _getHorizontalMotion(0, -1, position, board, piece))
         .flatMap(s -> s);
   }
 
@@ -71,29 +71,27 @@ final class ChessRules {
         .filter(p -> (p.isInRange() && board.getPiece(p).getTeamColor() != color));
   }
 
-  private static Stream<ChessPosition> detailedPawnMoves(ChessPosition position, ChessBoard board, int moveBy, int row2) {
+  private static Stream<ChessPosition> detailedPawnMoves(ChessPosition position, ChessBoard board, int moveBy,
+      int row2) {
     var canMove2 = position.getRow() == row2;
     var nextPos = position.add(0, moveBy);
     var nextPiece = board.getPiece(nextPos);
     var enemyInFront = nextPiece != null && nextPiece.getTeamColor() == TeamColor.BLACK;
-    if (enemyInFront)
-    {
+    if (enemyInFront) {
       return Stream.of(position.add(1, moveBy), position.add(-1, moveBy));
-    }
-    else if (canMove2){
-      return Stream.of(nextPos, nextPos.add(0, moveBy)); 
-    }
-    else {
+    } else if (canMove2) {
+      return Stream.of(nextPos, nextPos.add(0, moveBy));
+    } else {
       return Stream.of(nextPos);
     }
   }
 
   public static Stream<ChessPosition> bishopMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
     return Stream.of(
-        getHorizontalMotion(1, 1, position, board, piece),
-        getHorizontalMotion(1, -1, position, board, piece),
-        getHorizontalMotion(-1, 1, position, board, piece),
-        getHorizontalMotion(-1, -1, position, board, piece))
+        _getHorizontalMotion(1, 1, position, board, piece),
+        _getHorizontalMotion(1, -1, position, board, piece),
+        _getHorizontalMotion(-1, 1, position, board, piece),
+        _getHorizontalMotion(-1, -1, position, board, piece))
         .flatMap(s -> s);
   }
 }

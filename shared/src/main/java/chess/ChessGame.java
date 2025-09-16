@@ -1,7 +1,10 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Stream;
+
+import chess.ChessPiece.PieceType;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -10,135 +13,176 @@ import java.util.stream.Stream;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private TeamColor _teamTurn;
-    private ChessBoard _board;
-    public ChessGame() {
-      _teamTurn = TeamColor.WHITE;
-      _board = new ChessBoard();
+  private TeamColor _teamTurn;
+  private ChessBoard _board;
+
+  public ChessGame() {
+    _teamTurn = TeamColor.WHITE;
+    _board = new ChessBoard();
+  }
+
+  /**
+   * @return Which team's turn it is
+   */
+  public TeamColor getTeamTurn() {
+    return _teamTurn;
+  }
+
+  /**
+   * Set's which teams turn it is
+   *
+   * @param team the team whose turn it is
+   */
+  public void setTeamTurn(TeamColor team) {
+    _teamTurn = team;
+  }
+
+  /**
+   * Enum identifying the 2 possible teams in a chess game
+   */
+  public enum TeamColor {
+    WHITE,
+    BLACK
+  }
+
+  /**
+   * Gets a valid moves for a piece at the given location
+   *
+   * @param startPosition the piece to get valid moves for
+   * @return Set of valid moves for requested piece, or null if no piece at
+   *         startPosition
+   */
+  public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+    var piece = _board.getPiece(startPosition);
+    var moves = piece.pieceMoves(_board, startPosition);
+    return moves;
+  }
+
+  /**
+   * Makes a move in a chess game
+   *
+   * @param move chess move to perform
+   * @throws InvalidMoveException if move is invalid
+   */
+  public void makeMove(ChessMove move) throws InvalidMoveException {
+    var valid = validMoves(move.getStartPosition());
+    var piece = _board.getPiece(move.getStartPosition());
+
+    if (!valid.contains(move)) {
+      throw new InvalidMoveException("Move is not valid for piece");
+    } else if (isInCheck(piece.getTeamColor()) && _kingWouldStillBeInCheck(move)) {
+      throw new InvalidMoveException("King is still in check");
+    } else {
+      _movePiece(move);
+      _promotePiece(move, piece.getTeamColor());
     }
 
-    /**
-     * @return Which team's turn it is
-     */
-    public TeamColor getTeamTurn() {
-      return _teamTurn;
+    // if (move.getPromotionPiece() != null && piece.getPieceType() == PieceType.PAWN) {
+    //   var isValidPromotion = piece.getTeamColor() == TeamColor.WHITE ? (move.getEndPosition().getRow() == 8)
+    //       : (move.getEndPosition().getRow() == 1);
+
+    //   if (!isValidPromotion)
+    //     throw new InvalidMoveException("Cannot promote piece in wrong position");
+    //   _promotePiece(move, piece.getTeamColor());
+    // }
+  }
+
+  private boolean _kingWouldStillBeInCheck(ChessMove move) {
+    return true;
+  }
+
+  private void _promotePiece(ChessMove move, TeamColor teamColor) {
+    _board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, move.getPromotionPiece()));
+  }
+
+  private void _movePiece(ChessMove move) {
+    var piece = _board.getPiece(move.getStartPosition());
+    _board.addPiece(move.getEndPosition(), piece);
+    _board.addPiece(move.getStartPosition(), null);
+  }
+
+  /**
+   * Determines if the given team is in check
+   *
+   * @param teamColor which team to check for check
+   * @return True if the specified team is in check
+   */
+  public boolean isInCheck(TeamColor teamColor) {
+    var kingPos = _board.allPieces()
+        .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
+        .map(x -> x.pos())
+        .findFirst().orElseThrow();
+    return _pieceCanBeKilledAt(teamColor, kingPos);
+  }
+
+  /**
+   * Determines if the given team is in checkmate
+   *
+   * @param teamColor which team to check for checkmate
+   * @return True if the specified team is in checkmate
+   */
+  public boolean isInCheckmate(TeamColor teamColor) {
+    boolean checkmate = false;
+    if (isInCheck(teamColor)) {
+      var moves = _board.allPieces()
+          .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
+          .flatMap(x -> validMoves(x.pos()).stream());
+      checkmate = moves.count() == 0;
     }
+    return checkmate;
+  }
 
-    /**
-     * Set's which teams turn it is
-     *
-     * @param team the team whose turn it is
-     */
-    public void setTeamTurn(TeamColor team) {
-      _teamTurn = team;
-    }
+  /**
+   * Determines if the given team is in stalemate, which here is defined as having
+   * no valid moves while not in check.
+   *
+   * @param teamColor which team to check for stalemate
+   * @return True if the specified team is in stalemate, otherwise false
+   */
+  public boolean isInStalemate(TeamColor teamColor) {
+    var sum = _board.allPieces()
+        .filter(x -> x.piece().getTeamColor() == teamColor)
+        .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
+        .takeWhile(x -> x == 0)
+        .limit(1)
+        .sum();
+    return sum == 0;
+  }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
-    public enum TeamColor {
-        WHITE,
-        BLACK
-    }
+  /**
+   * Sets this game's chessboard with a given board
+   *
+   * @param board the new board to use
+   */
+  public void setBoard(ChessBoard board) {
+    _board = board;
+  }
 
-    /**
-     * Gets a valid moves for a piece at the given location
-     *
-     * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
-     */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-      var piece = _board.getPiece(startPosition);
-      var moves = piece.pieceMoves(_board, startPosition); 
-      return moves;
-   }
+  /**
+   * Gets the current chessboard
+   *
+   * @return the chessboard
+   */
+  public ChessBoard getBoard() {
+    return _board;
+  }
 
-    /**
-     * Makes a move in a chess game
-     *
-     * @param move chess move to perform
-     * @throws InvalidMoveException if move is invalid
-     */
-    public void makeMove(ChessMove move) throws InvalidMoveException {
-        var valid = validMoves(move.getStartPosition());
-        var piece = _board.getPiece(move.getStartPosition());
-
-        if (!valid.contains(move)) {
-          throw new InvalidMoveException();
-        }
-        else if(isInCheck(piece.getTeamColor())) {
-            
-        }
-        else {
-          _movePiece(move);
-        }
-    }
-
-    private void _movePiece(ChessMove move){
-      var piece = _board.getPiece(move.getStartPosition());
-      _board.addPiece(move.getEndPosition(), piece);
-      _board.addPiece(move.getStartPosition(), null);
-    }
-
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
-    public boolean isInCheck(TeamColor teamColor) {
-      throw new RuntimeException("Not implemented"); //TODO: implement check
-    }
-    /**
-     * Determines if the given team is in checkmate
-     *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
-     */
-    public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented"); //TODO: implement checkmate
-    }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
-      var sum = _board.allPieces()
-         .filter(x -> x.piece().getTeamColor() == teamColor)
-         .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
-         .takeWhile(x -> x == 0)
-         .limit(1) 
-         .sum();
-      return sum == 0;
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-      _board = board;
-    }
-
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-      return _board;
-    }
-
-    private boolean _pieceCanBeKilledAt(TeamColor teamColor, ChessPosition position){
-      Stream<ChessMove> moves = _board.allPieces().filter(x -> x.piece().getTeamColor() == teamColor)
+  private boolean _pieceCanBeKilledAt(TeamColor teamColor, ChessPosition position) {
+    Stream<ChessMove> moves = _board.allPieces().filter(x -> x.piece().getTeamColor() == teamColor)
         .flatMap(x -> validMoves(x.pos()).stream());
-      var canBeKilled = moves.map(x -> x.getEndPosition()).filter(x -> position.equals(x)).count() == 0;
-      return canBeKilled;
-    }
+    var canBeKilled = moves.map(x -> x.getEndPosition()).filter(x -> position.equals(x)).count() == 0;
+    return canBeKilled;
+  }
+
+  public int hashCode() {
+    return Objects.hash(_board, _teamTurn);
+  }
+
+  public boolean equals(Object object) {
+    return (object == this) ||
+      ((object != null
+        && (object instanceof ChessGame)
+        && ((ChessGame) object).getBoard().equals(_board)
+        && ((ChessGame) object).getTeamTurn() == _teamTurn));
+  }
 }
