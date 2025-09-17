@@ -11,7 +11,15 @@ import static chess.ChessRules.*;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public record ChessPiece(TeamColor pieceColor, PieceType type) {
+public class ChessPiece {
+  private final TeamColor _color;
+  private final PieceType _type;
+
+  public ChessPiece(TeamColor pieceColor, PieceType type){
+    this._color = pieceColor;
+    this._type = type;
+  }
+  
   /**
    * The various different chess piece options
    */
@@ -28,14 +36,14 @@ public record ChessPiece(TeamColor pieceColor, PieceType type) {
    * @return Which team this chess piece belongs to
    */
   public ChessGame.TeamColor getTeamColor() {
-    return pieceColor;
+    return _color;
   }
 
   /**
    * @return which type of chess piece this piece is
    */
   public PieceType getPieceType() {
-    return type;
+    return _type;
   }
 
   /**
@@ -46,7 +54,7 @@ public record ChessPiece(TeamColor pieceColor, PieceType type) {
    * @return Collection of valid moves
    */
   public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-    var moves = switch (type) {
+    var moves = switch (_type) {
       case KING -> kingMoves(myPosition, board, this);
       case QUEEN -> queenMoves(myPosition, board, this);
       case PAWN -> pawnMoves(myPosition, board, this);
@@ -54,17 +62,44 @@ public record ChessPiece(TeamColor pieceColor, PieceType type) {
       case BISHOP -> bishopMoves(myPosition, board, this);
       case ROOK -> rookMoves(myPosition, board, this);
     };
-    return moves.map(x -> new ChessMove(myPosition, x)).collect(Collectors.toSet());
+    return moves.map(x -> new ChessMove(myPosition, x)).collect(Collectors.toUnmodifiableSet());
   }
 
   public String toString() {
-    return switch (type) {
-      case KING -> (pieceColor == TeamColor.WHITE ? "K" : "k");
-      case QUEEN -> (pieceColor == TeamColor.WHITE ? "Q" : "q");
-      case BISHOP -> (pieceColor == TeamColor.WHITE ? "B" : "b");
-      case ROOK -> (pieceColor == TeamColor.WHITE ? "R" : "r");
-      case PAWN -> (pieceColor == TeamColor.WHITE ? "P" : "p");
-      case KNIGHT -> (pieceColor == TeamColor.WHITE ? "K" : "k");
+    return switch (_type) {
+      case KING -> (_color == TeamColor.WHITE ? "K" : "k");
+      case QUEEN -> (_color == TeamColor.WHITE ? "Q" : "q");
+      case BISHOP -> (_color == TeamColor.WHITE ? "B" : "b");
+      case ROOK -> (_color == TeamColor.WHITE ? "R" : "r");
+      case PAWN -> (_color == TeamColor.WHITE ? "P" : "p");
+      case KNIGHT -> (_color == TeamColor.WHITE ? "N" : "n");
     };
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_color == null) ? 0 : _color.hashCode());
+    result = prime * result + ((_type == null) ? 0 : _type.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ChessPiece other = (ChessPiece) obj;
+    if (_color != other._color)
+      return false;
+    if (_type != other._type)
+      return false;
+    return true;
+  }
+
+  
 }

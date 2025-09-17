@@ -36,7 +36,7 @@ public record ChessPosition(int row, int column) {
   }
 
   public ChessPosition add(int x, int y) {
-    return new ChessPosition(row + x, column + y);
+    return new ChessPosition(row + y, column + x);
   }
 
   public ChessPosition(ChessPosition position) {

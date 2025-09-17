@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import chess.ChessPiece.PieceType;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -77,13 +76,15 @@ public class ChessGame {
       _promotePiece(move, piece.getTeamColor());
     }
 
-    // if (move.getPromotionPiece() != null && piece.getPieceType() == PieceType.PAWN) {
-    //   var isValidPromotion = piece.getTeamColor() == TeamColor.WHITE ? (move.getEndPosition().getRow() == 8)
-    //       : (move.getEndPosition().getRow() == 1);
+    // if (move.getPromotionPiece() != null && piece.getPieceType() ==
+    // PieceType.PAWN) {
+    // var isValidPromotion = piece.getTeamColor() == TeamColor.WHITE ?
+    // (move.getEndPosition().getRow() == 8)
+    // : (move.getEndPosition().getRow() == 1);
 
-    //   if (!isValidPromotion)
-    //     throw new InvalidMoveException("Cannot promote piece in wrong position");
-    //   _promotePiece(move, piece.getTeamColor());
+    // if (!isValidPromotion)
+    // throw new InvalidMoveException("Cannot promote piece in wrong position");
+    // _promotePiece(move, piece.getTeamColor());
     // }
   }
 
@@ -180,9 +181,9 @@ public class ChessGame {
 
   public boolean equals(Object object) {
     return (object == this) ||
-      ((object != null
-        && (object instanceof ChessGame)
-        && ((ChessGame) object).getBoard().equals(_board)
-        && ((ChessGame) object).getTeamTurn() == _teamTurn));
+        ((object != null
+            && (object instanceof ChessGame)
+            && ((ChessGame) object).getBoard().equals(_board)
+            && ((ChessGame) object).getTeamTurn() == _teamTurn));
   }
 }
