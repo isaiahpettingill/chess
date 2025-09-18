@@ -7,6 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public record ChessPosition(int row, int column) {
+  
+
   /**
    * @return which row this position is in
    *         1 codes for the bottom row
@@ -41,5 +43,9 @@ public record ChessPosition(int row, int column) {
 
   public ChessPosition(ChessPosition position) {
     this(position.getRow(), position.getColumn());
+  }
+
+  public String toString(){
+    return "(" + column + "," + row + ")";
   }
 }

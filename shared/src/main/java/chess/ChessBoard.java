@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /*
@@ -17,7 +16,7 @@ public class ChessBoard {
   private static boolean isInRange(ChessPosition position) {
     var row = position.getZeroRow();
     var col = position.getZeroColumn();
-    return row >= 0 && row <= 8 && col >= 0 && col <= 8;
+    return row >= 0 && row < 8 && col >= 0 && col < 8;
   }
 
   public ChessBoard() {
@@ -49,7 +48,7 @@ public class ChessBoard {
     if (isInRange(position)) {
       return _board[position.getZeroRow()][position.getZeroColumn()];
     } else {
-      throw new IllegalArgumentException("Target coordinates are off the board");
+      return null;
     }
   }
 

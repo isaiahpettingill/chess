@@ -62,7 +62,7 @@ public class ChessPiece {
       case BISHOP -> bishopMoves(myPosition, board, this);
       case ROOK -> rookMoves(myPosition, board, this);
     };
-    return moves.map(x -> new ChessMove(myPosition, x)).collect(Collectors.toUnmodifiableSet());
+    return moves.collect(Collectors.toUnmodifiableSet());
   }
 
   public String toString() {

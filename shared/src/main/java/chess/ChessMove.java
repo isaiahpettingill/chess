@@ -51,8 +51,8 @@ public class ChessMove {
   }
 
   public String toString() {
-    return "(" + _startPosition.row() + "," + _startPosition.column() + ")->(" + _endPosition.row() + ","
-        + _endPosition.column() + ")";
+    return "(" + _startPosition.column() + "," + _startPosition.row() + ")->(" + _endPosition.column() + ","
+        + _endPosition.row() + (_promotionPiece == null ? "" : " *" + _promotionPiece.toString()) + ")";
   }
 
   public boolean equals(Object o) {
