@@ -23,6 +23,12 @@ public class ChessBoard {
     _board = new ChessPiece[8][8];
   }
 
+  public ChessBoard(ChessBoard existingBoard){
+    _board = Arrays.stream(existingBoard._board)
+              .map(x -> Arrays.copyOf(x, x.length))
+              .toArray(ChessPiece[][]::new);
+  }
+
   /**
    * Adds a chess piece to the chessboard
    *
@@ -36,6 +42,21 @@ public class ChessBoard {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
   }
+
+  public void removePiece(ChessPosition position){
+     if (isInRange(position)) {
+      _board[position.getZeroRow()][position.getZeroColumn()] = null;
+    } else {
+      throw new IllegalArgumentException("Target coordinates are off the board");
+    }
+  }
+
+  public void movePiece(ChessMove move) {
+    var piece = getPiece(move.getStartPosition());
+    addPiece(move.getEndPosition(), piece);
+    removePiece(move.getStartPosition());
+  }
+
 
   /**
    * Gets a chess piece on the chessboard

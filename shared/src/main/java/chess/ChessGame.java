@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-
+ 
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -14,10 +14,12 @@ import java.util.stream.Stream;
 public class ChessGame {
   private TeamColor _teamTurn;
   private ChessBoard _board;
+  private ChessBoard _futureBoard;
 
   public ChessGame() {
     _teamTurn = TeamColor.WHITE;
     _board = new ChessBoard();
+    _futureBoard = new ChessBoard();
   }
 
   /**
@@ -69,37 +71,22 @@ public class ChessGame {
 
     if (!valid.contains(move)) {
       throw new InvalidMoveException("Move is not valid for piece");
-    } else if (isInCheck(piece.getTeamColor()) && _kingWouldStillBeInCheck(move)) {
+    } else if (isInCheck(piece.getTeamColor()) && _kingWouldStillBeInCheck(move, piece.getTeamColor())) {
       throw new InvalidMoveException("King is still in check");
     } else {
-      _movePiece(move);
+      _board.movePiece(move);
       _promotePiece(move, piece.getTeamColor());
     }
-
-    // if (move.getPromotionPiece() != null && piece.getPieceType() ==
-    // PieceType.PAWN) {
-    // var isValidPromotion = piece.getTeamColor() == TeamColor.WHITE ?
-    // (move.getEndPosition().getRow() == 8)
-    // : (move.getEndPosition().getRow() == 1);
-
-    // if (!isValidPromotion)
-    // throw new InvalidMoveException("Cannot promote piece in wrong position");
-    // _promotePiece(move, piece.getTeamColor());
-    // }
   }
 
-  private boolean _kingWouldStillBeInCheck(ChessMove move) {
-    return true;
+  private boolean _kingWouldStillBeInCheck(ChessMove move, TeamColor teamColor) {
+    _futureBoard = new ChessBoard(_board);
+    _futureBoard.movePiece(move);
+    return isInCheck(teamColor, _futureBoard);
   }
 
   private void _promotePiece(ChessMove move, TeamColor teamColor) {
     _board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, move.getPromotionPiece()));
-  }
-
-  private void _movePiece(ChessMove move) {
-    var piece = _board.getPiece(move.getStartPosition());
-    _board.addPiece(move.getEndPosition(), piece);
-    _board.addPiece(move.getStartPosition(), null);
   }
 
   /**
@@ -108,12 +95,16 @@ public class ChessGame {
    * @param teamColor which team to check for check
    * @return True if the specified team is in check
    */
-  public boolean isInCheck(TeamColor teamColor) {
+  public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
     var kingPos = _board.allPieces()
         .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
         .map(x -> x.pos())
         .findFirst().orElseThrow();
     return _pieceCanBeKilledAt(teamColor, kingPos);
+  }
+
+  public boolean isInCheck(TeamColor teamColor) {
+      return isInCheck(teamColor, _board);
   }
 
   /**
