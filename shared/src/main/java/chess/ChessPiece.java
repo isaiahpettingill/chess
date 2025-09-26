@@ -53,17 +53,10 @@ public class ChessPiece {
    *
    * @return Collection of valid moves
    */
-  public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-    var moves = switch (_type) {
-      case KING -> kingMoves(myPosition, board, this);
-      case QUEEN -> queenMoves(myPosition, board, this);
-      case PAWN -> pawnMoves(myPosition, board, this);
-      case KNIGHT -> knightMoves(myPosition, board, this);
-      case BISHOP -> bishopMoves(myPosition, board, this);
-      case ROOK -> rookMoves(myPosition, board, this);
-    };
-    return moves.collect(Collectors.toUnmodifiableSet());
-  }
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        return getPieceMoves(_type, _color, board, myPosition)
+          .collect(Collectors.toUnmodifiableSet());
+    }
 
   public String toString() {
     return switch (_type) {

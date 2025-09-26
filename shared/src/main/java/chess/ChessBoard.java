@@ -13,14 +13,8 @@ import java.util.stream.Stream;
 public class ChessBoard {
   private ChessPiece[][] _board;
 
-  private static boolean isInRange(ChessPosition position) {
-    var row = position.getZeroRow();
-    var col = position.getZeroColumn();
-    return row >= 0 && row < 8 && col >= 0 && col < 8;
-  }
-
   public ChessBoard() {
-    _board = new ChessPiece[8][8];
+    _board = new ChessPiece[9][9];
   }
 
   public ChessBoard(ChessBoard existingBoard){
@@ -36,16 +30,16 @@ public class ChessBoard {
    * @param piece    the piece to add
    */
   public void addPiece(ChessPosition position, ChessPiece piece) {
-    if (isInRange(position)) {
-      _board[position.getZeroRow()][position.getZeroColumn()] = piece;
+    if (position.isInRange()) {
+      _board[position.getRow()][position.getColumn()] = piece;
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
   }
 
   public void removePiece(ChessPosition position){
-     if (isInRange(position)) {
-      _board[position.getZeroRow()][position.getZeroColumn()] = null;
+     if (position.isInRange()) {
+      _board[position.getRow()][position.getColumn()] = null;
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
@@ -66,8 +60,8 @@ public class ChessBoard {
    *         position
    */
   public ChessPiece getPiece(ChessPosition position) {
-    if (isInRange(position)) {
-      return _board[position.getZeroRow()][position.getZeroColumn()];
+    if (position.isInRange()) {
+      return _board[position.getRow()][position.getColumn()];
     } else {
       return null;
     }
@@ -78,11 +72,11 @@ public class ChessBoard {
 
   public Stream<PieceWithPosition> allPieces() {
     var pieces = new ArrayList<PieceWithPosition>();
-    for (int x = 0; x < 8; x++) {
-      for (int y = 0; y < 8; y++) {
+    for (int x = 1; x < 9; x++) {
+      for (int y = 1; y < 9; y++) {
         var piece = _board[x][y];
         if (piece instanceof ChessPiece) {
-          pieces.add(new PieceWithPosition(piece, new ChessPosition(x + 1, y + 1)));
+          pieces.add(new PieceWithPosition(piece, new ChessPosition(x, y)));
         }
       }
     }
@@ -129,8 +123,8 @@ public class ChessBoard {
     if (o == null || !(o instanceof ChessBoard))
       return false;
     var b = (ChessBoard) o;
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
+    for (int i = 1; i < 9; i++) {
+      for (int j = 1; j < 9; j++) {
         if (b._board[i][j] == null && _board[i][j] == null) continue;
         if (b._board[i][j] == null || _board[i][j] == null) return false;
         if (!b._board[i][j].equals(_board[i][j]))

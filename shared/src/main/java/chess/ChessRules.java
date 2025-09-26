@@ -3,166 +3,150 @@ package chess;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import chess.ChessGame.TeamColor;
-import chess.ChessPiece.PieceType;
-
-final class ChessRules {
-
-  public static Stream<ChessMove> kingMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    return Stream.of(
-        _linearMotion(1, 0, position, board, piece).limit(1),
-        _linearMotion(-1, 0, position, board, piece).limit(1),
-        _linearMotion(0, 1, position, board, piece).limit(1),
-        _linearMotion(0, -1, position, board, piece).limit(1),
-        _linearMotion(1, 1, position, board, piece).limit(1),
-        _linearMotion(-1, -1, position, board, piece).limit(1),
-        _linearMotion(1, -1, position, board, piece).limit(1),
-        _linearMotion(-1, 1, position, board, piece).limit(1))
-        .flatMap(s -> s)
-        .map(p -> new ChessMove(position, p));
-  }
-
-  private static Stream<ChessPosition> _linearMotion(int dx, int dy, ChessPosition position, ChessBoard board,
-      ChessPiece piece) {
-    var positions = new ArrayList<ChessPosition>();
-    var p = position.add(dx, dy);
-    ;
-    while (p.isInRange()) {
-      if (board.getPiece(p) == null) {
-        positions.add(p);
-      } else if (board.getPiece(p).getTeamColor() != piece.getTeamColor()) {
-        if (board.getPiece(p).getPieceType() != PieceType.KING) {
-          positions.add(p);
-        }
-        break;
-      } else {
-        break;
-      }
-      p = p.add(dx, dy);
+public class ChessRules {
+    public static Stream<ChessMove> getPieceMoves(ChessPiece.PieceType type, ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return switch (type) {
+            case KING -> _getKingMoves(color, board, pos);
+            case PAWN -> _getPawnMoves(color, board, pos);
+            case ROOK -> _getRookMoves(color, board, pos);
+            case QUEEN -> _getQueenMoves(color, board, pos);
+            case BISHOP -> _getBishopMoves(color, board, pos);
+            case KNIGHT -> _getKnightMoves(color, board, pos);
+        };
     }
-    return positions.stream();
-  }
 
-  public static Stream<ChessMove> queenMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    return Stream.of(
-        _linearMotion(1, 0, position, board, piece),
-        _linearMotion(-1, 0, position, board, piece),
-        _linearMotion(0, 1, position, board, piece),
-        _linearMotion(0, -1, position, board, piece),
-        _linearMotion(1, 1, position, board, piece),
-        _linearMotion(-1, -1, position, board, piece),
-        _linearMotion(1, -1, position, board, piece),
-        _linearMotion(-1, 1, position, board, piece))
-        .flatMap(s -> s)
-        .map(p -> new ChessMove(position, p));
-  }
-
-  public static Stream<ChessMove> knightMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    return Stream.of(
-        position.add(2, 1),
-        position.add(2, -1),
-        position.add(1, 2),
-        position.add(1, -2),
-        position.add(-1, -2),
-        position.add(-1, 2),
-        position.add(-2, -1),
-        position.add(-2, 1))
-        .filter(p -> {
-          if (!p.isInRange()) {
+    private static boolean _isAttackable(ChessPosition pos, ChessGame.TeamColor color, ChessBoard board) {
+        if (!pos.isInRange()) {
             return false;
-          }
-          if (board.getPiece(p) == null) {
+        }
+        var piece = board.getPiece(pos);
+        if (piece == null) {
             return true;
-          }
-          if (board.getPiece(p).getTeamColor() == piece.getTeamColor()) {
-            return false;
-          }
-          if (board.getPiece(p).getPieceType() == PieceType.KING) {
-            return false;
-          }
-          return true;
-        })
-        .map(p -> new ChessMove(position, p));
-  }
-
-  public static Stream<ChessMove> rookMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    return Stream.of(
-        _linearMotion(1, 0, position, board, piece),
-        _linearMotion(-1, 0, position, board, piece),
-        _linearMotion(0, 1, position, board, piece),
-        _linearMotion(0, -1, position, board, piece))
-        .flatMap(s -> s)
-        .map(p -> new ChessMove(position, p));
-  }
-
-  public static Stream<ChessMove> pawnMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    var color = piece.getTeamColor();
-    return (switch (color) {
-      case WHITE -> detailedPawnMoves(position, board, 1, 2, 8, TeamColor.WHITE);
-      case BLACK -> detailedPawnMoves(position, board, -1, 7, 1, TeamColor.BLACK);
-    });
-  }
-
-  private static Stream<ChessMove> detailedPawnMoves(ChessPosition position, ChessBoard board, int moveBy,
-      int row2, int row8, TeamColor color) {
-    var moves = new ArrayList<ChessMove>();
-    if (position == null || board == null)
-      return Stream.of();
-    var nextPos = position.add(0, moveBy);
-    var nextPiece = board.getPiece(nextPos);
-    var nextNextPos = nextPos.add(0, moveBy);
-    var nextNextPiece = board.getPiece(nextNextPos);
-    var canMove2 = position.getRow() == row2 && (nextNextPiece == null);
-    var attack1 = position.add(-1, moveBy);
-    var pieceToAttack1 = board.getPiece(attack1);
-    var attack2 = position.add(1, moveBy);
-    var pieceToAttack2 = board.getPiece(attack2);
-    var canAttack1 = pieceToAttack1 != null
-        && pieceToAttack1.getTeamColor() != color
-        && pieceToAttack1.getPieceType() != PieceType.KING;
-    var canAttack2 = pieceToAttack2 != null
-        && pieceToAttack2.getTeamColor() != color
-        && pieceToAttack2.getPieceType() != PieceType.KING;
-    var blocked = nextPiece != null;
-    var isAtEnd = position.getRow() == (row8 - moveBy);
-    if (isAtEnd) {
-      for (var val : PieceType.values()) {
-        if (val == PieceType.PAWN || val == PieceType.KING)
-          continue;
-        if (canAttack1) {
-          moves.add(new ChessMove(position, attack1, val));
         }
-        if (canAttack2) {
-          moves.add(new ChessMove(position, attack2, val));
-        }
-        if (!blocked) {
-          moves.add(new ChessMove(position, nextPos, val));
-        }
-      }
-    } else {
-      if (!blocked) {
-        if (canMove2) {
-          moves.add(new ChessMove(position, nextNextPos));
-        }
-        moves.add(new ChessMove(position, nextPos));
-      }
-      if (canAttack1) {
-        moves.add(new ChessMove(position, attack1));
-      }
-      if (canAttack2) {
-        moves.add(new ChessMove(position, attack2));
-      }
+        return piece.getTeamColor() != color && piece.getPieceType() != ChessPiece.PieceType.KING;
     }
-    return moves.stream().filter(x -> x.getEndPosition().isInRange());
-  }
 
-  public static Stream<ChessMove> bishopMoves(ChessPosition position, ChessBoard board, ChessPiece piece) {
-    return Stream.of(
-        _linearMotion(1, 1, position, board, piece),
-        _linearMotion(1, -1, position, board, piece),
-        _linearMotion(-1, 1, position, board, piece),
-        _linearMotion(-1, -1, position, board, piece))
-        .flatMap(s -> s)
-        .map(p -> new ChessMove(position, p));
-  }
+    private static Stream<ChessMove> _getKnightMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return Stream.of(
+                        pos.add(2, 1),
+                        pos.add(2, -1),
+                        pos.add(-2, 1),
+                        pos.add(-2, -1),
+                        pos.add(1, -2),
+                        pos.add(1, 2),
+                        pos.add(-1, -2),
+                        pos.add(-1, 2)
+                )
+                .filter(x -> _isAttackable(x, color, board))
+                .map(x -> new ChessMove(pos, x));
+    }
+
+    private static Stream<ChessMove> _getBishopMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return Stream.of(
+                        _motion(pos, 1, 1, color, board),
+                        _motion(pos, -1, -1, color, board),
+                        _motion(pos, 1, -1, color, board),
+                        _motion(pos, -1, 1, color, board)
+                )
+                .flatMap(s -> s)
+                .map(x -> new ChessMove(pos, x));
+    }
+
+    private static Stream<ChessMove> _getQueenMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return Stream.of(
+                        _motion(pos, 1, 0, color, board),
+                        _motion(pos, 1, 1, color, board),
+                        _motion(pos, 1, -1, color, board),
+                        _motion(pos, -1, 0, color, board),
+                        _motion(pos, -1, -1, color, board),
+                        _motion(pos, -1, 1, color, board),
+                        _motion(pos, 0, 1, color, board),
+                        _motion(pos, 0, -1, color, board)
+                )
+                .flatMap(s -> s)
+                .map(x -> new ChessMove(pos, x));
+    }
+
+    private static Stream<ChessMove> _getRookMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return Stream.of(
+                        _motion(pos, 1, 0, color, board),
+                        _motion(pos, -1, 0, color, board),
+                        _motion(pos, 0, -1, color, board),
+                        _motion(pos, 0, 1, color, board)
+                )
+                .flatMap(s -> s)
+                .map(x -> new ChessMove(pos, x));
+    }
+
+    private static Stream<ChessMove> _getPawnMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        int forward = color == ChessGame.TeamColor.BLACK ? -1 : 1;
+        int start = color == ChessGame.TeamColor.BLACK ? 7 : 2;
+        int end = color == ChessGame.TeamColor.BLACK ? 1 : 8;
+        var canMoveTwo = pos.getRow() == start;
+        var isAtEnd = pos.getRow() == end - forward;
+        var moves = new ArrayList<ChessMove>();
+        var nextPos = pos.add(0, forward);
+        var nextNextPos = pos.add(0, forward * 2);
+        var attackPos1 = pos.add(1, forward);
+        var attackPos2 = pos.add(-1, forward);
+        var canAttack1 = board.getPiece(attackPos1) != null && _isAttackable(attackPos1, color, board);
+        var canAttack2 = board.getPiece(attackPos2) != null && _isAttackable(attackPos2, color, board);
+        var blocked = board.getPiece(nextPos) != null;
+        var nextBlocked = blocked || board.getPiece(nextNextPos) != null;
+        if (isAtEnd) {
+            for (var type : ChessPiece.PieceType.values()){
+                if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.PAWN) continue;
+                if (!blocked) moves.add(new ChessMove(pos, nextPos, type));
+                if (canAttack1){
+                    moves.add(new ChessMove(pos, attackPos1, type));
+                }
+                if (canAttack2){
+                    moves.add(new ChessMove(pos, attackPos2, type));
+                }
+            }
+        }
+        else {
+            if (!blocked) moves.add(new ChessMove(pos, nextPos));
+            if (canMoveTwo && !nextBlocked){
+                moves.add(new ChessMove(pos, nextNextPos));
+            }
+            if (canAttack1){
+                moves.add(new ChessMove(pos, attackPos1));
+            }
+            if (canAttack2){
+                moves.add(new ChessMove(pos, attackPos2));
+            }
+        }
+        return moves.stream().filter(x -> x.getEndPosition().isInRange());
+    }
+
+
+    private static Stream<ChessPosition> _motion(ChessPosition start, int dx, int dy, ChessGame.TeamColor color, ChessBoard board) {
+        var positions = new ArrayList<ChessPosition>();
+        var pos = start.add(dx, dy);
+        while (_isAttackable(pos, color, board)) {
+            positions.add(pos);
+            if (board.getPiece(pos) != null) {
+                break;
+            }
+            pos = pos.add(dx, dy);
+        }
+        return positions.stream();
+    }
+
+    private static Stream<ChessMove> _getKingMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        return Stream.of(
+                        pos.addX(1),
+                        pos.addX(-1),
+                        pos.addY(1),
+                        pos.addY(-1),
+                        pos.add(1, 1),
+                        pos.add(1, -1),
+                        pos.add(-1, 1),
+                        pos.add(-1, -1))
+                .filter(x -> _isAttackable(x, color, board))
+                .map(x -> new ChessMove(pos, x));
+    }
+
+
 }

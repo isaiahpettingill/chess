@@ -6,46 +6,40 @@ package chess;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public record ChessPosition(int row, int column) {
-  
+public record ChessPosition(int row, int col) {
+    /**
+     * @return which row this position is in
+     * 1 codes for the bottom row
+     */
+    public int getRow() {
+        return row;
+    }
 
-  /**
-   * @return which row this position is in
-   *         1 codes for the bottom row
-   */
-  public int getRow() {
-    return row;
-  }
+    public ChessPosition add(int dx, int dy){
+        return new ChessPosition(row + dy, col + dx);
+    }
 
-  public int getZeroRow() {
-    return row - 1;
-  }
+    public ChessPosition addX(int dx){
+        return new ChessPosition(row, col + dx);
+    }
 
-  /**
-   * @return which column this position is in
-   *         1 codes for the left row
-   */
-  public int getColumn() {
-    return column;
-  }
+    public ChessPosition addY(int dy){
+        return new ChessPosition(row + dy, col);
+    }
 
-  public int getZeroColumn() {
-    return column - 1;
-  }
+    public boolean isInRange(){
+        return row > 0 && row < 9 && col > 0 && col < 9; // board is 9x9 for 1-indexing, but 0 is invalid
+    }
 
-  public boolean isInRange() {
-    return row > 0 && row < 9 && column > 0 && column < 9;
-  }
+    /**
+     * @return which column this position is in
+     * 1 codes for the left row
+     */
+    public int getColumn() {
+        return col;
+    }
 
-  public ChessPosition add(int x, int y) {
-    return new ChessPosition(row + y, column + x);
-  }
-
-  public ChessPosition(ChessPosition position) {
-    this(position.getRow(), position.getColumn());
-  }
-
-  public String toString(){
-    return "(" + column + "," + row + ")";
-  }
+    public String toString(){
+        return "(" + col + "," + row + ")";
+    }
 }

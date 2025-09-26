@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
  
@@ -55,6 +56,7 @@ public class ChessGame {
    */
   public Collection<ChessMove> validMoves(ChessPosition startPosition) {
     var piece = _board.getPiece(startPosition);
+    if (piece == null) return Set.of();
     var moves = piece.pieceMoves(_board, startPosition);
     return moves;
   }
@@ -132,7 +134,11 @@ public class ChessGame {
    * @return True if the specified team is in stalemate, otherwise false
    */
   public boolean isInStalemate(TeamColor teamColor) {
-    var sum = _board.allPieces()
+    var pieces = _board.allPieces();
+    var allKings = pieces.map(x -> x.piece().getPieceType()).allMatch(x -> x == ChessPiece.PieceType.KING);
+    if (allKings) return true;
+    
+    var sum = pieces
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
         .takeWhile(x -> x == 0)
