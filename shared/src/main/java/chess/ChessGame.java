@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import chess.ChessPiece.PieceType;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -16,9 +18,14 @@ public class ChessGame {
   private TeamColor _teamTurn;
   private ChessBoard _board;
 
+  private ChessPiece _whiteKing;
+  private ChessPiece _blackKing;
+
   public ChessGame() {
     _teamTurn = TeamColor.WHITE;
     _board = new ChessBoard();
+    _whiteKing = _board.getPiece(new ChessPosition(1, 5));
+    _blackKing = _board.getPiece(new ChessPosition(8, 5));
   }
 
   /**
@@ -57,9 +64,9 @@ public class ChessGame {
     if (piece == null)
       return Set.of();
     var moves = piece.pieceMoves(_board, startPosition);
-      // .stream()
-      // .filter(x -> !_kingWouldBeInCheck(x, piece.getTeamColor()))
-      // .collect(Collectors.toUnmodifiableSet());
+        // .stream()
+        // .filter(x -> !_kingWouldBeInCheck(x, piece.getTeamColor()))
+        // .collect(Collectors.toUnmodifiableSet());
     return moves;
   }
 
@@ -75,9 +82,11 @@ public class ChessGame {
 
     if (!valid.contains(move)) {
       throw new InvalidMoveException("Move is not valid for piece");
-    } else if (isInCheck(piece.getTeamColor()) && _kingWouldBeInCheck(move, piece.getTeamColor())) {
-      throw new InvalidMoveException("King is still in check");
-    } else {
+    } 
+    // else if (isInCheck(piece.getTeamColor()) && _kingWouldBeInCheck(move, piece.getTeamColor())) {
+    //   throw new InvalidMoveException("King is still in check");
+    // } 
+    else {
       _board.movePiece(move);
       _promotePiece(move, piece.getTeamColor());
     }
@@ -100,7 +109,7 @@ public class ChessGame {
    * @return True if the specified team is in check
    */
   public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
-    var kingPos = _board.allPieces()
+    var kingPos = _board.piecesAndPositions()
         .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
         .map(x -> x.pos())
         .findFirst().orElseThrow();
@@ -120,7 +129,7 @@ public class ChessGame {
   public boolean isInCheckmate(TeamColor teamColor) {
     boolean checkmate = false;
     if (isInCheck(teamColor)) {
-      var moves = _board.allPieces()
+      var moves = _board.piecesAndPositions()
           .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
           .flatMap(x -> validMoves(x.pos()).stream());
       checkmate = moves.count() == 0;
@@ -136,7 +145,7 @@ public class ChessGame {
    * @return True if the specified team is in stalemate, otherwise false
    */
   public boolean isInStalemate(TeamColor teamColor) {
-    var pieces = _board.allPieces();
+    var pieces = _board.piecesAndPositions();
     var allKings = pieces.map(x -> x.piece().getPieceType()).allMatch(x -> x == ChessPiece.PieceType.KING);
     if (allKings)
       return true;
@@ -155,6 +164,17 @@ public class ChessGame {
    */
   public void setBoard(ChessBoard board) {
     _board = board;
+    _whiteKing = board.piecesAndPositions()
+      .filter(x -> x.piece().getPieceType() == PieceType.KING && x.piece().getTeamColor() == TeamColor.WHITE)
+      .findFirst()
+      .get()
+      .piece();
+      
+    _blackKing = board.piecesAndPositions()
+      .filter(x -> x.piece().getPieceType() == PieceType.KING && x.piece().getTeamColor() == TeamColor.BLACK)
+      .findFirst()
+      .get()
+      .piece();
   }
 
   /**
@@ -167,7 +187,7 @@ public class ChessGame {
   }
 
   private boolean _pieceCanBeKilledAt(TeamColor teamColor, ChessPosition position) {
-    Stream<ChessMove> moves = _board.allPieces().filter(x -> x.piece().getTeamColor() == teamColor)
+    Stream<ChessMove> moves = _board.piecesAndPositions().filter(x -> x.piece().getTeamColor() == teamColor)
         .flatMap(x -> validMoves(x.pos()).stream());
     var canBeKilled = moves.map(x -> x.getEndPosition()).filter(x -> position.equals(x)).count() == 0;
     return canBeKilled;

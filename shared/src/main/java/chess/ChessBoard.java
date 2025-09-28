@@ -14,8 +14,9 @@ public class ChessBoard {
   private ChessPiece[][] _board;
 
   public ChessBoard() {
-    _board = new ChessPiece[9][9];
+    _board = PieceUtils.loadBoard(DEFAULT_BOARD);
   }
+
 
   public ChessBoard(ChessBoard existingBoard){
     _board = Arrays.stream(existingBoard._board)
@@ -70,7 +71,7 @@ public class ChessBoard {
   public record PieceWithPosition(ChessPiece piece, ChessPosition pos) {
   }
 
-  public Stream<PieceWithPosition> allPieces() {
+  public Stream<PieceWithPosition> piecesAndPositions() {
     var pieces = new ArrayList<PieceWithPosition>();
     for (int x = 1; x < 9; x++) {
       for (int y = 1; y < 9; y++) {
@@ -88,7 +89,10 @@ public class ChessBoard {
    * (How the game of chess normally starts)
    */
   public void resetBoard() {
-    this._board = PieceUtils.loadBoard("""
+    this._board = PieceUtils.loadBoard(DEFAULT_BOARD);
+  }
+
+  private final static String DEFAULT_BOARD = """
         |r|n|b|q|k|b|n|r|
         |p|p|p|p|p|p|p|p|
         | | | | | | | | |
@@ -97,8 +101,7 @@ public class ChessBoard {
         | | | | | | | | |
         |P|P|P|P|P|P|P|P|
         |R|N|B|Q|K|B|N|R|
-        """)._board;
-  }
+        """;
 
   public String toString() {
     var builder = new StringBuilder();
@@ -125,7 +128,7 @@ public class ChessBoard {
     var b = (ChessBoard) o;
     for (int i = 1; i < 9; i++) {
       for (int j = 1; j < 9; j++) {
-        if (b._board[i][j] == null && _board[i][j] == null) continue;
+        if (b._board[i][j] == _board[i][j]) continue;
         if (b._board[i][j] == null || _board[i][j] == null) return false;
         if (!b._board[i][j].equals(_board[i][j]))
           return false;

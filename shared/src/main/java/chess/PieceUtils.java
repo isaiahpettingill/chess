@@ -12,8 +12,8 @@ class PieceUtils {
       'k', ChessPiece.PieceType.KING,
       'b', ChessPiece.PieceType.BISHOP);
 
-  public static ChessBoard loadBoard(String boardText) {
-    var board = new ChessBoard();
+  public static ChessPiece[][] loadBoard(String boardText) {
+    var board = new ChessPiece[9][9]; 
     int row = 8;
     int column = 1;
     for (var c : boardText.toCharArray()) {
@@ -31,7 +31,7 @@ class PieceUtils {
           var type = CHAR_TO_TYPE_MAP.get(Character.toLowerCase(c));
           var position = new ChessPosition(row, column);
           var piece = new ChessPiece(color, type);
-          board.addPiece(position, piece);
+          board[position.getRow()][position.getColumn()] = piece;
           column++;
         }
       }
