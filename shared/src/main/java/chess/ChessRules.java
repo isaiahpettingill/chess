@@ -3,7 +3,9 @@ package chess;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class ChessRules {
+public final class ChessRules {
+    private ChessRules(){}
+
     public static Stream<ChessMove> getPieceMoves(ChessPiece.PieceType type, ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
         return switch (type) {
             case KING -> _getKingMoves(color, board, pos);

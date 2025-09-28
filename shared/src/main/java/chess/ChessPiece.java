@@ -15,11 +15,11 @@ public class ChessPiece {
   private final TeamColor _color;
   private final PieceType _type;
 
-  public ChessPiece(TeamColor pieceColor, PieceType type){
+  public ChessPiece(TeamColor pieceColor, PieceType type) {
     this._color = pieceColor;
     this._type = type;
   }
-  
+
   /**
    * The various different chess piece options
    */
@@ -53,10 +53,10 @@ public class ChessPiece {
    *
    * @return Collection of valid moves
    */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return getPieceMoves(_type, _color, board, myPosition)
-          .collect(Collectors.toUnmodifiableSet());
-    }
+  public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    return getPieceMoves(_type, _color, board, myPosition)
+        .collect(Collectors.toUnmodifiableSet());
+  }
 
   public String toString() {
     return switch (_type) {
@@ -90,9 +90,8 @@ public class ChessPiece {
     if (_color != other._color)
       return false;
     if (_type != other._type)
-      return false;
+      return false; 
     return true;
   }
 
-  
 }
