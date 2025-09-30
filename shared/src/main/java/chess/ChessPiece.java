@@ -58,9 +58,21 @@ public class ChessPiece {
         .collect(Collectors.toUnmodifiableSet());
   }
 
+    /**
+   * Calculates all the positions a chess piece can move to
+   * Includes even moves that would kill a king (not valid, but used for checking if king is in check)
+   *
+   * @return Collection of valid moves
+   */
+  public Collection<ChessMove> pieceMovesRaw(ChessBoard board, ChessPosition myPosition) {
+    return getPieceMovesRaw(_type, _color, board, myPosition)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
   public String toString() {
-    if (_type == null || _color == null) return " ";
-    
+    if (_type == null || _color == null)
+      return " ";
+
     var caps = switch (_type) {
       case KING -> "K";
       case QUEEN -> "Q";
@@ -69,7 +81,7 @@ public class ChessPiece {
       case PAWN -> "P";
       case KNIGHT -> "N";
     };
-    if (_color.equals(TeamColor.BLACK)){
+    if (_color.equals(TeamColor.BLACK)) {
       return caps.toLowerCase();
     }
     return caps;
@@ -96,7 +108,7 @@ public class ChessPiece {
     if (_color != other._color)
       return false;
     if (_type != other._type)
-      return false; 
+      return false;
     return true;
   }
 

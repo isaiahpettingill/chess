@@ -86,16 +86,14 @@ public class ChessBoard {
     return pieces.stream();
   }
 
-  public Stream<ChessPosition> allMoves(TeamColor color){
-    var pieces = new ArrayList<Stream<ChessPosition>>();
+  public Stream<ChessMove> allMovesIncludingAttackKing(TeamColor color){
+    var pieces = new ArrayList<Stream<ChessMove>>();
     for (int x = 1; x < 9; x++) {
       for (int y = 1; y < 9; y++) {
         var piece = _board[x][y];
         if (piece instanceof ChessPiece) {
           if (piece.getTeamColor() != color) continue;
-          pieces.add(piece.pieceMoves(this, new ChessPosition(y, x))
-                .stream()
-                .map(p -> p.getEndPosition()));
+          pieces.add(piece.pieceMovesRaw(this, new ChessPosition(y, x)).stream());
         }
       }
     }

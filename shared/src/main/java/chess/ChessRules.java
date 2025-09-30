@@ -3,10 +3,13 @@ package chess;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import chess.ChessPiece.PieceType;
+
 public final class ChessRules {
     private ChessRules(){}
 
-    public static Stream<ChessMove> getPieceMoves(ChessPiece.PieceType type, ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+    public static Stream<ChessMove> getPieceMovesRaw(ChessPiece.PieceType type, ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
+        if (type == null || color == null || board == null || pos == null) return Stream.of();
         return switch (type) {
             case KING -> _getKingMoves(color, board, pos);
             case PAWN -> _getPawnMoves(color, board, pos);
@@ -17,6 +20,16 @@ public final class ChessRules {
         };
     }
 
+    public static Stream<ChessMove> getPieceMoves(ChessPiece.PieceType type, ChessGame.TeamColor color, ChessBoard board, ChessPosition pos){
+        return getPieceMovesRaw(type, color, board, pos).filter(move -> _isNotKing(board, move));
+    }
+
+    private static boolean _isNotKing(ChessBoard board, ChessMove move){
+        var piece = board.getPiece(move.getEndPosition());
+        if (piece == null) return true;
+        return piece.getPieceType() != PieceType.KING;
+    }
+
     private static boolean _isAttackable(ChessPosition pos, ChessGame.TeamColor color, ChessBoard board) {
         if (!pos.isInRange()) {
             return false;
@@ -25,7 +38,7 @@ public final class ChessRules {
         if (piece == null) {
             return true;
         }
-        return piece.getTeamColor() != color && piece.getPieceType() != ChessPiece.PieceType.KING;
+        return piece.getTeamColor() != color;
     }
 
     private static Stream<ChessMove> _getKnightMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
