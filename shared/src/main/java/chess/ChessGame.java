@@ -20,12 +20,15 @@ public class ChessGame {
 
   private ChessPiece _whiteKing;
   private ChessPiece _blackKing;
+  private ChessHistory _history;
 
   public ChessGame() {
     _teamTurn = TeamColor.WHITE;
     _board = new ChessBoard();
+    _board.resetBoard();
     _whiteKing = _board.getPiece(new ChessPosition(1, 5));
     _blackKing = _board.getPiece(new ChessPosition(8, 5));
+    _history = new ChessHistory();
   }
 
   /**
@@ -50,6 +53,9 @@ public class ChessGame {
   public enum TeamColor {
     WHITE,
     BLACK
+  }
+  public TeamColor _otherColor(TeamColor color){
+    return switch (color) {case WHITE -> TeamColor.BLACK; case BLACK -> TeamColor.WHITE;};
   }
 
   /**
@@ -83,12 +89,13 @@ public class ChessGame {
     if (!valid.contains(move)) {
       throw new InvalidMoveException("Move is not valid for piece");
     } 
-    // else if (isInCheck(piece.getTeamColor()) && _kingWouldBeInCheck(move, piece.getTeamColor())) {
-    //   throw new InvalidMoveException("King is still in check");
-    // } 
+    else if (isInCheck(piece.getTeamColor()) && _kingWouldBeInCheck(move, piece.getTeamColor())) {
+      throw new InvalidMoveException("King is still in check");
+    } 
     else {
       _board.movePiece(move);
       _promotePiece(move, piece.getTeamColor());
+      _history.saveMove(_board, move);
     }
   }
 
@@ -109,11 +116,13 @@ public class ChessGame {
    * @return True if the specified team is in check
    */
   public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
-    var kingPos = _board.piecesAndPositions()
-        .filter(x -> x.piece().getPieceType() == ChessPiece.PieceType.KING && x.piece().getTeamColor() == teamColor)
-        .map(x -> x.pos())
-        .findFirst().orElseThrow();
-    return _pieceCanBeKilledAt(teamColor, kingPos);
+    var king = switch (teamColor) { case WHITE -> _whiteKing; case BLACK -> _blackKing; };
+    var isInCheck = board.allMoves(_otherColor(teamColor))
+                .map(x -> board.getPiece(x))
+                .filter(x -> king.equals(x))
+                .findFirst()
+                .isPresent();
+    return isInCheck;
   }
 
   public boolean isInCheck(TeamColor teamColor) {
@@ -184,13 +193,6 @@ public class ChessGame {
    */
   public ChessBoard getBoard() {
     return _board;
-  }
-
-  private boolean _pieceCanBeKilledAt(TeamColor teamColor, ChessPosition position) {
-    Stream<ChessMove> moves = _board.piecesAndPositions().filter(x -> x.piece().getTeamColor() == teamColor)
-        .flatMap(x -> validMoves(x.pos()).stream());
-    var canBeKilled = moves.map(x -> x.getEndPosition()).filter(x -> position.equals(x)).count() == 0;
-    return canBeKilled;
   }
 
   public int hashCode() {

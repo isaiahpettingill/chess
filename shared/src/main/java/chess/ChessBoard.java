@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import chess.ChessGame.TeamColor;
+
 /*
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -14,7 +16,7 @@ public class ChessBoard {
   private ChessPiece[][] _board;
 
   public ChessBoard() {
-    _board = PieceUtils.loadBoard(DEFAULT_BOARD);
+    _board = new ChessPiece[9][9];
   }
 
 
@@ -82,6 +84,22 @@ public class ChessBoard {
       }
     }
     return pieces.stream();
+  }
+
+  public Stream<ChessPosition> allMoves(TeamColor color){
+    var pieces = new ArrayList<Stream<ChessPosition>>();
+    for (int x = 1; x < 9; x++) {
+      for (int y = 1; y < 9; y++) {
+        var piece = _board[x][y];
+        if (piece instanceof ChessPiece) {
+          if (piece.getTeamColor() != color) continue;
+          pieces.add(piece.pieceMoves(this, new ChessPosition(y, x))
+                .stream()
+                .map(p -> p.getEndPosition()));
+        }
+      }
+    }
+    return pieces.stream().flatMap(x -> x);
   }
 
   /**

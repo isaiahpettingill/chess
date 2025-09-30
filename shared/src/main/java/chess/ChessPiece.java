@@ -59,14 +59,20 @@ public class ChessPiece {
   }
 
   public String toString() {
-    return switch (_type) {
-      case KING -> (_color == TeamColor.WHITE ? "K" : "k");
-      case QUEEN -> (_color == TeamColor.WHITE ? "Q" : "q");
-      case BISHOP -> (_color == TeamColor.WHITE ? "B" : "b");
-      case ROOK -> (_color == TeamColor.WHITE ? "R" : "r");
-      case PAWN -> (_color == TeamColor.WHITE ? "P" : "p");
-      case KNIGHT -> (_color == TeamColor.WHITE ? "N" : "n");
+    if (_type == null || _color == null) return " ";
+    
+    var caps = switch (_type) {
+      case KING -> "K";
+      case QUEEN -> "Q";
+      case BISHOP -> "B";
+      case ROOK -> "R";
+      case PAWN -> "P";
+      case KNIGHT -> "N";
     };
+    if (_color.equals(TeamColor.BLACK)){
+      return caps.toLowerCase();
+    }
+    return caps;
   }
 
   @Override
