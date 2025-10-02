@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
