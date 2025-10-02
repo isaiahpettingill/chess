@@ -177,7 +177,17 @@ public class ChessGame {
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
         .sum();
-    return sum == 0;
+    if (sum == 0) return true;
+    var onlyKingIsThere = pieces.stream()
+        .filter(x -> x.piece().getTeamColor() == teamColor)
+        .count() == 1;
+    if (onlyKingIsThere){
+      var king = switch(teamColor) { case WHITE -> _getWhiteKing(_board); case BLACK -> _getBlackKing(_board);};
+      var kingMoves = king.piece().pieceMoves(_board, king.pos());
+      var validMoves = kingMoves.stream().filter(x -> !_kingWouldBeInCheck(x, teamColor)).count();
+      return validMoves == 0;
+    }
+    return false;
   }
 
   /**
