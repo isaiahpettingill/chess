@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class ChessHistory {
     private final ArrayList<HistoryEntry> _entries;
@@ -37,5 +38,9 @@ public final class ChessHistory {
             output.append("\n\n");
         }   
         return output.toString();
+    }
+
+    public Stream<String> replayGame(){
+        return _entries.stream().map(x -> x.toString());
     }
 }
