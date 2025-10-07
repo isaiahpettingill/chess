@@ -7,20 +7,18 @@ public class ClearDBHandler implements Handler {
 
     @Override
     public void execute(Context context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        context.status(418);
+        context.html("I'm a teapot");
     }
 
     @Override
     public HandlerType getHttpMethod() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHttpMethod'");
+        return HandlerType.DELETE;
     }
 
     @Override
     public String getPath() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPath'");
+        return "/clear-db";
     }
-    
+
 }
