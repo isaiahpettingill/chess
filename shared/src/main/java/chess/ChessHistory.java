@@ -32,7 +32,7 @@ public final class ChessHistory {
     }
 
     public String toString(){
-        var output = new StringBuilder();
+        final var output = new StringBuilder();
         for(var entry : _entries){
             output.append(entry.toString());
             output.append("\n\n");

@@ -6,7 +6,7 @@ package chess;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public record ChessPosition(int row, int col) {
+public final record ChessPosition(int row, int col) {
     /**
      * @return which row this position is in
      * 1 codes for the bottom row

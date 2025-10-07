@@ -25,7 +25,7 @@ public final class ChessRules {
     }
 
     private static boolean _isNotKing(ChessBoard board, ChessMove move){
-        var piece = board.getPiece(move.getEndPosition());
+        final var piece = board.getPiece(move.getEndPosition());
         if (piece == null) return true;
         return piece.getPieceType() != PieceType.KING;
     }
@@ -34,7 +34,7 @@ public final class ChessRules {
         if (!pos.isInRange()) {
             return false;
         }
-        var piece = board.getPiece(pos);
+        final var piece = board.getPiece(pos);
         if (piece == null) {
             return true;
         }
@@ -94,20 +94,20 @@ public final class ChessRules {
     }
 
     private static Stream<ChessMove> _getPawnMoves(ChessGame.TeamColor color, ChessBoard board, ChessPosition pos) {
-        int forward = color == ChessGame.TeamColor.BLACK ? -1 : 1;
-        int start = color == ChessGame.TeamColor.BLACK ? 7 : 2;
-        int end = color == ChessGame.TeamColor.BLACK ? 1 : 8;
-        var canMoveTwo = pos.getRow() == start;
-        var isAtEnd = pos.getRow() == end - forward;
-        var moves = new ArrayList<ChessMove>();
-        var nextPos = pos.add(0, forward);
-        var nextNextPos = pos.add(0, forward * 2);
-        var attackPos1 = pos.add(1, forward);
-        var attackPos2 = pos.add(-1, forward);
-        var canAttack1 = board.getPiece(attackPos1) != null && _isAttackable(attackPos1, color, board);
-        var canAttack2 = board.getPiece(attackPos2) != null && _isAttackable(attackPos2, color, board);
-        var blocked = board.getPiece(nextPos) != null;
-        var nextBlocked = blocked || board.getPiece(nextNextPos) != null;
+        final int forward = color == ChessGame.TeamColor.BLACK ? -1 : 1;
+        final int start = color == ChessGame.TeamColor.BLACK ? 7 : 2;
+        final int end = color == ChessGame.TeamColor.BLACK ? 1 : 8;
+        final var canMoveTwo = pos.getRow() == start;
+        final var isAtEnd = pos.getRow() == end - forward;
+        final var moves = new ArrayList<ChessMove>();
+        final var nextPos = pos.add(0, forward);
+        final var nextNextPos = pos.add(0, forward * 2);
+        final var attackPos1 = pos.add(1, forward);
+        final var attackPos2 = pos.add(-1, forward);
+        final var canAttack1 = board.getPiece(attackPos1) != null && _isAttackable(attackPos1, color, board);
+        final var canAttack2 = board.getPiece(attackPos2) != null && _isAttackable(attackPos2, color, board);
+        final var blocked = board.getPiece(nextPos) != null;
+        final var nextBlocked = blocked || board.getPiece(nextNextPos) != null;
         if (isAtEnd) {
             for (var type : ChessPiece.PieceType.values()){
                 if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.PAWN) continue;
@@ -137,7 +137,7 @@ public final class ChessRules {
 
 
     private static Stream<ChessPosition> _motion(ChessPosition start, int dx, int dy, ChessGame.TeamColor color, ChessBoard board) {
-        var positions = new ArrayList<ChessPosition>();
+        final var positions = new ArrayList<ChessPosition>();
         var pos = start.add(dx, dy);
         while (_isAttackable(pos, color, board)) {
             positions.add(pos);

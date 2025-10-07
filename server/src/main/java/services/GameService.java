@@ -1,5 +1,5 @@
 package services;
 
-public class GameService {
+final class GameService {
     
 }

@@ -11,7 +11,7 @@ import static chess.ChessRules.*;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public final class ChessPiece {
   private final TeamColor _color;
   private final PieceType _type;
 

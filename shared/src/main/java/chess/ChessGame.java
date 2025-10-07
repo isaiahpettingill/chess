@@ -14,7 +14,7 @@ import chess.ChessPiece.PieceType;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame {
+public final class ChessGame {
   private TeamColor _teamTurn;
   private ChessBoard _board;
   private ChessHistory _history;
@@ -65,10 +65,10 @@ public class ChessGame {
    *         startPosition
    */
   public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-    var piece = _board.getPiece(startPosition);
+    final var piece = _board.getPiece(startPosition);
     if (piece == null)
       return Set.of();
-    var moves = piece.pieceMoves(_board, startPosition)
+    final var moves = piece.pieceMoves(_board, startPosition)
         .stream()
         .filter(x -> !_kingWouldBeInCheck(x, piece.getTeamColor()))
         .collect(Collectors.toUnmodifiableSet());
@@ -82,13 +82,13 @@ public class ChessGame {
    * @throws InvalidMoveException if move is invalid
    */
   public void makeMove(ChessMove move) throws InvalidMoveException {
-    var piece = _board.getPiece(move.getStartPosition());
+    final var piece = _board.getPiece(move.getStartPosition());
     if (piece == null)
       throw new InvalidMoveException("There is no piece to move");
     if (piece.getTeamColor() != getTeamTurn())
       throw new InvalidMoveException("Not your turn.");
 
-    var valid = validMoves(move.getStartPosition());
+    final var valid = validMoves(move.getStartPosition());
 
     if (!valid.contains(move)) {
       throw new InvalidMoveException("Move is not valid for piece");
@@ -103,7 +103,7 @@ public class ChessGame {
   }
 
   private boolean _kingWouldBeInCheck(ChessMove move, TeamColor teamColor) {
-    var future = new ChessBoard(_board);
+    final var future = new ChessBoard(_board);
     future.movePiece(move);
     return isInCheck(teamColor, future);
   }
@@ -123,11 +123,11 @@ public class ChessGame {
   public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
     if (teamColor == null || board == null)
       return false;
-    var king = switch (teamColor) {
+    final var king = switch (teamColor) {
       case WHITE -> _getWhiteKing(board);
       case BLACK -> _getBlackKing(board);
     };
-    var isInCheck = board.allMovesIncludingAttackKing(_otherColor(teamColor))
+    final var isInCheck = board.allMovesIncludingAttackKing(_otherColor(teamColor))
         .map(x -> x.getEndPosition())
         .anyMatch(x -> king.pos().equals(x));
     return isInCheck;
@@ -146,7 +146,7 @@ public class ChessGame {
   public boolean isInCheckmate(TeamColor teamColor) {
     var could_be_checkmate = isInCheck(teamColor);
     if (could_be_checkmate) {
-      var moves = _board.allMovesIncludingAttackKing(teamColor).collect(Collectors.toUnmodifiableSet());
+      final var moves = _board.allMovesIncludingAttackKing(teamColor).collect(Collectors.toUnmodifiableSet());
       for (var move : moves) {
         if (!_kingWouldBeInCheck(move, teamColor)) {
           could_be_checkmate = false;
@@ -165,26 +165,26 @@ public class ChessGame {
    * @return True if the specified team is in stalemate, otherwise false
    */
   public boolean isInStalemate(TeamColor teamColor) {
-    var pieces = _board.piecesAndPositions()
+    final var pieces = _board.piecesAndPositions()
         .collect(Collectors.toUnmodifiableSet());
-    var allKings = pieces.stream()
+    final var allKings = pieces.stream()
         .map(x -> x.piece().getPieceType())
         .allMatch(x -> x == ChessPiece.PieceType.KING);
     if (allKings)
       return true;
 
-    var sum = pieces.stream()
+    final var sum = pieces.stream()
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
         .sum();
     if (sum == 0) return true;
-    var onlyKingIsThere = pieces.stream()
+    final var onlyKingIsThere = pieces.stream()
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .count() == 1;
     if (onlyKingIsThere){
-      var king = switch(teamColor) { case WHITE -> _getWhiteKing(_board); case BLACK -> _getBlackKing(_board);};
-      var kingMoves = king.piece().pieceMoves(_board, king.pos());
-      var validMoves = kingMoves.stream().filter(x -> !_kingWouldBeInCheck(x, teamColor)).count();
+      final var king = switch(teamColor) { case WHITE -> _getWhiteKing(_board); case BLACK -> _getBlackKing(_board);};
+      final var kingMoves = king.piece().pieceMoves(_board, king.pos());
+      final var validMoves = kingMoves.stream().filter(x -> !_kingWouldBeInCheck(x, teamColor)).count();
       return validMoves == 0;
     }
     return false;

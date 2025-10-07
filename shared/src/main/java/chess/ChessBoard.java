@@ -13,7 +13,7 @@ import chess.ChessGame.TeamColor;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public final class ChessBoard {
   private ChessPiece[][] _board;
 
   public ChessBoard() {

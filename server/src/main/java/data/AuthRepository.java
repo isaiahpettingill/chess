@@ -1,5 +1,7 @@
 package data;
 
-public class AuthRepository {
+import models.AuthToken;
+
+final class AuthRepository implements Repository<AuthToken> {
     
 }

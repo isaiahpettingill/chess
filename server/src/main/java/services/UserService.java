@@ -1,5 +1,5 @@
 package services;
 
-public class UserService {
+final class UserService {
     
 }

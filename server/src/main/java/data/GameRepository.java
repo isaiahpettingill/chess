@@ -1,5 +1,7 @@
 package data;
 
-public class GameRepository {
+import models.Game;
+
+final class GameRepository implements Repository<Game> {
     
 }

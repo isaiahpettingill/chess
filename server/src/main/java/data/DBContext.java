@@ -1,5 +1,5 @@
 package data;
 
-public class DBContext {
+final class DBContext {
     
 }

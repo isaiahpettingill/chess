@@ -1,5 +1,7 @@
 package data;
 
-public class UserRepository {
+import models.User;
+
+final class UserRepository implements Repository<User> {
     
 }
