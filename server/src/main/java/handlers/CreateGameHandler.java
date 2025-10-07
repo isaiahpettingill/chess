@@ -18,7 +18,7 @@ public class CreateGameHandler implements Handler {
 
     @Override
     public String getPath() {
-        return "/create-game";
+        return "/game";
     }
 
 }

@@ -13,12 +13,12 @@ public class LogoutHandler implements Handler {
 
     @Override
     public HandlerType getHttpMethod() {
-        return HandlerType.POST;
+        return HandlerType.DELETE;
     }
 
     @Override
     public String getPath() {
-        return "/logout";
+        return "/session";
     }
 
 }

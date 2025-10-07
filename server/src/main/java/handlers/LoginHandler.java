@@ -19,7 +19,7 @@ public class LoginHandler implements Handler {
 
     @Override
     public String getPath() {
-        return "/login";
+        return "/session";
     }
 
 }

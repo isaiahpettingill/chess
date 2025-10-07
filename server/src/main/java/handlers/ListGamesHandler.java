@@ -18,7 +18,7 @@ public class ListGamesHandler implements Handler {
 
     @Override
     public String getPath() {
-        return "/list-games";
+        return "/game";
     }
 
 }

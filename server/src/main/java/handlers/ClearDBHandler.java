@@ -18,7 +18,7 @@ public class ClearDBHandler implements Handler {
 
     @Override
     public String getPath() {
-        return "/clear-db";
+        return "/db";
     }
 
 }

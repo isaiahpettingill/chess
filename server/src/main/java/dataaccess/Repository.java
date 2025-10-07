@@ -1,4 +1,4 @@
-package data;
+package dataaccess;
 
 interface Repository<T> {
     

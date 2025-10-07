@@ -18,7 +18,7 @@ public class RegisterHandler implements Handler {
 
     @Override
     public String getPath() {
-        return "/register";
+        return "/user";
     }
 
 }
