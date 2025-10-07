@@ -1,4 +1,6 @@
 import io.javalin.Javalin;
+import io.javalin.websocket.WsHandlerType;
+
 import java.util.Set;
 
 import handlers.*;
@@ -15,11 +17,14 @@ public final class Main {
             new RegisterHandler()
         );
 
-        final var app = Javalin.create(/*config*/);
+        final var app = Javalin.create();
         
         for (final var handler : handlers){
             app.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
+
+        final var wsHandler = new PlayGameWsHandler();
+        app.addWsHandler(WsHandlerType.WEBSOCKET, PlayGameWsHandler.PATH, wsHandler::handler);
         
         app.start(7070);
     }

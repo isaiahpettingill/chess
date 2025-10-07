@@ -1,5 +1,5 @@
 package services;
 
-final class GameService {
+final class GameService implements Service {
     
 }

@@ -1,5 +1,5 @@
 package services;
 
-final class AuthService {
+final class AuthService implements Service {
     
 }
