@@ -1,7 +1,10 @@
 package dataaccess;
 
+import java.util.Optional;
+import java.util.UUID;
 import models.AuthToken;
 
-final class AuthRepository implements Repository<AuthToken> {
-    
+public final class AuthRepository extends Repository<AuthToken> {
+
+    public Optional<AuthToken> getAuthToken(UUID id) { throw new RuntimeException("TODO"); }
 }

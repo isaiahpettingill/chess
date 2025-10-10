@@ -2,6 +2,6 @@ package dataaccess;
 
 import models.Game;
 
-final class GameRepository implements Repository<Game> {
-    
+public final class GameRepository extends Repository<Game> {
+
 }

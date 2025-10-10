@@ -1,11 +1,14 @@
 package models;
 
 public record Game(
-    long gameId, 
+    long id,
     String gameName,
     String whiteUsername,
     String blackUsername,
-    byte[] game
-) {
-    
+    String game
+) implements Model {
+        public String getTableName(){
+        return "Games";
+    }
 }
+
