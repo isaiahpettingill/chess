@@ -2,17 +2,11 @@ package server;
 
 import java.util.Set;
 
-import handlers.ClearDBHandler;
-import handlers.CreateGameHandler;
-import handlers.JoinGameHandler;
-import handlers.ListGamesHandler;
-import handlers.LoginHandler;
-import handlers.LogoutHandler;
-import handlers.PlayGameWsHandler;
-import handlers.RegisterHandler;
-import io.javalin.*;
+import dataaccess.UserRepository;
 import handlers.*;
+import io.javalin.*;
 import io.javalin.websocket.WsHandlerType;
+import services.*;
 
 public class Server {
 
@@ -22,6 +16,9 @@ public class Server {
         javalinServer = Javalin.create(config -> 
             config.staticFiles.add("web"));
 
+        var userRepository = new UserRepository();
+        var userService = new UserService(userRepository);
+
         final Set<Handler> handlers = Set.of(
             new ClearDBHandler(),
             new CreateGameHandler(),
@@ -29,7 +26,7 @@ public class Server {
             new ListGamesHandler(),
             new LoginHandler(),
             new LogoutHandler(),
-            new RegisterHandler()
+            new RegisterHandler(userService)
         );
         
 

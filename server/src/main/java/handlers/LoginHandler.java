@@ -8,7 +8,7 @@ public class LoginHandler implements Handler {
     @Override
     public void execute(Context context) {
         context.status(200);
-        context.json(new Object());
+        context.result("{}");
     }
 
     @Override

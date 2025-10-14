@@ -1,7 +1,7 @@
 package models;
 
 public record Game(
-    long id,
+    Long id,
     String gameName,
     String whiteUsername,
     String blackUsername,

@@ -8,7 +8,7 @@ public class ClearDBHandler implements Handler {
     @Override
     public void execute(Context context) {
         context.status(200);
-        context.json(new Object());
+        context.result("{}");
     }
 
     @Override
@@ -20,5 +20,4 @@ public class ClearDBHandler implements Handler {
     public String getPath() {
         return "/db";
     }
-
 }

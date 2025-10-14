@@ -10,7 +10,7 @@ public class ListGamesHandler extends AuthorizedHandler implements Handler {
         if (!authorize(context)) return;
 
         context.status(200);
-        context.json(new Object());
+        context.result("{}");
     }
 
     @Override

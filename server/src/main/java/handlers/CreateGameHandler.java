@@ -3,17 +3,13 @@ package handlers;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 
-import java.util.Map;
-
-import com.google.gson.Gson;
-
 public class CreateGameHandler extends AuthorizedHandler implements Handler {
 
     @Override
     public void execute(Context context) {
         if (!authorize(context)) return;
         context.status(200);
-        context.json(new Object());
+        context.result("{}");
     }
 
     @Override

@@ -1,7 +1,5 @@
 package handlers;
 
-import java.util.Map;
-
 import io.javalin.http.Context;
 
 public abstract class AuthorizedHandler {
@@ -9,7 +7,7 @@ public abstract class AuthorizedHandler {
         var auth = context.header("Authoriztion");
         if (auth == null || auth == "") {
             context.status(401);
-            context.json(Map.of("message", "Error: Unauthorized"));
+            context.result(HttpErrors.UNAUTHORIZED);
             return false;
         }
         return true;

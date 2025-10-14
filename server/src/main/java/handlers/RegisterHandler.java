@@ -1,15 +1,52 @@
 package handlers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import dto.RegisterPayload;
+import dto.RegisterResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
+import services.UserService;
 
-public class RegisterHandler implements Handler {
+public final class RegisterHandler implements Handler {
+    private UserService _userService;
+    public RegisterHandler(UserService userService){
+        _userService = userService;
+    }
 
     @Override
     public void execute(Context context) {
-        
-        context.status(200);
-        context.json(new Object());
+        var gson = new Gson();
+        try {
+            var body = gson.fromJson(context.body(), RegisterPayload.class);
+
+            if (body.email() == null || body.password() == null || body.username() == null){
+                context.status(400);
+                context.result(HttpErrors.BAD_REQUEST);
+                return;
+            }
+
+            if (_userService.isAlreadyTaken(body.username())) {
+                context.result(HttpErrors.ALREADY_TAKEN);
+                context.status(403);
+                return;
+            }
+
+            _userService.saveUser(body);
+            var response = new RegisterResponse(body.username(), "bob");
+            
+            context.status(200);
+            context.result(gson.toJson(response));
+        }
+        catch (JsonSyntaxException ex){
+            context.status(400);
+            context.result(HttpErrors.BAD_REQUEST);
+        }
+        catch (Exception ex){
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
+        }
     }
 
     @Override
