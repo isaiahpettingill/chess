@@ -7,8 +7,9 @@ public class RegisterHandler implements Handler {
 
     @Override
     public void execute(Context context) {
-        context.status(418);
-        context.html("I'm a teapot");
+        
+        context.status(200);
+        context.json(new Object());
     }
 
     @Override

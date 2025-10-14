@@ -16,10 +16,11 @@ import io.javalin.websocket.WsHandlerType;
 
 public class Server {
 
-    private final Javalin javalin;
+    private final Javalin javalinServer;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalinServer = Javalin.create(config -> 
+            config.staticFiles.add("web"));
 
         final Set<Handler> handlers = Set.of(
             new ClearDBHandler(),
@@ -31,20 +32,21 @@ public class Server {
             new RegisterHandler()
         );
         
+
         for (final var handler : handlers){
-            javalin.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
+            javalinServer.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
 
         final var wsHandler = new PlayGameWsHandler();
-        javalin.addWsHandler(WsHandlerType.WEBSOCKET, PlayGameWsHandler.PATH, wsHandler::handler);
+        javalinServer.addWsHandler(WsHandlerType.WEBSOCKET, PlayGameWsHandler.PATH, wsHandler::handler);
     }
 
     public int run(int desiredPort) {
-        javalin.start(desiredPort);
-        return javalin.port();
+        javalinServer.start(desiredPort);
+        return javalinServer.port();
     }
 
     public void stop() {
-        javalin.stop();
+        javalinServer.stop();
     }
 }

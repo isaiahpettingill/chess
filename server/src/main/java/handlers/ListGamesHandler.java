@@ -3,12 +3,14 @@ package handlers;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 
-public class ListGamesHandler implements Handler {
+public class ListGamesHandler extends AuthorizedHandler implements Handler {
 
     @Override
     public void execute(Context context) {
-        context.status(418);
-        context.html("I'm a teapot");
+        if (!authorize(context)) return;
+
+        context.status(200);
+        context.json(new Object());
     }
 
     @Override
