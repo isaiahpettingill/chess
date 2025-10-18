@@ -11,8 +11,12 @@ public interface Repository<TModel extends Model, TKey> {
     }
 
     Collection<TModel> list();
+
     Optional<TModel> get(TKey Id);
+
     boolean exists(KeyGetter<TModel> getter);
+
     TModel upsert(TModel model);
+
     void delete(TKey Id);
 }

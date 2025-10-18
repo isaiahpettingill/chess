@@ -8,12 +8,13 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
 
     public ListGamesHandler(AuthService authService) {
         super(authService);
-        //TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context)) return;
+        if (!authorize(context))
+            return;
 
         context.status(200);
         context.result("{}");

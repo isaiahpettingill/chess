@@ -8,19 +8,19 @@ import services.AuthService;
 
 public abstract class AuthorizedHandler {
     protected final AuthService _authService;
-    protected AuthorizedHandler(AuthService authService){
+
+    protected AuthorizedHandler(AuthService authService) {
         _authService = authService;
     }
 
-    protected Optional<UUID> authToken(Context context){
+    protected Optional<UUID> authToken(Context context) {
         try {
             return Optional.of(UUID.fromString(context.header("Authoriztion")));
-        }
-        catch (IllegalArgumentException __){
+        } catch (IllegalArgumentException __) {
             return Optional.empty();
         }
     };
-    
+
     protected boolean authorize(Context context) {
         var auth = authToken(context);
         if (auth == null || !auth.isPresent() || _authService.validToken(auth.get())) {

@@ -7,7 +7,8 @@ import models.User;
 
 public final class UserRepository implements Repository<User, Long> {
     private InMemoryDatabase _database;
-    public UserRepository(){
+
+    public UserRepository() {
         _database = new InMemoryDatabase();
     }
 
@@ -23,8 +24,8 @@ public final class UserRepository implements Repository<User, Long> {
 
     @Override
     public boolean exists(KeyGetter<User> compare) {
-        for (var user : list()){
-            if (compare.where(user)){
+        for (var user : list()) {
+            if (compare.where(user)) {
                 return true;
             }
         }
