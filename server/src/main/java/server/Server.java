@@ -27,7 +27,7 @@ public class Server {
             new CreateGameHandler(authService),
             new JoinGameHandler(authService),
             new ListGamesHandler(authService),
-            new LoginHandler(authService),
+            new LoginHandler(authService, userService),
             new LogoutHandler(authService),
             new RegisterHandler(userService, authService)
         );

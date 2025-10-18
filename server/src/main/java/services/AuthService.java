@@ -1,8 +1,10 @@
 package services;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import dataaccess.AuthRepository;
+import models.AuthToken;
 
 
 public final class AuthService implements Service {
@@ -18,5 +20,20 @@ public final class AuthService implements Service {
 
     public void logout(UUID id){
         _authRepository.delete(id);
+    }
+
+    public UUID generateToken(){
+        return UUID.randomUUID();
+    }
+
+    public void saveToken(UUID token, String username){
+        _authRepository.upsert(
+            new AuthToken(
+                null,
+                username,
+                token, 
+                OffsetDateTime.now()
+            )
+        );
     }
 }
