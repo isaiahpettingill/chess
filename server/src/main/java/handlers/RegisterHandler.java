@@ -7,12 +7,14 @@ import dto.RegisterPayload;
 import dto.RegisterResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.UserService;
+import services.*;
 
 public final class RegisterHandler implements Handler {
-    private UserService _userService;
-    public RegisterHandler(UserService userService){
+    private final UserService _userService;
+    private final AuthService _authService;
+    public RegisterHandler(UserService userService, AuthService authService){
         _userService = userService;
+        _authService = authService;
     }
 
     @Override

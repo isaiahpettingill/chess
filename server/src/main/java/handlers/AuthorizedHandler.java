@@ -1,11 +1,29 @@
 package handlers;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import io.javalin.http.Context;
+import services.AuthService;
 
 public abstract class AuthorizedHandler {
+    protected final AuthService _authService;
+    protected AuthorizedHandler(AuthService authService){
+        _authService = authService;
+    }
+
+    protected Optional<UUID> authToken(Context context){
+        try {
+            return Optional.of(UUID.fromString(context.header("Authoriztion")));
+        }
+        catch (IllegalArgumentException __){
+            return Optional.empty();
+        }
+    };
+    
     protected boolean authorize(Context context) {
-        var auth = context.header("Authoriztion");
-        if (auth == null || auth == "") {
+        var auth = authToken(context);
+        if (auth == null || !auth.isPresent() || _authService.validToken(auth.get())) {
             context.status(401);
             context.result(HttpErrors.UNAUTHORIZED);
             return false;

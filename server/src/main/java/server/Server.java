@@ -2,6 +2,7 @@ package server;
 
 import java.util.Set;
 
+import dataaccess.AuthRepository;
 import dataaccess.UserRepository;
 import handlers.*;
 import io.javalin.*;
@@ -18,15 +19,17 @@ public class Server {
 
         var userRepository = new UserRepository();
         var userService = new UserService(userRepository);
+        var authRepository = new AuthRepository();
+        var authService = new AuthService(authRepository);
 
         final Set<Handler> handlers = Set.of(
             new ClearDBHandler(),
-            new CreateGameHandler(),
-            new JoinGameHandler(),
-            new ListGamesHandler(),
-            new LoginHandler(),
-            new LogoutHandler(),
-            new RegisterHandler(userService)
+            new CreateGameHandler(authService),
+            new JoinGameHandler(authService),
+            new ListGamesHandler(authService),
+            new LoginHandler(authService),
+            new LogoutHandler(authService),
+            new RegisterHandler(userService, authService)
         );
         
 

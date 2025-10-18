@@ -2,9 +2,14 @@ package handlers;
 
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
+import services.AuthService;
 
-public class LoginHandler implements Handler {
-
+public final class LoginHandler implements Handler {
+    private final AuthService _authService;
+    public LoginHandler(AuthService authService){
+        _authService = authService;
+    }
+    
     @Override
     public void execute(Context context) {
         context.status(200);
