@@ -1,39 +1,43 @@
 package dataaccess;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 import models.AuthToken;
 
 public final class AuthRepository implements Repository<AuthToken, UUID> {
+    private InMemoryDatabase _database;
 
-    @Override
-    public Collection<AuthToken> list() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'list'");
+    public AuthRepository() {
+        _database = new InMemoryDatabase();
     }
 
     @Override
-    public AuthToken get(UUID Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    public Collection<AuthToken> list() {
+        return _database.tokens();
+    }
+
+    @Override
+    public Optional<AuthToken> get(UUID Id) {
+        return _database.getToken(Id);
     }
 
     @Override
     public boolean exists(KeyGetter<AuthToken> getter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'exists'");
+        return list().stream().anyMatch(getter::where);
     }
 
     @Override
     public AuthToken upsert(AuthToken model) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'upsert'");
+        _database.addToken(model);
+        return model;
     }
 
     @Override
-    public AuthToken delete(UUID Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public void delete(UUID Id) {
+        var token = get(Id);
+        if (token.isPresent())
+            _database.deleteToken(token.get());
     }
 
 }

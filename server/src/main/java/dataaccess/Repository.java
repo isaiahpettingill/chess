@@ -1,6 +1,7 @@
 package dataaccess;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import models.Model;
 
@@ -10,8 +11,8 @@ public interface Repository<TModel extends Model, TKey> {
     }
 
     Collection<TModel> list();
-    TModel get(TKey Id);
+    Optional<TModel> get(TKey Id);
     boolean exists(KeyGetter<TModel> getter);
     TModel upsert(TModel model);
-    TModel delete(TKey Id);
+    void delete(TKey Id);
 }

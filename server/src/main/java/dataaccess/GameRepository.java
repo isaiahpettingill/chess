@@ -1,39 +1,47 @@
 package dataaccess;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import models.Game;
 
 public final class GameRepository implements Repository<Game, Long> {
+    private InMemoryDatabase _database;
 
-    @Override
-    public Collection<Game> list() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'list'");
+    public GameRepository() {
+        _database = new InMemoryDatabase();
     }
 
     @Override
-    public Game get(Long Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    public Collection<Game> list() {
+        return _database.games();
+    }
+
+    @Override
+    public Optional<Game> get(Long Id) {
+        return _database.getGame(Id);
     }
 
     @Override
     public boolean exists(KeyGetter<Game> getter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'exists'");
+        return _database.games()
+                .stream()
+                .filter(x -> getter.where(x))
+                .findFirst()
+                .isPresent();
     }
 
     @Override
     public Game upsert(Game model) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'upsert'");
+        _database.addGame(model);
+        return model;
     }
 
     @Override
-    public Game delete(Long Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public void delete(Long Id) {
+        var game = get(Id);
+        if (game.isPresent())
+            _database.deleteGame(game.get());
     }
 
 }

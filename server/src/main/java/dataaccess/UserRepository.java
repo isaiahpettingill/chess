@@ -1,22 +1,24 @@
 package dataaccess;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Optional;
 
 import models.User;
 
 public final class UserRepository implements Repository<User, Long> {
-    private static HashSet<User> users = new HashSet<User>();
-
-    @Override
-    public Collection<User> list() {
-        return users;
+    private InMemoryDatabase _database;
+    public UserRepository(){
+        _database = new InMemoryDatabase();
     }
 
     @Override
-    public User get(Long Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    public Collection<User> list() {
+        return _database.users();
+    }
+
+    @Override
+    public Optional<User> get(Long Id) {
+        return _database.getUser(Id);
     }
 
     @Override
@@ -31,14 +33,13 @@ public final class UserRepository implements Repository<User, Long> {
 
     @Override
     public User upsert(User model) {
-        users.add(model);
+        _database.addUser(model);
         return model;
     }
 
     @Override
-    public User delete(Long Id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public void delete(Long Id) {
+        _database.deleteUser(null);
     }
 
 }
