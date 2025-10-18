@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import services.AuthService;
 
 public abstract class AuthorizedHandler {
+    private final String AUTHORIZATION = "Authorization";
     protected final AuthService _authService;
 
     protected AuthorizedHandler(AuthService authService) {
@@ -15,7 +16,9 @@ public abstract class AuthorizedHandler {
 
     protected Optional<UUID> authToken(Context context) {
         try {
-            return Optional.of(UUID.fromString(context.header("Authoriztion")));
+            final var tokenHeader = context.header(AUTHORIZATION);
+            if (tokenHeader == null) return Optional.empty();
+            return Optional.of(UUID.fromString(tokenHeader));
         } catch (IllegalArgumentException __) {
             return Optional.empty();
         }

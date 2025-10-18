@@ -5,18 +5,28 @@ import io.javalin.http.HandlerType;
 import services.AuthService;
 
 public final class LogoutHandler extends AuthorizedHandler implements Handler {
-    public LogoutHandler(AuthService authService){
+    public LogoutHandler(AuthService authService) {
         super(authService);
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context)) return;
+        if (!authorize(context))
+            return;
 
-        _authService.logout(authToken(context).get());
+        try {
 
-        context.status(200);
-        context.result("{}");
+            final var token = authToken(context).get();
+
+            _authService.logout(token);
+
+            context.status(200);
+            context.result("{}");
+
+        } catch (Exception ex) {
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
+        }
     }
 
     @Override

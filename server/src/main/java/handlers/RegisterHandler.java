@@ -21,7 +21,7 @@ public final class RegisterHandler implements Handler {
     public void execute(Context context) {
         var gson = new Gson();
         try {
-            var body = gson.fromJson(context.body(), RegisterPayload.class);
+            final var body = gson.fromJson(context.body(), RegisterPayload.class);
 
             if (body.email() == null || body.password() == null || body.username() == null){
                 context.status(400);
@@ -36,7 +36,10 @@ public final class RegisterHandler implements Handler {
             }
 
             _userService.saveUser(body);
-            var response = new RegisterResponse(body.username(), "bob");
+            final var token = _authService.generateToken();
+            _authService.saveToken(token, body.username());
+
+            var response = new RegisterResponse(body.username(), token.toString());
             
             context.status(200);
             context.result(gson.toJson(response));
