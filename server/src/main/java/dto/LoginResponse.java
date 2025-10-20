@@ -1,5 +1,5 @@
 package dto;
 
-public record LoginResponse(String username, String authToken) {
+public final record LoginResponse(String username, String authToken) {
     
 }

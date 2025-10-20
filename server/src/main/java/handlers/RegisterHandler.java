@@ -19,11 +19,11 @@ public final class RegisterHandler implements Handler {
 
     @Override
     public void execute(Context context) {
-        var gson = new Gson();
+        final var gson = new Gson();
         try {
             final var body = gson.fromJson(context.body(), RegisterPayload.class);
 
-            if (body.email() == null || body.password() == null || body.username() == null){
+            if (!body.valid()){
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;

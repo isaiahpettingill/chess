@@ -10,6 +10,12 @@ import java.util.UUID;
 import models.*;
 
 public class InMemoryDatabase {
+    public static void clearDb(){
+        tokens = new HashSet<>();
+        games = new ArrayList<>();
+        users = new HashSet<>();
+    }
+
     public InMemoryDatabase() {
         if (tokens == null)
             tokens = new HashSet<>();

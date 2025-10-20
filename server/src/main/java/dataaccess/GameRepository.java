@@ -2,6 +2,7 @@ package dataaccess;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Random;
 
 import models.Game;
 
@@ -33,6 +34,15 @@ public final class GameRepository implements Repository<Game, Long> {
 
     @Override
     public Game upsert(Game model) {
+        if (model.id() == null){
+            model = new Game(
+                new Random().nextLong(),
+                model.gameName(),
+                model.whiteUsername(),
+                model.blackUsername(),
+                model.game()
+            );
+        }
         _database.addGame(model);
         return model;
     }

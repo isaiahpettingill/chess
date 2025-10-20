@@ -1,14 +1,19 @@
 package handlers;
 
+import com.google.gson.Gson;
+
+import dto.ListGamesResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import services.AuthService;
+import services.GameService;
 
 public final class ListGamesHandler extends AuthorizedHandler implements Handler {
+    private final GameService _gameService;
 
-    public ListGamesHandler(AuthService authService) {
+    public ListGamesHandler(AuthService authService, GameService gameService) {
         super(authService);
-        // TODO Auto-generated constructor stub
+        _gameService = gameService;
     }
 
     @Override
@@ -16,8 +21,12 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
         if (!authorize(context))
             return;
 
+        final var games = _gameService.listGames();
+        final var response = new ListGamesResponse(games);
+        final var gson = new Gson();
+        
         context.status(200);
-        context.result("{}");
+        context.result(gson.toJson(response));
     }
 
     @Override

@@ -25,8 +25,7 @@ public final class LoginHandler implements Handler {
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), LoginPayload.class);
 
-            if (body.username() == null || body.username().equals("") || body.password() == null
-                    || body.password().equals("")) {
+            if (!body.valid()) {
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;

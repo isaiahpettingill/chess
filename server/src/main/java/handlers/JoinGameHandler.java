@@ -1,22 +1,45 @@
 package handlers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import dto.JoinGamePayload;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import services.AuthService;
+import services.GameService;
 
 public final class JoinGameHandler extends AuthorizedHandler implements Handler {
+    private final GameService _gameService;
 
-    public JoinGameHandler(AuthService authService) {
+    public JoinGameHandler(AuthService authService, GameService gameService) {
         super(authService);
-        //TODO Auto-generated constructor stub
+        _gameService = gameService;
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context)) return;
+        if (!authorize(context))
+            return;
+        try {
+            final var gson = new Gson();
+            final var body = gson.fromJson(context.body(), JoinGamePayload.class);
+            if (!body.valid()){
+                context.status(400);
+                context.result(HttpErrors.BAD_REQUEST);
+                return;
+            }
 
-        context.status(200);
-        context.result("{}");
+
+            context.status(200);
+            context.result("{}");
+        } catch (JsonSyntaxException ex) {
+            context.status(400);
+            context.result(HttpErrors.BAD_REQUEST);
+        } catch (Exception ex) {
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
+        }
     }
 
     @Override
