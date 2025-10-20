@@ -50,13 +50,13 @@ public class InMemoryDatabase {
         games.remove(game);
     }
 
-    public Optional<Game> getGame(Long gameId) {
+    public Optional<Game> getGame(Integer gameId) {
         if (gameId == null)
             return Optional.empty();
         return games.stream().filter(x -> x.id().equals(gameId)).findFirst();
     }
 
-    public Optional<User> getUser(Long userId) {
+    public Optional<User> getUser(Integer userId) {
         if (userId == null)
             return Optional.empty();
         return users.stream().filter(x -> x.id().equals(userId)).findFirst();

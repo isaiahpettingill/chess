@@ -23,7 +23,7 @@ public class Server {
         final var gameRepository = new GameRepository();
 
         final var userService = new UserService(userRepository);
-        final var authService = new AuthService(authRepository);
+        final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
         final Set<Handler> handlers = Set.of(

@@ -1,7 +1,7 @@
 package models;
 
 public record User(
-        Long id,
+        Integer id,
         String username,
         String passwordHash,
         String emailAddress) implements Model {

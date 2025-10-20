@@ -24,13 +24,28 @@ public final class JoinGameHandler extends AuthorizedHandler implements Handler 
         try {
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), JoinGamePayload.class);
-            if (!body.valid()){
+
+            if (!body.valid() || !_gameService.gameExists(body.gameID())) {
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;
             }
 
+            final var user = _authService.getUserFromToken(authToken(context).get());
 
+            if (!user.isPresent()) { // This should never happen
+                context.status(500);
+                context.result(HttpErrors.createErrorMessage("Corrupt application state. User does not exist"));
+                return;
+            }
+
+            if (_gameService.isPositionAlreadyTaken(body, user.get().username())) {
+                context.status(403);
+                context.result(HttpErrors.ALREADY_TAKEN);
+                return;
+            }
+
+            _gameService.joinGame(body, user.get().username());
             context.status(200);
             context.result("{}");
         } catch (JsonSyntaxException ex) {

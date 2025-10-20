@@ -1,5 +1,5 @@
 package dto;
 
-public final record CreateGameResponse(Long gameId) {
+public final record CreateGameResponse(Integer gameID) {
     
 }

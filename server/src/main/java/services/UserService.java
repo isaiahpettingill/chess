@@ -7,9 +7,9 @@ import dto.RegisterPayload;
 import models.User;
 
 public final class UserService implements Service {
-    private final Repository<User, Long> _userRepository;
+    private final Repository<User, Integer> _userRepository;
 
-    public UserService(Repository<User, Long> userRepository) {
+    public UserService(Repository<User, Integer> userRepository) {
         _userRepository = userRepository;
     }
 

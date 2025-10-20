@@ -26,7 +26,7 @@ public abstract class AuthorizedHandler {
     
     protected boolean authorize(Context context) {
         final var auth = authToken(context);
-        if (auth == null || !auth.isPresent() || _authService.validToken(auth.get())) {
+        if (auth == null || !auth.isPresent() || !_authService.validToken(auth.get())) {
             context.status(401);
             context.result(HttpErrors.UNAUTHORIZED);
             return false;

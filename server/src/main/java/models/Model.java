@@ -1,6 +1,6 @@
 package models;
 
 public interface Model {
-    public Long id();
+    public Integer id();
     public String getTableName();
 }

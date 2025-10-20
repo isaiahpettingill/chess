@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import models.User;
 
-public final class UserRepository implements Repository<User, Long> {
+public final class UserRepository implements Repository<User, Integer> {
     private InMemoryDatabase _database;
 
     public UserRepository() {
@@ -18,8 +18,17 @@ public final class UserRepository implements Repository<User, Long> {
     }
 
     @Override
-    public Optional<User> get(Long Id) {
+    public Optional<User> get(Integer Id) {
         return _database.getUser(Id);
+    }
+
+    public Optional<User> getByUsername(String username){
+        for (var user : list()) {
+            if (user.username().equals(username)) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -39,7 +48,7 @@ public final class UserRepository implements Repository<User, Long> {
     }
 
     @Override
-    public void delete(Long Id) {
+    public void delete(Integer Id) {
         _database.deleteUser(null);
     }
 

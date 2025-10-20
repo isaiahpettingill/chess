@@ -6,7 +6,7 @@ import java.util.Random;
 
 import models.Game;
 
-public final class GameRepository implements Repository<Game, Long> {
+public final class GameRepository implements Repository<Game, Integer> {
     private InMemoryDatabase _database;
 
     public GameRepository() {
@@ -15,11 +15,11 @@ public final class GameRepository implements Repository<Game, Long> {
 
     @Override
     public Collection<Game> list() {
-        return _database.games();
+        return _database.games().stream().toList();
     }
 
     @Override
-    public Optional<Game> get(Long Id) {
+    public Optional<Game> get(Integer Id) {
         return _database.getGame(Id);
     }
 
@@ -34,21 +34,25 @@ public final class GameRepository implements Repository<Game, Long> {
 
     @Override
     public Game upsert(Game model) {
+        if (exists(x -> x.id().equals(model.id()))){
+            _database.deleteGame(get(model.id()).get());
+        }
+        var gameToAdd = model;
         if (model.id() == null){
-            model = new Game(
-                new Random().nextLong(),
+            gameToAdd = new Game(
+                (new Random().nextInt(0, Integer.MAX_VALUE)),
                 model.gameName(),
                 model.whiteUsername(),
                 model.blackUsername(),
                 model.game()
             );
         }
-        _database.addGame(model);
-        return model;
+        _database.addGame(gameToAdd);
+        return gameToAdd;
     }
 
     @Override
-    public void delete(Long Id) {
+    public void delete(Integer Id) {
         var game = get(Id);
         if (game.isPresent())
             _database.deleteGame(game.get());

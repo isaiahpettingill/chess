@@ -1,5 +1,7 @@
 package handlers;
 
+import java.util.stream.Collectors;
+
 import com.google.gson.Gson;
 
 import dto.ListGamesResponse;
@@ -22,9 +24,17 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
             return;
 
         final var games = _gameService.listGames();
-        final var response = new ListGamesResponse(games);
+        final var response = new ListGamesResponse(
+                games.stream()
+                        .map(x -> new ListGamesResponse.ListGamesGame(
+                            x.id(),
+                            x.whiteUsername(),
+                            x.blackUsername(),
+                            x.gameName()
+                        ))
+                        .collect(Collectors.toSet()));
         final var gson = new Gson();
-        
+
         context.status(200);
         context.result(gson.toJson(response));
     }
