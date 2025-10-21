@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.*;
 
-import dataaccess.InMemoryGameRespository;
+import dataAccess.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 

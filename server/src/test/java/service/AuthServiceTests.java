@@ -2,7 +2,7 @@ package service;
 
 import org.junit.jupiter.api.*;
 
-import dataaccess.*;
+import dataAccess.*;
 
 
 public class AuthServiceTests {

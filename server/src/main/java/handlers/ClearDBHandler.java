@@ -1,6 +1,6 @@
 package handlers;
 
-import dataaccess.InMemoryDatabase;
+import dataAccess.InMemoryDatabase;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 

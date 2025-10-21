@@ -2,7 +2,7 @@ package service;
 
 import java.util.Collection;
 
-import dataaccess.InMemoryGameRespository;
+import dataAccess.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 import models.Game;
