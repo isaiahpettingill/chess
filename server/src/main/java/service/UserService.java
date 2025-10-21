@@ -2,7 +2,7 @@ package service;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import dataAccess.Repository;
+import dataaccess.Repository;
 import dto.RegisterPayload;
 import models.User;
 

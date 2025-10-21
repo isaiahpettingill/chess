@@ -1,5 +1,7 @@
 package handlers;
 
+import java.util.UUID;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -36,7 +38,7 @@ public final class RegisterHandler implements Handler {
             }
 
             this.userService.saveUser(body);
-            final var token = this.authService.generateToken();
+            final var token = UUID.randomUUID();
             this.authService.saveToken(token, body.username());
 
             var response = new RegisterResponse(body.username(), token.toString());

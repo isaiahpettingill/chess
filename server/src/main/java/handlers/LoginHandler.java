@@ -1,5 +1,7 @@
 package handlers;
 
+import java.util.UUID;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -32,7 +34,7 @@ public final class LoginHandler implements Handler {
             }
 
             if (this.userService.validLogin(body.username(), body.password())) {
-                final var token = this.authService.generateToken();
+                final var token = UUID.randomUUID();
                 this.authService.saveToken(token, body.username());
 
                 final var response = new LoginResponse(body.username(), token.toString());

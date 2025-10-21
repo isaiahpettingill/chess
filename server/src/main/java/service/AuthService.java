@@ -4,8 +4,8 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import dataAccess.InMemoryAuthRepository;
-import dataAccess.InMemoryUserRepository;
+import dataaccess.InMemoryAuthRepository;
+import dataaccess.InMemoryUserRepository;
 import models.AuthToken;
 import models.User;
 
@@ -35,10 +35,6 @@ public final class AuthService implements Service {
 
     public void logout(UUID id){
         this.authRepository.delete(id);
-    }
-
-    public UUID generateToken(){
-        return UUID.randomUUID();
     }
 
     public void saveToken(UUID token, String username){
