@@ -16,7 +16,7 @@ public class Server {
 
     public Server() {
         javalinServer = Javalin.create(config -> 
-            config.staticFiles.add("resources/web"));
+            config.staticFiles.add("../resources/web"));
 
         final var userRepository = new InMemoryUserRepository();
         final var authRepository = new InMemoryAuthRepository();
