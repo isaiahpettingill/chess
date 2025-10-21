@@ -3,6 +3,7 @@ package dataaccess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -83,6 +84,6 @@ public class InMemoryDatabase {
     };
 
     private static Set<AuthToken> tokens;
-    private static Collection<Game> games;
+    private static List<Game> games;
     private static Set<User> users;
 }

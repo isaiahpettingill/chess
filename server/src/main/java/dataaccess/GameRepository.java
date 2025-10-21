@@ -15,7 +15,7 @@ public final class GameRepository implements Repository<Game, Integer> {
 
     @Override
     public Collection<Game> list() {
-        return _database.games().stream().toList();
+        return _database.games();
     }
 
     @Override

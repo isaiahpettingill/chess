@@ -32,7 +32,7 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
                             x.blackUsername(),
                             x.gameName()
                         ))
-                        .collect(Collectors.toSet()));
+                        .collect(Collectors.toList()));
         final var gson = new Gson();
 
         context.status(200);
