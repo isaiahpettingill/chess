@@ -8,7 +8,7 @@ import dataaccess.InMemoryUserRepository;
 import handlers.*;
 import io.javalin.*;
 import io.javalin.websocket.WsHandlerType;
-import services.*;
+import service.*;
 
 public class Server {
 

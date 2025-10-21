@@ -7,8 +7,8 @@ import com.google.gson.Gson;
 import dto.ListGamesResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.AuthService;
-import services.GameService;
+import service.AuthService;
+import service.GameService;
 
 public final class ListGamesHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;

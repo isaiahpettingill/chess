@@ -6,8 +6,8 @@ import com.google.gson.JsonSyntaxException;
 import dto.JoinGamePayload;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.AuthService;
-import services.GameService;
+import service.AuthService;
+import service.GameService;
 
 public final class JoinGameHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;

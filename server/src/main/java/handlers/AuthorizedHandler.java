@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import io.javalin.http.Context;
-import services.AuthService;
+import service.AuthService;
 
 public abstract class AuthorizedHandler {
     private final String authorization = "Authorization";

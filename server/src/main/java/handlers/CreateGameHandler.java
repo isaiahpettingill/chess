@@ -7,8 +7,8 @@ import dto.CreateGamePayload;
 import dto.CreateGameResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.AuthService;
-import services.GameService;
+import service.AuthService;
+import service.GameService;
 
 public final class CreateGameHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;

@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,7 +10,7 @@ import dto.RegisterPayload;
 
 public class UserServiceTests {
     @Test
-    public void userServiceSavesUser() {
+    public void userserviceavesUser() {
         final var userService = new UserService(new InMemoryUserRepository());
 
         userService.saveUser(new RegisterPayload(

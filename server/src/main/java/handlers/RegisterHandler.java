@@ -7,7 +7,7 @@ import dto.RegisterPayload;
 import dto.RegisterResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.*;
+import service.*;
 
 public final class RegisterHandler implements Handler {
     private final UserService userService;

@@ -2,7 +2,7 @@ package handlers;
 
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.AuthService;
+import service.AuthService;
 
 public final class LogoutHandler extends AuthorizedHandler implements Handler {
     public LogoutHandler(AuthService authService) {

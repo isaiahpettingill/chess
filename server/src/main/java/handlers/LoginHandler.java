@@ -7,8 +7,8 @@ import dto.LoginPayload;
 import dto.LoginResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import services.AuthService;
-import services.UserService;
+import service.AuthService;
+import service.UserService;
 
 public final class LoginHandler implements Handler {
     private final AuthService authService;
