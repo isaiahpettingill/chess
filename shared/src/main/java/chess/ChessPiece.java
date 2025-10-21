@@ -12,12 +12,12 @@ import static chess.ChessRules.*;
  * signature of the existing methods.
  */
 public final class ChessPiece {
-  private final TeamColor _color;
-  private final PieceType _type;
+  private final TeamColor color;
+  private final PieceType type;
 
   public ChessPiece(TeamColor pieceColor, PieceType type) {
-    this._color = pieceColor;
-    this._type = type;
+    this.color = pieceColor;
+    this.type = type;
   }
 
   /**
@@ -36,14 +36,14 @@ public final class ChessPiece {
    * @return Which team this chess piece belongs to
    */
   public ChessGame.TeamColor getTeamColor() {
-    return _color;
+    return color;
   }
 
   /**
    * @return which type of chess piece this piece is
    */
   public PieceType getPieceType() {
-    return _type;
+    return type;
   }
 
   /**
@@ -54,7 +54,7 @@ public final class ChessPiece {
    * @return Collection of valid moves
    */
   public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-    return getPieceMoves(_type, _color, board, myPosition)
+    return getPieceMoves(type, color, board, myPosition)
         .collect(Collectors.toUnmodifiableSet());
   }
 
@@ -65,15 +65,16 @@ public final class ChessPiece {
    * @return Collection of valid moves
    */
   public Collection<ChessMove> pieceMovesRaw(ChessBoard board, ChessPosition myPosition) {
-    return getPieceMovesRaw(_type, _color, board, myPosition)
+    return getPieceMovesRaw(type, color, board, myPosition)
         .collect(Collectors.toUnmodifiableSet());
   }
 
   public String toString() {
-    if (_type == null || _color == null)
+    if (type == null || color == null) {
       return " ";
+    }
 
-    var caps = switch (_type) {
+    var caps = switch (type) {
       case KING -> "K";
       case QUEEN -> "Q";
       case BISHOP -> "B";
@@ -81,7 +82,7 @@ public final class ChessPiece {
       case PAWN -> "P";
       case KNIGHT -> "N";
     };
-    if (_color.equals(TeamColor.BLACK)) {
+    if (color.equals(TeamColor.BLACK)) {
       return caps.toLowerCase();
     }
     return caps;
@@ -91,24 +92,29 @@ public final class ChessPiece {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_color == null) ? 0 : _color.hashCode());
-    result = prime * result + ((_type == null) ? 0 : _type.hashCode());
+    result = prime * result + ((color == null) ? 0 : color.hashCode());
+    result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     ChessPiece other = (ChessPiece) obj;
-    if (_color != other._color)
+    if (color != other.color) {
       return false;
-    if (_type != other._type)
+    }
+    if (type != other.type) {
       return false;
+    }
     return true;
   }
 

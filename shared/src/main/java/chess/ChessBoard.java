@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import chess.ChessGame.TeamColor;
@@ -14,14 +13,14 @@ import chess.ChessGame.TeamColor;
  * signature of the existing methods.
  */
 public final class ChessBoard {
-  private ChessPiece[][] _board;
+  private ChessPiece[][] board;
 
   public ChessBoard() {
-    _board = new ChessPiece[9][9];
+    board = new ChessPiece[9][9];
   }
 
   public ChessBoard(ChessBoard existingBoard) {
-    _board = Arrays.stream(existingBoard._board)
+    board = Arrays.stream(existingBoard.board)
         .map(x -> Arrays.copyOf(x, x.length))
         .toArray(ChessPiece[][]::new);
   }
@@ -34,7 +33,7 @@ public final class ChessBoard {
    */
   public void addPiece(ChessPosition position, ChessPiece piece) {
     if (position.isInRange()) {
-      _board[position.getRow()][position.getColumn()] = piece;
+      board[position.getRow()][position.getColumn()] = piece;
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
@@ -42,7 +41,7 @@ public final class ChessBoard {
 
   public void removePiece(ChessPosition position) {
     if (position.isInRange()) {
-      _board[position.getRow()][position.getColumn()] = null;
+      board[position.getRow()][position.getColumn()] = null;
     } else {
       throw new IllegalArgumentException("Target coordinates are off the board");
     }
@@ -63,7 +62,7 @@ public final class ChessBoard {
    */
   public ChessPiece getPiece(ChessPosition position) {
     if (position.isInRange()) {
-      return _board[position.getRow()][position.getColumn()];
+      return board[position.getRow()][position.getColumn()];
     } else {
       return null;
     }
@@ -76,7 +75,7 @@ public final class ChessBoard {
     var pieces = new ArrayList<PieceWithPosition>();
     for (int row = 1; row < 9; row++) {
       for (int col = 1; col < 9; col++) {
-        var piece = _board[row][col];
+        var piece = board[row][col];
         if (piece instanceof ChessPiece) {
           pieces.add(new PieceWithPosition(piece, new ChessPosition(row, col)));
         }
@@ -89,10 +88,11 @@ public final class ChessBoard {
     var pieces = new ArrayList<Stream<ChessMove>>();
     for (int row = 1; row < 9; row++) {
       for (int col = 1; col < 9; col++) {
-        var piece = _board[row][col];
+        var piece = board[row][col];
         if (piece instanceof ChessPiece) {
-          if (piece.getTeamColor() != color)
+          if (piece.getTeamColor() != color) {
             continue;
+          }
           pieces.add(piece.pieceMovesRaw(this, new ChessPosition(row, col)).stream());
         }
       }
@@ -105,7 +105,7 @@ public final class ChessBoard {
    * (How the game of chess normally starts)
    */
   public void resetBoard() {
-    this._board = PieceUtils.loadBoard(DEFAULT_BOARD);
+    this.board = PieceUtils.loadBoard(DEFAULT_BOARD);
   }
 
   private final static String DEFAULT_BOARD = """
@@ -134,61 +134,30 @@ public final class ChessBoard {
   }
 
   public int hashCode() {
-    return Arrays.deepHashCode(_board);
+    return Arrays.deepHashCode(board);
   }
 
   public boolean equals(Object o) {
-    if (o == this)
+    if (o == this) {
       return true;
-    if (o == null || !(o instanceof ChessBoard))
+    }
+    if (o == null || !(o instanceof ChessBoard)) {
       return false;
+    }
     var b = (ChessBoard) o;
     for (int i = 1; i < 9; i++) {
       for (int j = 1; j < 9; j++) {
-        if (b._board[i][j] == _board[i][j])
+        if (b.board[i][j] == board[i][j]) {
           continue;
-        if (b._board[i][j] == null || _board[i][j] == null)
+        }
+        if (b.board[i][j] == null || board[i][j] == null) {
           return false;
-        if (!b._board[i][j].equals(_board[i][j]))
+        }
+        if (!b.board[i][j].equals(board[i][j])) {
           return false;
+        }
       }
     }
     return true;
   }
-
-  public String boardWithAttackSlots(TeamColor teamColor) {
-    var builder = new StringBuilder();
-
-    var moves = allMovesIncludingAttackKing(teamColor).map(x -> x.getEndPosition()).collect(Collectors.toSet());
-
-    for (int row = 1; row < 9; row++) {
-      builder.append('|');
-      for (int col = 1; col < 9; col++) {
-        var piece = getPiece(new ChessPosition(row, col));
-        builder.append(piece == null ? ' ' : piece.toString());
-        builder.append('|');
-      }
-      builder.append('\t');
-
-      builder.append('|');
-      for (int col = 1; col < 9; col++) {
-        var piece = getPiece(new ChessPosition(row, col));
-        if (moves.contains(new ChessPosition(row, col))) {
-          if (piece == null)
-            builder.append('.');
-          else 
-            builder.append('X');
-        } else if (piece != null) {
-            builder.append(piece.toString());
-        } else {
-          builder.append(' ');
-        }
-        builder.append('|');
-      }
-      builder.append('\n');
-    }
-    return builder.toString();
-
-  }
-
 }

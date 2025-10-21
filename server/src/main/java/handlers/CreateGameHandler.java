@@ -11,17 +11,18 @@ import services.AuthService;
 import services.GameService;
 
 public final class CreateGameHandler extends AuthorizedHandler implements Handler {
-    private final GameService _gameService;
+    private final GameService gameService;
 
     public CreateGameHandler(AuthService authService, GameService gameService) {
         super(authService);
-        _gameService = gameService;
+        this.gameService = gameService;
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context))
+        if (!authorize(context)) {
             return;
+        }
 
         try {
             final var gson = new Gson();
@@ -32,11 +33,12 @@ public final class CreateGameHandler extends AuthorizedHandler implements Handle
                 return;
             }
 
-            var game = _gameService.createGame(body);
+            var game = this.gameService.createGame(body);
             
             if (game.id() == null){
                 context.status(500);
                 context.result(HttpErrors.createErrorMessage("Could not create game"));
+                return;
             }
             var reponse = new CreateGameResponse(game.id());
 

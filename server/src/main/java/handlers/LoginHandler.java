@@ -11,12 +11,12 @@ import services.AuthService;
 import services.UserService;
 
 public final class LoginHandler implements Handler {
-    private final AuthService _authService;
-    private final UserService _userService;
+    private final AuthService authService;
+    private final UserService userService;
 
     public LoginHandler(AuthService authService, UserService userService) {
-        _authService = authService;
-        _userService = userService;
+        this.authService = authService;
+        this.userService = userService;
     }
 
     @Override
@@ -31,9 +31,9 @@ public final class LoginHandler implements Handler {
                 return;
             }
 
-            if (_userService.validLogin(body.username(), body.password())) {
-                final var token = _authService.generateToken();
-                _authService.saveToken(token, body.username());
+            if (this.userService.validLogin(body.username(), body.password())) {
+                final var token = this.authService.generateToken();
+                this.authService.saveToken(token, body.username());
 
                 final var response = new LoginResponse(body.username(), token.toString());
                 context.status(200);

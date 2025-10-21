@@ -7,14 +7,14 @@ import dto.RegisterPayload;
 import models.User;
 
 public final class UserService implements Service {
-    private final Repository<User, Integer> _userRepository;
+    private final Repository<User, Integer> userRepository;
 
     public UserService(Repository<User, Integer> userRepository) {
-        _userRepository = userRepository;
+        this.userRepository = userRepository;
     }
 
     public boolean isAlreadyTaken(String username) {
-        return _userRepository.exists(x -> username.equals(x.username()));
+        return this.userRepository.exists(x -> username.equals(x.username()));
     }
 
     private String hashPassword(String password) {
@@ -22,12 +22,15 @@ public final class UserService implements Service {
     }
 
     public boolean validLogin(String username, String password) {
-        return _userRepository.exists(x -> x.username().equals(username) 
+        return this.userRepository.exists(x -> x.username().equals(username) 
             && BCrypt.checkpw(password, x.passwordHash()));
     }
 
     public void saveUser(RegisterPayload user) {
-        _userRepository.upsert(
+        if (isAlreadyTaken(user.username())){
+            return;
+        }
+        this.userRepository.upsert(
                 new User(null,
                         user.username(),
                         hashPassword(user.password()),

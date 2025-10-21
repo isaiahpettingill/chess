@@ -8,22 +8,22 @@ import dto.JoinGamePayload;
 import models.Game;
 
 public final class GameService implements Service {
-    private final InMemoryGameRespository _gameRepository;
+    private final InMemoryGameRespository gameRepository;
 
     public GameService(InMemoryGameRespository gameRepository) {
-        _gameRepository = gameRepository;
+        this.gameRepository = gameRepository;
     }
 
     public Collection<Game> listGames() {
-        return _gameRepository.list();
+        return this.gameRepository.list();
     }
 
     public boolean gameExists(int gameId){
-        return _gameRepository.get(gameId).isPresent();
+        return this.gameRepository.get(gameId).isPresent();
     }
 
     public boolean isPositionAlreadyTaken(JoinGamePayload payload, String username){
-        final var game = _gameRepository.get(payload.gameID());
+        final var game = this.gameRepository.get(payload.gameID());
         if (game.isPresent() && username != null){
             if (payload.playerColor().equals(JoinGamePayload.WHITE)){
                 return game.get().whiteUsername() != null || username.equals(game.get().blackUsername());
@@ -36,10 +36,10 @@ public final class GameService implements Service {
     }
 
     public void joinGame(JoinGamePayload payload, String username){
-        final var game = _gameRepository.get(payload.gameID());
+        final var game = this.gameRepository.get(payload.gameID());
         if (game.isPresent()){
             if (payload.playerColor().equals(JoinGamePayload.WHITE)){
-                _gameRepository.upsert(new Game(
+                this.gameRepository.upsert(new Game(
                     game.get().id(),
                     game.get().gameName(),
                     username,
@@ -48,7 +48,7 @@ public final class GameService implements Service {
                 ));
             }
             else {
-                _gameRepository.upsert(new Game(
+                this.gameRepository.upsert(new Game(
                     game.get().id(),
                     game.get().gameName(),
                     game.get().whiteUsername(),
@@ -60,7 +60,7 @@ public final class GameService implements Service {
     }
 
     public Game createGame(CreateGamePayload game){
-        return _gameRepository.upsert(new Game(
+        return this.gameRepository.upsert(new Game(
             null,
             game.gameName(),
             null,

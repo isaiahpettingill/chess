@@ -11,19 +11,20 @@ import services.AuthService;
 import services.GameService;
 
 public final class ListGamesHandler extends AuthorizedHandler implements Handler {
-    private final GameService _gameService;
+    private final GameService gameService;
 
     public ListGamesHandler(AuthService authService, GameService gameService) {
         super(authService);
-        _gameService = gameService;
+        this.gameService = gameService;
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context))
+        if (!authorize(context)) {
             return;
+        }
 
-        final var games = _gameService.listGames();
+        final var games = this.gameService.listGames();
         final var response = new ListGamesResponse(
                 games.stream()
                         .map(x -> new ListGamesResponse.ListGamesGame(

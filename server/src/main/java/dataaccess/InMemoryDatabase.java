@@ -18,12 +18,15 @@ public class InMemoryDatabase {
     }
 
     public InMemoryDatabase() {
-        if (tokens == null)
+        if (tokens == null) {
             tokens = new HashSet<>();
-        if (games == null)
+        }
+        if (games == null) {
             games = new ArrayList<>();
-        if (users == null)
+        }
+        if (users == null) {
             users = new HashSet<>();
+        }
     }
 
     public void addToken(AuthToken token) {
@@ -35,8 +38,9 @@ public class InMemoryDatabase {
     }
 
     public Optional<AuthToken> getToken(UUID token) {
-        if (token == null)
+        if (token == null) {
             return Optional.empty();
+        }
         return tokens
                 .stream()
                 .filter(x -> x.authToken().equals(token))
@@ -52,14 +56,16 @@ public class InMemoryDatabase {
     }
 
     public Optional<Game> getGame(Integer gameId) {
-        if (gameId == null)
+        if (gameId == null) {
             return Optional.empty();
+        }
         return games.stream().filter(x -> x.id().equals(gameId)).findFirst();
     }
 
     public Optional<User> getUser(Integer userId) {
-        if (userId == null)
+        if (userId == null) {
             return Optional.empty();
+        }
         return users.stream().filter(x -> x.id().equals(userId)).findFirst();
     }
 

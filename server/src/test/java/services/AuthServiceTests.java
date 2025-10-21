@@ -6,14 +6,11 @@ import dataaccess.*;
 
 
 public class AuthServiceTests {
-
-   
-
     @Test
     public void canAddAuthToken() {
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository();
         final AuthService authService = new AuthService(authRepository, new InMemoryUserRepository());
-        
+
         var token = authService.generateToken();
         authService.saveToken(token, "your mom");
         Assertions.assertTrue(authService.validToken(token));

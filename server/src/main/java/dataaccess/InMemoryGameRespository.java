@@ -7,25 +7,25 @@ import java.util.Random;
 import models.Game;
 
 public final class InMemoryGameRespository implements Repository<Game, Integer> {
-    private InMemoryDatabase _database;
+    private InMemoryDatabase database;
 
     public InMemoryGameRespository() {
-        _database = new InMemoryDatabase();
+        database = new InMemoryDatabase();
     }
 
     @Override
     public Collection<Game> list() {
-        return _database.games();
+        return database.games();
     }
 
     @Override
-    public Optional<Game> get(Integer Id) {
-        return _database.getGame(Id);
+    public Optional<Game> get(Integer id) {
+        return database.getGame(id);
     }
 
     @Override
     public boolean exists(KeyGetter<Game> getter) {
-        return _database.games()
+        return database.games()
                 .stream()
                 .filter(x -> getter.where(x))
                 .findFirst()
@@ -35,7 +35,7 @@ public final class InMemoryGameRespository implements Repository<Game, Integer> 
     @Override
     public Game upsert(Game model) {
         if (exists(x -> x.id().equals(model.id()))){
-            _database.deleteGame(get(model.id()).get());
+            database.deleteGame(get(model.id()).get());
         }
         var gameToAdd = model;
         if (model.id() == null){
@@ -47,15 +47,16 @@ public final class InMemoryGameRespository implements Repository<Game, Integer> 
                 model.game()
             );
         }
-        _database.addGame(gameToAdd);
+        database.addGame(gameToAdd);
         return gameToAdd;
     }
 
     @Override
-    public void delete(Integer Id) {
-        var game = get(Id);
-        if (game.isPresent())
-            _database.deleteGame(game.get());
+    public void delete(Integer id) {
+        var game = get(id);
+        if (game.isPresent()) {
+            database.deleteGame(game.get());
+        }
     }
 
 }

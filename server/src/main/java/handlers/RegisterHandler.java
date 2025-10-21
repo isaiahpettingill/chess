@@ -10,11 +10,11 @@ import io.javalin.http.HandlerType;
 import services.*;
 
 public final class RegisterHandler implements Handler {
-    private final UserService _userService;
-    private final AuthService _authService;
+    private final UserService userService;
+    private final AuthService authService;
     public RegisterHandler(UserService userService, AuthService authService){
-        _userService = userService;
-        _authService = authService;
+        this.userService = userService;
+        this.authService = authService;
     }
 
     @Override
@@ -29,15 +29,15 @@ public final class RegisterHandler implements Handler {
                 return;
             }
 
-            if (_userService.isAlreadyTaken(body.username())) {
+            if (this.userService.isAlreadyTaken(body.username())) {
                 context.result(HttpErrors.ALREADY_TAKEN);
                 context.status(403);
                 return;
             }
 
-            _userService.saveUser(body);
-            final var token = _authService.generateToken();
-            _authService.saveToken(token, body.username());
+            this.userService.saveUser(body);
+            final var token = this.authService.generateToken();
+            this.authService.saveToken(token, body.username());
 
             var response = new RegisterResponse(body.username(), token.toString());
             

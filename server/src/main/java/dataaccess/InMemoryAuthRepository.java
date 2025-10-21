@@ -6,20 +6,20 @@ import java.util.UUID;
 import models.AuthToken;
 
 public final class InMemoryAuthRepository implements Repository<AuthToken, UUID> {
-    private InMemoryDatabase _database;
+    private InMemoryDatabase database;
 
     public InMemoryAuthRepository() {
-        _database = new InMemoryDatabase();
+        database = new InMemoryDatabase();
     }
 
     @Override
     public Collection<AuthToken> list() {
-        return _database.tokens();
+        return database.tokens();
     }
 
     @Override
-    public Optional<AuthToken> get(UUID Id) {
-        return _database.getToken(Id);
+    public Optional<AuthToken> get(UUID id) {
+        return database.getToken(id);
     }
 
     @Override
@@ -29,18 +29,19 @@ public final class InMemoryAuthRepository implements Repository<AuthToken, UUID>
 
     @Override
     public AuthToken upsert(AuthToken model) {
-        if (_database.getToken(model.authToken()).isPresent()){
+        if (database.getToken(model.authToken()).isPresent()){
             return model;
         }
-        _database.addToken(model);
+        database.addToken(model);
         return model;
     }
 
     @Override
-    public void delete(UUID Id) {
-        var token = get(Id);
-        if (token.isPresent())
-            _database.deleteToken(token.get());
+    public void delete(UUID id) {
+        var token = get(id);
+        if (token.isPresent()) {
+            database.deleteToken(token.get());
+        }
     }
 
 }

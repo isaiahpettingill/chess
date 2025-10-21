@@ -5,18 +5,18 @@ import java.util.Optional;
 
 import models.Model;
 
-public interface Repository<TModel extends Model, TKey> {
+public interface Repository<T extends Model, K> {
     static interface KeyGetter<T> {
         boolean where(T obj);
     }
 
-    Collection<TModel> list();
+    Collection<T> list();
 
-    Optional<TModel> get(TKey Id);
+    Optional<T> get(K id);
 
-    boolean exists(KeyGetter<TModel> getter);
+    boolean exists(KeyGetter<T> getter);
 
-    TModel upsert(TModel model);
+    T upsert(T model);
 
-    void delete(TKey Id);
+    void delete(K id);
 }

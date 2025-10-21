@@ -6,20 +6,20 @@ import java.util.Optional;
 import models.User;
 
 public final class InMemoryUserRepository implements Repository<User, Integer> {
-    private InMemoryDatabase _database;
+    private InMemoryDatabase database;
 
     public InMemoryUserRepository() {
-        _database = new InMemoryDatabase();
+        database = new InMemoryDatabase();
     }
 
     @Override
     public Collection<User> list() {
-        return _database.users();
+        return database.users();
     }
 
     @Override
-    public Optional<User> get(Integer Id) {
-        return _database.getUser(Id);
+    public Optional<User> get(Integer id) {
+        return database.getUser(id);
     }
 
     public Optional<User> getByUsername(String username){
@@ -43,13 +43,13 @@ public final class InMemoryUserRepository implements Repository<User, Integer> {
 
     @Override
     public User upsert(User model) {
-        _database.addUser(model);
+        database.addUser(model);
         return model;
     }
 
     @Override
-    public void delete(Integer Id) {
-        _database.deleteUser(null);
+    public void delete(Integer id) {
+        database.deleteUser(null);
     }
 
 }

@@ -7,17 +7,19 @@ import io.javalin.http.Context;
 import services.AuthService;
 
 public abstract class AuthorizedHandler {
-    private final String AUTHORIZATION = "Authorization";
-    protected final AuthService _authService;
+    private final String authorization = "Authorization";
+    protected final AuthService authService;
 
     protected AuthorizedHandler(AuthService authService) {
-        _authService = authService;
+        this.authService = authService;
     }
 
     protected Optional<UUID> authToken(Context context) {
         try {
-            final var tokenHeader = context.header(AUTHORIZATION);
-            if (tokenHeader == null) return Optional.empty();
+            final var tokenHeader = context.header(authorization);
+            if (tokenHeader == null) {
+                return Optional.empty();
+            }
             return Optional.of(UUID.fromString(tokenHeader));
         } catch (IllegalArgumentException __) {
             return Optional.empty();
@@ -26,7 +28,7 @@ public abstract class AuthorizedHandler {
     
     protected boolean authorize(Context context) {
         final var auth = authToken(context);
-        if (auth == null || !auth.isPresent() || !_authService.validToken(auth.get())) {
+        if (auth == null || !auth.isPresent() || !this.authService.validToken(auth.get())) {
             context.status(401);
             context.result(HttpErrors.UNAUTHORIZED);
             return false;

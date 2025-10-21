@@ -18,7 +18,7 @@ public final class LogoutHandler extends AuthorizedHandler implements Handler {
         try {
             final var token = authToken(context).get();
 
-            _authService.logout(token);
+            this.authService.logout(token);
 
             context.status(200);
             context.result("{}");

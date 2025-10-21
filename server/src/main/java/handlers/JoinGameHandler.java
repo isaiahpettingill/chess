@@ -10,28 +10,29 @@ import services.AuthService;
 import services.GameService;
 
 public final class JoinGameHandler extends AuthorizedHandler implements Handler {
-    private final GameService _gameService;
+    private final GameService gameService;
 
     public JoinGameHandler(AuthService authService, GameService gameService) {
         super(authService);
-        _gameService = gameService;
+        this.gameService = gameService;
     }
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context))
+        if (!authorize(context)) {
             return;
+        }
         try {
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), JoinGamePayload.class);
 
-            if (!body.valid() || !_gameService.gameExists(body.gameID())) {
+            if (!body.valid() || !this.gameService.gameExists(body.gameID())) {
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;
             }
 
-            final var user = _authService.getUserFromToken(authToken(context).get());
+            final var user = this.authService.getUserFromToken(authToken(context).get());
 
             if (!user.isPresent()) { // This should never happen
                 context.status(500);
@@ -39,13 +40,13 @@ public final class JoinGameHandler extends AuthorizedHandler implements Handler 
                 return;
             }
 
-            if (_gameService.isPositionAlreadyTaken(body, user.get().username())) {
+            if (this.gameService.isPositionAlreadyTaken(body, user.get().username())) {
                 context.status(403);
                 context.result(HttpErrors.ALREADY_TAKEN);
                 return;
             }
 
-            _gameService.joinGame(body, user.get().username());
+            this.gameService.joinGame(body, user.get().username());
             context.status(200);
             context.result("{}");
         } catch (JsonSyntaxException ex) {

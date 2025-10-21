@@ -15,22 +15,22 @@ import chess.ChessPiece.PieceType;
  * signature of the existing methods.
  */
 public final class ChessGame {
-  private TeamColor _teamTurn;
-  private ChessBoard _board;
-  private ChessHistory _history;
+  private TeamColor teamTurn;
+  private ChessBoard board;
+  private ChessHistory history;
 
   public ChessGame() {
-    _teamTurn = TeamColor.WHITE;
-    _board = new ChessBoard();
-    _board.resetBoard();
-    _history = new ChessHistory();
+    teamTurn = TeamColor.WHITE;
+    board = new ChessBoard();
+    board.resetBoard();
+    history = new ChessHistory();
   }
 
   /**
    * @return Which team's turn it is
    */
   public TeamColor getTeamTurn() {
-    return _teamTurn;
+    return teamTurn;
   }
 
   /**
@@ -39,7 +39,7 @@ public final class ChessGame {
    * @param team the team whose turn it is
    */
   public void setTeamTurn(TeamColor team) {
-    _teamTurn = team;
+    teamTurn = team;
   }
 
   /**
@@ -50,7 +50,7 @@ public final class ChessGame {
     BLACK
   }
 
-  public TeamColor _otherColor(TeamColor color) {
+  public TeamColor otherColor(TeamColor color) {
     return switch (color) {
       case WHITE -> TeamColor.BLACK;
       case BLACK -> TeamColor.WHITE;
@@ -65,12 +65,13 @@ public final class ChessGame {
    *         startPosition
    */
   public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-    final var piece = _board.getPiece(startPosition);
-    if (piece == null)
+    final var piece = board.getPiece(startPosition);
+    if (piece == null) {
       return Set.of();
-    final var moves = piece.pieceMoves(_board, startPosition)
+    }
+    final var moves = piece.pieceMoves(board, startPosition)
         .stream()
-        .filter(x -> !_kingWouldBeInCheck(x, piece.getTeamColor()))
+        .filter(x -> !kingWouldBeInCheck(x, piece.getTeamColor()))
         .collect(Collectors.toUnmodifiableSet());
     return moves;
   }
@@ -82,36 +83,39 @@ public final class ChessGame {
    * @throws InvalidMoveException if move is invalid
    */
   public void makeMove(ChessMove move) throws InvalidMoveException {
-    final var piece = _board.getPiece(move.getStartPosition());
-    if (piece == null)
+    final var piece = board.getPiece(move.getStartPosition());
+    if (piece == null) {
       throw new InvalidMoveException("There is no piece to move");
-    if (piece.getTeamColor() != getTeamTurn())
+    }
+    if (piece.getTeamColor() != getTeamTurn()) {
       throw new InvalidMoveException("Not your turn.");
+    }
 
     final var valid = validMoves(move.getStartPosition());
 
     if (!valid.contains(move)) {
       throw new InvalidMoveException("Move is not valid for piece");
-    } else if (isInCheck(piece.getTeamColor()) && _kingWouldBeInCheck(move, piece.getTeamColor())) {
+    } else if (isInCheck(piece.getTeamColor()) && kingWouldBeInCheck(move, piece.getTeamColor())) {
       throw new InvalidMoveException("King is still in check");
     } else {
-      _board.movePiece(move);
-      _promotePiece(move, piece.getTeamColor());
-      _teamTurn = _otherColor(_teamTurn);
-      _history.saveMove(_board, move);
+      board.movePiece(move);
+      promotePiece(move, piece.getTeamColor());
+      teamTurn = otherColor(teamTurn);
+      history.saveMove(board, move);
     }
   }
 
-  private boolean _kingWouldBeInCheck(ChessMove move, TeamColor teamColor) {
-    final var future = new ChessBoard(_board);
+  private boolean kingWouldBeInCheck(ChessMove move, TeamColor teamColor) {
+    final var future = new ChessBoard(board);
     future.movePiece(move);
     return isInCheck(teamColor, future);
   }
 
-  private void _promotePiece(ChessMove move, TeamColor teamColor) {
-    if (move.getPromotionPiece() == null)
+  private void promotePiece(ChessMove move, TeamColor teamColor) {
+    if (move.getPromotionPiece() == null) {
       return;
-    _board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, move.getPromotionPiece()));
+    }
+    board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, move.getPromotionPiece()));
   }
 
   /**
@@ -121,20 +125,21 @@ public final class ChessGame {
    * @return True if the specified team is in check
    */
   public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
-    if (teamColor == null || board == null)
+    if (teamColor == null || board == null) {
       return false;
+    }
     final var king = switch (teamColor) {
-      case WHITE -> _getWhiteKing(board);
-      case BLACK -> _getBlackKing(board);
+      case WHITE -> getWhiteKing(board);
+      case BLACK -> getBlackKing(board);
     };
-    final var isInCheck = board.allMovesIncludingAttackKing(_otherColor(teamColor))
+    final var isInCheck = board.allMovesIncludingAttackKing(otherColor(teamColor))
         .map(x -> x.getEndPosition())
         .anyMatch(x -> king.pos().equals(x));
     return isInCheck;
   }
 
   public boolean isInCheck(TeamColor teamColor) {
-    return isInCheck(teamColor, _board);
+    return isInCheck(teamColor, board);
   }
 
   /**
@@ -144,17 +149,17 @@ public final class ChessGame {
    * @return True if the specified team is in checkmate
    */
   public boolean isInCheckmate(TeamColor teamColor) {
-    var could_be_checkmate = isInCheck(teamColor);
-    if (could_be_checkmate) {
-      final var moves = _board.allMovesIncludingAttackKing(teamColor).collect(Collectors.toUnmodifiableSet());
+    var couldBeCheckmate = isInCheck(teamColor);
+    if (couldBeCheckmate) {
+      final var moves = board.allMovesIncludingAttackKing(teamColor).collect(Collectors.toUnmodifiableSet());
       for (var move : moves) {
-        if (!_kingWouldBeInCheck(move, teamColor)) {
-          could_be_checkmate = false;
+        if (!kingWouldBeInCheck(move, teamColor)) {
+          couldBeCheckmate = false;
           break;
         }
       }
     }
-    return could_be_checkmate;
+    return couldBeCheckmate;
   }
 
   /**
@@ -165,26 +170,29 @@ public final class ChessGame {
    * @return True if the specified team is in stalemate, otherwise false
    */
   public boolean isInStalemate(TeamColor teamColor) {
-    final var pieces = _board.piecesAndPositions()
+    final var pieces = board.piecesAndPositions()
         .collect(Collectors.toUnmodifiableSet());
     final var allKings = pieces.stream()
         .map(x -> x.piece().getPieceType())
         .allMatch(x -> x == ChessPiece.PieceType.KING);
-    if (allKings)
+    if (allKings) {
       return true;
+    }
 
     final var sum = pieces.stream()
         .filter(x -> x.piece().getTeamColor() == teamColor)
-        .mapToInt(x -> x.piece().pieceMoves(_board, x.pos()).size())
+        .mapToInt(x -> x.piece().pieceMoves(board, x.pos()).size())
         .sum();
-    if (sum == 0) return true;
+    if (sum == 0) {
+      return true;
+    }
     final var onlyKingIsThere = pieces.stream()
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .count() == 1;
     if (onlyKingIsThere){
-      final var king = switch(teamColor) { case WHITE -> _getWhiteKing(_board); case BLACK -> _getBlackKing(_board);};
-      final var kingMoves = king.piece().pieceMoves(_board, king.pos());
-      final var validMoves = kingMoves.stream().filter(x -> !_kingWouldBeInCheck(x, teamColor)).count();
+      final var king = switch(teamColor) { case WHITE -> getWhiteKing(board); case BLACK -> getBlackKing(board);};
+      final var kingMoves = king.piece().pieceMoves(board, king.pos());
+      final var validMoves = kingMoves.stream().filter(x -> !kingWouldBeInCheck(x, teamColor)).count();
       return validMoves == 0;
     }
     return false;
@@ -196,10 +204,10 @@ public final class ChessGame {
    * @param board the new board to use
    */
   public void setBoard(ChessBoard board) {
-    _board = board;
+    this.board = board;
   }
 
-  private PieceWithPosition _getWhiteKing(ChessBoard board) {
+  private PieceWithPosition getWhiteKing(ChessBoard board) {
     return board.piecesAndPositions()
         .filter(x -> x.piece().getPieceType() == PieceType.KING
             && x.piece().getTeamColor() == TeamColor.WHITE)
@@ -207,7 +215,7 @@ public final class ChessGame {
         .get();
   }
 
-  private PieceWithPosition _getBlackKing(ChessBoard board) {
+  private PieceWithPosition getBlackKing(ChessBoard board) {
     return board.piecesAndPositions()
         .filter(x -> x.piece().getPieceType() == PieceType.KING
             && x.piece().getTeamColor() == TeamColor.BLACK)
@@ -221,17 +229,17 @@ public final class ChessGame {
    * @return the chessboard
    */
   public ChessBoard getBoard() {
-    return _board;
+    return board;
   }
 
   public int hashCode() {
-    return Objects.hash(_board, _teamTurn);
+    return Objects.hash(board, teamTurn);
   }
 
   public boolean equals(Object object) {
     return (object == this) ||
         (object instanceof ChessGame cg)
-            && (cg.getBoard().equals(_board))
-            && (cg.getTeamTurn().equals(_teamTurn));
+            && (cg.getBoard().equals(board))
+            && (cg.getTeamTurn().equals(teamTurn));
   }
 }
