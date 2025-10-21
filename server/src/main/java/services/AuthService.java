@@ -4,17 +4,17 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import dataaccess.AuthRepository;
-import dataaccess.UserRepository;
+import dataaccess.InMemoryAuthRepository;
+import dataaccess.InMemoryUserRepository;
 import models.AuthToken;
 import models.User;
 
 
 public final class AuthService implements Service {
-    private final AuthRepository _authRepository;
-    private final UserRepository _userRepository;
+    private final InMemoryAuthRepository _authRepository;
+    private final InMemoryUserRepository _userRepository;
 
-    public AuthService(AuthRepository authRepository, UserRepository userRepository) {
+    public AuthService(InMemoryAuthRepository authRepository, InMemoryUserRepository userRepository) {
         _authRepository = authRepository;
         _userRepository = userRepository;
     }

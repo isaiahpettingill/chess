@@ -2,9 +2,9 @@ package server;
 
 import java.util.Set;
 
-import dataaccess.AuthRepository;
-import dataaccess.GameRepository;
-import dataaccess.UserRepository;
+import dataaccess.InMemoryAuthRepository;
+import dataaccess.InMemoryGameRespository;
+import dataaccess.InMemoryUserRepository;
 import handlers.*;
 import io.javalin.*;
 import io.javalin.websocket.WsHandlerType;
@@ -16,11 +16,11 @@ public class Server {
 
     public Server() {
         javalinServer = Javalin.create(config -> 
-            config.staticFiles.add("web"));
+            config.staticFiles.add("resources/web"));
 
-        final var userRepository = new UserRepository();
-        final var authRepository = new AuthRepository();
-        final var gameRepository = new GameRepository();
+        final var userRepository = new InMemoryUserRepository();
+        final var authRepository = new InMemoryAuthRepository();
+        final var gameRepository = new InMemoryGameRespository();
 
         final var userService = new UserService(userRepository);
         final var authService = new AuthService(authRepository, userRepository);

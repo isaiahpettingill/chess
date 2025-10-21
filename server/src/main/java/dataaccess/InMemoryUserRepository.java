@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import models.User;
 
-public final class UserRepository implements Repository<User, Integer> {
+public final class InMemoryUserRepository implements Repository<User, Integer> {
     private InMemoryDatabase _database;
 
-    public UserRepository() {
+    public InMemoryUserRepository() {
         _database = new InMemoryDatabase();
     }
 

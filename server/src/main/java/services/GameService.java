@@ -2,15 +2,15 @@ package services;
 
 import java.util.Collection;
 
-import dataaccess.GameRepository;
+import dataaccess.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 import models.Game;
 
 public final class GameService implements Service {
-    private final GameRepository _gameRepository;
+    private final InMemoryGameRespository _gameRepository;
 
-    public GameService(GameRepository gameRepository) {
+    public GameService(InMemoryGameRespository gameRepository) {
         _gameRepository = gameRepository;
     }
 

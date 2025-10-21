@@ -6,10 +6,10 @@ import java.util.Random;
 
 import models.Game;
 
-public final class GameRepository implements Repository<Game, Integer> {
+public final class InMemoryGameRespository implements Repository<Game, Integer> {
     private InMemoryDatabase _database;
 
-    public GameRepository() {
+    public InMemoryGameRespository() {
         _database = new InMemoryDatabase();
     }
 

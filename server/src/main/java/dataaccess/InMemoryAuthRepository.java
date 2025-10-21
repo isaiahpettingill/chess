@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 import models.AuthToken;
 
-public final class AuthRepository implements Repository<AuthToken, UUID> {
+public final class InMemoryAuthRepository implements Repository<AuthToken, UUID> {
     private InMemoryDatabase _database;
 
-    public AuthRepository() {
+    public InMemoryAuthRepository() {
         _database = new InMemoryDatabase();
     }
 
@@ -29,6 +29,9 @@ public final class AuthRepository implements Repository<AuthToken, UUID> {
 
     @Override
     public AuthToken upsert(AuthToken model) {
+        if (_database.getToken(model.authToken()).isPresent()){
+            return model;
+        }
         _database.addToken(model);
         return model;
     }
