@@ -5,10 +5,14 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 
 public final class ClearDBHandler implements Handler {
+    private InMemoryDatabase database;
+    public ClearDBHandler(InMemoryDatabase db){
+        database = db;
+    }
 
     @Override
     public void execute(Context context) {
-        InMemoryDatabase.clearDb();
+        database.clearDb();
 
         context.status(200);
         context.result("{}");

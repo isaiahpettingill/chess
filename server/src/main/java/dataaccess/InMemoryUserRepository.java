@@ -8,8 +8,8 @@ import models.User;
 public final class InMemoryUserRepository implements Repository<User, Integer> {
     private InMemoryDatabase database;
 
-    public InMemoryUserRepository() {
-        database = new InMemoryDatabase();
+    public InMemoryUserRepository(InMemoryDatabase db) {
+        database = db;
     }
 
     @Override
@@ -22,13 +22,8 @@ public final class InMemoryUserRepository implements Repository<User, Integer> {
         return database.getUser(id);
     }
 
-    public Optional<User> getByUsername(String username){
-        for (var user : list()) {
-            if (user.username().equals(username)) {
-                return Optional.of(user);
-            }
-        }
-        return Optional.empty();
+    public Optional<User> getByUsername(String username) {
+        return database.getUserByUsername(username);
     }
 
     @Override

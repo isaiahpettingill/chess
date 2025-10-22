@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import dataaccess.InMemoryAuthRepository;
 import dataaccess.InMemoryUserRepository;
+import java.util.Random;
 import models.AuthToken;
 import models.User;
 
@@ -40,7 +41,7 @@ public final class AuthService implements Service {
     public void saveToken(UUID token, String username){
         this.authRepository.upsert(
             new AuthToken(
-                null,
+                new Random().nextInt(0, Integer.MAX_VALUE),
                 username,
                 token, 
                 OffsetDateTime.now()

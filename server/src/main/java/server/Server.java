@@ -3,6 +3,7 @@ package server;
 import java.util.Set;
 
 import dataaccess.InMemoryAuthRepository;
+import dataaccess.InMemoryDatabase;
 import dataaccess.InMemoryGameRespository;
 import dataaccess.InMemoryUserRepository;
 import handlers.*;
@@ -18,16 +19,18 @@ public class Server {
         javalinServer = Javalin.create(config -> 
             config.staticFiles.add("/web"));
 
-        final var userRepository = new InMemoryUserRepository();
-        final var authRepository = new InMemoryAuthRepository();
-        final var gameRepository = new InMemoryGameRespository();
+        final var db = new InMemoryDatabase();
+
+        final var userRepository = new InMemoryUserRepository(db);
+        final var authRepository = new InMemoryAuthRepository(db);
+        final var gameRepository = new InMemoryGameRespository(db);
 
         final var userService = new UserService(userRepository);
         final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
         final Set<Handler> handlers = Set.of(
-            new ClearDBHandler(),
+            new ClearDBHandler(db),
             new CreateGameHandler(authService, gameService),
             new JoinGameHandler(authService, gameService),
             new ListGamesHandler(authService, gameService),

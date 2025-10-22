@@ -10,10 +10,6 @@ public final record RegisterPayload(
                 && email != null
                 && !username.isBlank()
                 && !password.isBlank()
-                && !email.isBlank() 
-                // Very simplistic email check. 
-                // Yes, I know I should use a regex but idk how crazy our tests are.
-                && email.contains("@")
-                && email.contains(".");
+                && !email.isBlank();
     }
 }

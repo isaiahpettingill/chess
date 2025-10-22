@@ -26,10 +26,10 @@ public final class GameService implements Service {
         final var game = this.gameRepository.get(payload.gameID());
         if (game.isPresent() && username != null){
             if (payload.playerColor().equals(JoinGamePayload.WHITE)){
-                return game.get().whiteUsername() != null || username.equals(game.get().blackUsername());
+                return game.get().whiteUsername() != null;
             }
             else {
-                return game.get().blackUsername() != null || username.equals(game.get().whiteUsername());
+                return game.get().blackUsername() != null;
             }
         }
         return true;

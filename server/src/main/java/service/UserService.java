@@ -1,5 +1,7 @@
 package service;
 
+import java.util.Optional;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 import dataaccess.Repository;
@@ -22,18 +24,18 @@ public final class UserService implements Service {
     }
 
     public boolean validLogin(String username, String password) {
-        return this.userRepository.exists(x -> x.username().equals(username) 
-            && BCrypt.checkpw(password, x.passwordHash()));
+        return this.userRepository.exists(x -> x.username().equals(username)
+                && BCrypt.checkpw(password, x.passwordHash()));
     }
 
-    public void saveUser(RegisterPayload user) {
-        if (isAlreadyTaken(user.username())){
-            return;
+    public Optional<User> saveUser(RegisterPayload user) {
+        if (isAlreadyTaken(user.username())) {
+            return Optional.empty();
         }
-        this.userRepository.upsert(
+        return Optional.of(this.userRepository.upsert(
                 new User(null,
                         user.username(),
                         hashPassword(user.password()),
-                        user.email()));
+                        user.email())));
     }
 }

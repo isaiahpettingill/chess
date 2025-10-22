@@ -9,8 +9,8 @@ import models.Game;
 public final class InMemoryGameRespository implements Repository<Game, Integer> {
     private InMemoryDatabase database;
 
-    public InMemoryGameRespository() {
-        database = new InMemoryDatabase();
+    public InMemoryGameRespository(InMemoryDatabase db) {
+        database = db;
     }
 
     @Override
@@ -34,9 +34,6 @@ public final class InMemoryGameRespository implements Repository<Game, Integer> 
 
     @Override
     public Game upsert(Game model) {
-        if (exists(x -> x.id().equals(model.id()))){
-            database.deleteGame(get(model.id()).get());
-        }
         var gameToAdd = model;
         if (model.id() == null){
             gameToAdd = new Game(

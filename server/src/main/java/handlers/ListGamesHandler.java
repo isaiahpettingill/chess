@@ -2,7 +2,7 @@ package handlers;
 
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import dto.ListGamesResponse;
 import io.javalin.http.Context;
@@ -34,7 +34,7 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
                             x.gameName()
                         ))
                         .collect(Collectors.toList()));
-        final var gson = new Gson();
+        final var gson = new GsonBuilder().serializeNulls().create();
 
         context.status(200);
         context.result(gson.toJson(response));

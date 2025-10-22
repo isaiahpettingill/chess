@@ -1,95 +1,85 @@
 package dataaccess;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import models.*;
 
 public class InMemoryDatabase {
-    public static void clearDb(){
-        tokens = new HashSet<>();
-        games = new ArrayList<>();
-        users = new HashSet<>();
+    public void clearDb() {
+        tokens = new HashMap<>();
+        games = new HashMap<>();
+        users = new HashMap<>();
+        usersByUsername = new HashMap<>();
     }
 
     public InMemoryDatabase() {
-        if (tokens == null) {
-            tokens = new HashSet<>();
-        }
-        if (games == null) {
-            games = new ArrayList<>();
-        }
-        if (users == null) {
-            users = new HashSet<>();
-        }
+        tokens = new HashMap<>();
+        games = new HashMap<>();
+        users = new HashMap<>();
+        usersByUsername = new HashMap<>();
     }
 
     public void addToken(AuthToken token) {
-        tokens.add(token);
+        tokens.put(token.authToken(), token);
     }
 
     public void deleteToken(AuthToken token) {
-        tokens.remove(token);
+        tokens.remove(token.authToken());
+    }
+
+    public Optional<User> getUserByUsername(String username){
+        return usersByUsername.get(username) == null ? Optional.empty() : Optional.of(usersByUsername.get(username));
     }
 
     public Optional<AuthToken> getToken(UUID token) {
-        if (token == null) {
-            return Optional.empty();
-        }
-        return tokens
-                .stream()
-                .filter(x -> x.authToken().equals(token))
-                .findFirst();
+        return tokens.get(token) == null ? Optional.empty() : Optional.of(tokens.get(token));
     }
 
     public void addGame(Game game) {
-        games.add(game);
+        games.put(game.id(), game);
     }
 
     public void deleteGame(Game game) {
-        games.remove(game);
+        games.remove(game.id());
     }
 
     public Optional<Game> getGame(Integer gameId) {
-        if (gameId == null) {
-            return Optional.empty();
-        }
-        return games.stream().filter(x -> x.id().equals(gameId)).findFirst();
+        return games.get(gameId) == null ? Optional.empty() : Optional.of(games.get(gameId));
     }
 
     public Optional<User> getUser(Integer userId) {
-        if (userId == null) {
-            return Optional.empty();
-        }
-        return users.stream().filter(x -> x.id().equals(userId)).findFirst();
+        return users.get(userId) == null ? Optional.empty() : Optional.of(users.get(userId));
     }
 
     public void addUser(User user) {
-        users.add(user);
+        usersByUsername.put(user.username(), user);
+        users.put(user.id(), user);
     }
 
     public void deleteUser(User user) {
-        users.remove(user);
+        usersByUsername.remove(user.username());
+        users.remove(user.id());
     }
 
     public Set<AuthToken> tokens() {
-        return tokens;
+        return tokens.values().stream().collect(Collectors.toSet());
     };
 
     public Collection<Game> games() {
-        return games;
+        return games.values().stream().collect(Collectors.toList());
     }
 
     public Set<User> users() {
-        return users;
+        return users.values().stream().collect(Collectors.toSet());
     };
 
-    private static Set<AuthToken> tokens;
-    private static List<Game> games;
-    private static Set<User> users;
+    private HashMap<UUID, AuthToken> tokens;
+    private HashMap<String, User> usersByUsername;
+    private HashMap<Integer, Game> games;
+    private HashMap<Integer, User> users;
 }

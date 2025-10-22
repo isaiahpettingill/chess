@@ -8,8 +8,8 @@ import models.AuthToken;
 public final class InMemoryAuthRepository implements Repository<AuthToken, UUID> {
     private InMemoryDatabase database;
 
-    public InMemoryAuthRepository() {
-        database = new InMemoryDatabase();
+    public InMemoryAuthRepository(InMemoryDatabase db) {
+        database = db;
     }
 
     @Override

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 
+import dataaccess.InMemoryDatabase;
 import dataaccess.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
@@ -11,7 +12,8 @@ import dto.JoinGamePayload;
 public class GameServiceTests {
     @Test
     public void listWorks(){
-        var repo = new InMemoryGameRespository();
+        final var db = new InMemoryDatabase();
+        var repo = new InMemoryGameRespository(db);
         var gameService = new GameService(repo);    
         
         gameService.createGame(new CreateGamePayload(
@@ -23,12 +25,39 @@ public class GameServiceTests {
         ));
 
         var games = gameService.listGames();
-        assertEquals(games.size(), 2);
+        assertEquals(2, games.size());
+    }
+
+    @Test
+    public void listDoesNotErrorOnEdit(){
+        final var db = new InMemoryDatabase();
+
+        var repo = new InMemoryGameRespository(db);
+        var gameService = new GameService(repo);    
+        
+        var game1 = gameService.createGame(new CreateGamePayload(
+            "The game"
+        ));
+
+        var game2 = gameService.createGame(new CreateGamePayload(
+            "Your mom"
+        ));
+
+        gameService.joinGame(new JoinGamePayload("WHITE", game2.id()), "your mom");
+
+        gameService.joinGame(new JoinGamePayload("WHITE", game1.id()), "your mom");
+        
+        assertTrue(gameService.gameExists(game1.id()));
+        assertTrue(gameService.gameExists(game2.id()));
+        assertTrue(repo.get(game1.id()).isPresent());
+        assertTrue(repo.get(game1.id()).get().whiteUsername().equals("your mom"));
     }
 
     @Test
     public void canJoinGame(){
-        var repo = new InMemoryGameRespository();
+        final var db = new InMemoryDatabase();
+
+        var repo = new InMemoryGameRespository(db);
         var gameService = new GameService(repo);
 
         var game = gameService.createGame(new CreateGamePayload(
@@ -44,7 +73,9 @@ public class GameServiceTests {
 
     @Test
     public void cannotJoinGameIfAlreadyTaken(){
-        var repo = new InMemoryGameRespository();
+        final var db = new InMemoryDatabase();
+
+        var repo = new InMemoryGameRespository(db);
         var gameService = new GameService(repo);
 
         var game = gameService.createGame(new CreateGamePayload(
