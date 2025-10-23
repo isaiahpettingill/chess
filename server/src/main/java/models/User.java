@@ -6,6 +6,6 @@ public record User(
         String passwordHash,
         String emailAddress) implements Model {
     public String getTableName() {
-        return "Users";
+        return "users";
     }
 }

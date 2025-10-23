@@ -3,6 +3,8 @@ package dataaccess;
 import java.sql.*;
 import java.util.Properties;
 
+import database.MigrationRunner;
+
 public class DatabaseManager {
     private static String databaseName;
     private static String dbUsername;
@@ -51,6 +53,12 @@ public class DatabaseManager {
             throw new DataAccessException("failed to get connection", ex);
         }
     }
+
+    public static void runMigrations() throws SQLException, DataAccessException {
+        try(var conn = getConnection()){
+            MigrationRunner.migrate(conn);
+        }
+    }   
 
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {

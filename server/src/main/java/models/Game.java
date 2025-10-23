@@ -7,6 +7,6 @@ public record Game(
         String blackUsername,
         String game) implements Model {
     public String getTableName() {
-        return "Games";
+        return "games";
     }
 }
