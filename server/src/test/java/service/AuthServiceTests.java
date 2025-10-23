@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.*;
 
 import dataaccess.*;
+import dataaccess.inmemory.InMemoryAuthRepository;
+import dataaccess.inmemory.InMemoryDatabase;
+import dataaccess.inmemory.InMemoryUserRepository;
 import models.User;
 
 @TestMethodOrder(MethodOrderer.DisplayName.class)

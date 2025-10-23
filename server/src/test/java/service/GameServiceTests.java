@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 
-import dataaccess.InMemoryDatabase;
-import dataaccess.InMemoryGameRespository;
+import dataaccess.inmemory.InMemoryDatabase;
+import dataaccess.inmemory.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 

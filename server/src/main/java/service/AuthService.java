@@ -4,8 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import dataaccess.InMemoryAuthRepository;
-import dataaccess.InMemoryUserRepository;
+import dataaccess.inmemory.InMemoryAuthRepository;
+import dataaccess.inmemory.InMemoryUserRepository;
+
 import java.util.Random;
 import models.AuthToken;
 import models.User;

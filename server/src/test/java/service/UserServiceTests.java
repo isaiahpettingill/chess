@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import dataaccess.InMemoryDatabase;
-import dataaccess.InMemoryUserRepository;
+import dataaccess.inmemory.InMemoryDatabase;
+import dataaccess.inmemory.InMemoryUserRepository;
 import dto.RegisterPayload;
 
 public class UserServiceTests {

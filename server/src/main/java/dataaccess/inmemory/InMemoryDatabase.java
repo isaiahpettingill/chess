@@ -1,4 +1,4 @@
-package dataaccess;
+package dataaccess.inmemory;
 
 import java.util.Collection;
 import java.util.HashMap;

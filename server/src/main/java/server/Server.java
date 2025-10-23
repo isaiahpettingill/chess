@@ -2,10 +2,10 @@ package server;
 
 import java.util.Set;
 
-import dataaccess.InMemoryAuthRepository;
-import dataaccess.InMemoryDatabase;
-import dataaccess.InMemoryGameRespository;
-import dataaccess.InMemoryUserRepository;
+import dataaccess.inmemory.InMemoryAuthRepository;
+import dataaccess.inmemory.InMemoryDatabase;
+import dataaccess.inmemory.InMemoryGameRespository;
+import dataaccess.inmemory.InMemoryUserRepository;
 import handlers.*;
 import io.javalin.*;
 import io.javalin.websocket.WsHandlerType;

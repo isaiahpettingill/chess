@@ -1,8 +1,9 @@
-package dataaccess;
+package dataaccess.inmemory;
 
 import java.util.Collection;
 import java.util.Optional;
 
+import dataaccess.Repository;
 import models.User;
 
 public final class InMemoryUserRepository implements Repository<User, Integer> {

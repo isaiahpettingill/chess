@@ -1,8 +1,10 @@
-package dataaccess;
+package dataaccess.inmemory;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+
+import dataaccess.Repository;
 import models.AuthToken;
 
 public final class InMemoryAuthRepository implements Repository<AuthToken, UUID> {
