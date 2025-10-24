@@ -2,6 +2,9 @@ package server;
 
 import java.util.Set;
 
+import dataaccess.AuthRepository;
+import dataaccess.GameRepository;
+import dataaccess.UserRepository;
 import dataaccess.inmemory.InMemoryAuthRepository;
 import dataaccess.inmemory.InMemoryDatabase;
 import dataaccess.inmemory.InMemoryGameRespository;
@@ -21,9 +24,9 @@ public class Server {
 
         final var db = new InMemoryDatabase();
 
-        final var userRepository = new InMemoryUserRepository(db);
-        final var authRepository = new InMemoryAuthRepository(db);
-        final var gameRepository = new InMemoryGameRespository(db);
+        final var userRepository = new UserRepository();
+        final var authRepository = new AuthRepository();
+        final var gameRepository = new GameRepository();
 
         final var userService = new UserService(userRepository);
         final var authService = new AuthService(authRepository, userRepository);

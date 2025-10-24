@@ -3,29 +3,30 @@ package dataaccess;
 import java.util.Collection;
 import java.util.Optional;
 
-import models.User;
+import models.Game;
 
-public class UserRepository implements Repository<User, Integer> {
+public class GameRepository implements Repository<Game, Integer> {
+
     @Override
-    public Collection<User> list() {
+    public Collection<Game> list() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'list'");
     }
 
     @Override
-    public Optional<User> get(Integer id) {
+    public Optional<Game> get(Integer id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'get'");
     }
 
     @Override
-    public boolean exists(KeyGetter<User> getter) {
+    public boolean exists(KeyGetter<Game> getter) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'exists'");
     }
 
     @Override
-    public User upsert(User model) {
+    public Game upsert(Game model) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'upsert'");
     }
@@ -37,7 +38,7 @@ public class UserRepository implements Repository<User, Integer> {
     }
 
     @Override
-    public Optional<User> getBy(KeyGetter<User> getter) {
+    public Optional<Game> getBy(KeyGetter<Game> getter) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getBy'");
     }

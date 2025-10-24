@@ -32,10 +32,6 @@ public class InMemoryDatabase {
         tokens.remove(token.authToken());
     }
 
-    public Optional<User> getUserByUsername(String username){
-        return usersByUsername.get(username) == null ? Optional.empty() : Optional.of(usersByUsername.get(username));
-    }
-
     public Optional<AuthToken> getToken(UUID token) {
         return tokens.get(token) == null ? Optional.empty() : Optional.of(tokens.get(token));
     }
@@ -78,8 +74,8 @@ public class InMemoryDatabase {
         return users.values().stream().collect(Collectors.toSet());
     };
 
-    private HashMap<UUID, AuthToken> tokens;
-    private HashMap<String, User> usersByUsername;
-    private HashMap<Integer, Game> games;
-    private HashMap<Integer, User> users;
+    public HashMap<UUID, AuthToken> tokens;
+    public HashMap<String, User> usersByUsername;
+    public HashMap<Integer, Game> games;
+    public HashMap<Integer, User> users;
 }

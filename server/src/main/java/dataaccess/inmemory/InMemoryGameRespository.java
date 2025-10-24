@@ -58,4 +58,9 @@ public final class InMemoryGameRespository implements Repository<Game, Integer> 
         }
     }
 
+    @Override
+    public Optional<Game> getBy(KeyGetter<Game> getter) {
+        return database.games.values().stream().filter(x -> getter.where(x)).findFirst();
+    }
+
 }

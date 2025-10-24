@@ -7,7 +7,7 @@ import dataaccess.Repository;
 import models.User;
 
 public final class InMemoryUserRepository implements Repository<User, Integer> {
-    private InMemoryDatabase database;
+    public final InMemoryDatabase database;
 
     public InMemoryUserRepository(InMemoryDatabase db) {
         database = db;
@@ -21,10 +21,6 @@ public final class InMemoryUserRepository implements Repository<User, Integer> {
     @Override
     public Optional<User> get(Integer id) {
         return database.getUser(id);
-    }
-
-    public Optional<User> getByUsername(String username) {
-        return database.getUserByUsername(username);
     }
 
     @Override
@@ -46,6 +42,11 @@ public final class InMemoryUserRepository implements Repository<User, Integer> {
     @Override
     public void delete(Integer id) {
         database.deleteUser(null);
+    }
+
+    @Override
+    public Optional<User> getBy(KeyGetter<User> getter) {
+        return database.users.values().stream().filter(x -> getter.where(x)).findFirst();
     }
 
 }

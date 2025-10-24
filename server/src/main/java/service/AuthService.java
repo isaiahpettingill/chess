@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import dataaccess.Repository;
 import dataaccess.inmemory.InMemoryAuthRepository;
 import dataaccess.inmemory.InMemoryUserRepository;
 
@@ -13,10 +14,10 @@ import models.User;
 
 
 public final class AuthService implements Service {
-    private final InMemoryAuthRepository authRepository;
-    private final InMemoryUserRepository userRepository;
+    private final Repository<AuthToken, UUID> authRepository;
+    private final Repository<User, Integer> userRepository;
 
-    public AuthService(InMemoryAuthRepository authRepository, InMemoryUserRepository userRepository) {
+    public AuthService(Repository<AuthToken, UUID> authRepository, Repository<User, Integer> userRepository) {
         this.authRepository = authRepository;
         this.userRepository = userRepository;
     }
@@ -25,11 +26,15 @@ public final class AuthService implements Service {
         return this.authRepository.exists(x -> x.authToken().equals(id));
     }
 
+    private Optional<User> getByUsername(String username) {
+        return userRepository.getBy(x -> x.username().equals(username));
+    }
+
     public Optional<User> getUserFromToken(UUID id){
         final var token = this.authRepository.get(id);
         if (token.isPresent()){
             final var username = token.get().username();
-            final var user = this.userRepository.getByUsername(username);
+            final var user = getByUsername(username);
             return user;
         }
         return Optional.empty();

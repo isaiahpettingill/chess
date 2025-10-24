@@ -13,6 +13,7 @@ public interface Repository<T extends Model, K> {
     Collection<T> list();
 
     Optional<T> get(K id);
+    Optional<T> getBy(KeyGetter<T> getter);
 
     boolean exists(KeyGetter<T> getter);
 

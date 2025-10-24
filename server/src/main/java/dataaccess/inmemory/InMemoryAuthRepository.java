@@ -46,4 +46,9 @@ public final class InMemoryAuthRepository implements Repository<AuthToken, UUID>
         }
     }
 
+    @Override
+    public Optional<AuthToken> getBy(KeyGetter<AuthToken> getter) {
+        return database.tokens.values().stream().filter(x -> getter.where(x)).findFirst();
+    }
+
 }
