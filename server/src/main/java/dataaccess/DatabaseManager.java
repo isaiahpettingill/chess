@@ -31,6 +31,13 @@ public final class DatabaseManager {
         }
     }
 
+    public static void clearDb() throws DataAccessException, SQLException {
+        try(final var conn = getConnection()){
+            final var statement = conn.prepareStatement("truncate table users; truncate table authTokens; truncate table games;");
+            statement.execute();
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should

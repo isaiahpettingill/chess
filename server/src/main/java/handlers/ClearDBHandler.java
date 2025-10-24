@@ -1,18 +1,21 @@
 package handlers;
 
-import dataaccess.inmemory.InMemoryDatabase;
+import dataaccess.DatabaseManager;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 
 public final class ClearDBHandler implements Handler {
-    private InMemoryDatabase database;
-    public ClearDBHandler(InMemoryDatabase db){
-        database = db;
+    public ClearDBHandler() {
     }
 
     @Override
     public void execute(Context context) {
-        database.clearDb();
+        try {
+            DatabaseManager.clearDb();
+        } catch (Exception ex) {
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
+        }
 
         context.status(200);
         context.result("{}");
