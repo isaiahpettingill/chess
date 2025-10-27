@@ -19,10 +19,7 @@ public class Server {
     private final Javalin javalinServer;
 
     public Server() {
-        javalinServer = Javalin.create(config -> 
-            config.staticFiles.add("/web"));
-
-        final var db = new InMemoryDatabase();
+        javalinServer = Javalin.create(config -> config.staticFiles.add("/web"));
 
         final var userRepository = new UserRepository();
         final var authRepository = new AuthRepository();
@@ -33,17 +30,15 @@ public class Server {
         final var gameService = new GameService(gameRepository);
 
         final Set<Handler> handlers = Set.of(
-            new ClearDBHandler(db),
-            new CreateGameHandler(authService, gameService),
-            new JoinGameHandler(authService, gameService),
-            new ListGamesHandler(authService, gameService),
-            new LoginHandler(authService, userService),
-            new LogoutHandler(authService),
-            new RegisterHandler(userService, authService)
-        );
-        
+                new ClearDBHandler(),
+                new CreateGameHandler(authService, gameService),
+                new JoinGameHandler(authService, gameService),
+                new ListGamesHandler(authService, gameService),
+                new LoginHandler(authService, userService),
+                new LogoutHandler(authService),
+                new RegisterHandler(userService, authService));
 
-        for (final var handler : handlers){
+        for (final var handler : handlers) {
             javalinServer.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
 

@@ -14,7 +14,8 @@ import service.*;
 public final class RegisterHandler implements Handler {
     private final UserService userService;
     private final AuthService authService;
-    public RegisterHandler(UserService userService, AuthService authService){
+
+    public RegisterHandler(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
     }
@@ -25,7 +26,7 @@ public final class RegisterHandler implements Handler {
         try {
             final var body = gson.fromJson(context.body(), RegisterPayload.class);
 
-            if (!body.valid()){
+            if (!body.valid()) {
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;
@@ -42,15 +43,13 @@ public final class RegisterHandler implements Handler {
             this.authService.saveToken(token, body.username());
 
             var response = new RegisterResponse(body.username(), token.toString());
-            
+
             context.status(200);
             context.result(gson.toJson(response));
-        }
-        catch (JsonSyntaxException ex){
+        } catch (JsonSyntaxException ex) {
             context.status(400);
             context.result(HttpErrors.BAD_REQUEST);
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             context.status(500);
             context.result(HttpErrors.createErrorMessage(ex.getMessage()));
         }

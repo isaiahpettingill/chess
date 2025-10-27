@@ -6,7 +6,7 @@ final class HttpErrors {
     public static final String UNAUTHORIZED = "{ \"message\": \"Error: unauthorized\" }";
 
     public static String createErrorMessage(String message) {
-        return "{ \"message\": \"Error: " +  message + "\" }";
+        return "{ \"message\": \"Error: " + message + "\" }";
     }
 
 }

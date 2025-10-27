@@ -2,8 +2,11 @@ package service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.SQLException;
+
 import org.junit.jupiter.api.*;
 
+import dataaccess.DataAccessException;
 import dataaccess.inmemory.InMemoryDatabase;
 import dataaccess.inmemory.InMemoryGameRespository;
 import dto.CreateGamePayload;
@@ -11,42 +14,38 @@ import dto.JoinGamePayload;
 
 public class GameServiceTests {
     @Test
-    public void listWorks(){
+    public void listWorks() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
         var repo = new InMemoryGameRespository(db);
-        var gameService = new GameService(repo);    
-        
-        gameService.createGame(new CreateGamePayload(
-            "The game"
-        ));
+        var gameService = new GameService(repo);
 
         gameService.createGame(new CreateGamePayload(
-            "Your mom"
-        ));
+                "The game"));
+
+        gameService.createGame(new CreateGamePayload(
+                "Your mom"));
 
         var games = gameService.listGames();
         assertEquals(2, games.size());
     }
 
     @Test
-    public void listDoesNotErrorOnEdit(){
+    public void listDoesNotErrorOnEdit() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
 
         var repo = new InMemoryGameRespository(db);
-        var gameService = new GameService(repo);    
-        
+        var gameService = new GameService(repo);
+
         var game1 = gameService.createGame(new CreateGamePayload(
-            "The game"
-        ));
+                "The game"));
 
         var game2 = gameService.createGame(new CreateGamePayload(
-            "Your mom"
-        ));
+                "Your mom"));
 
         gameService.joinGame(new JoinGamePayload("WHITE", game2.id()), "your mom");
 
         gameService.joinGame(new JoinGamePayload("WHITE", game1.id()), "your mom");
-        
+
         assertTrue(gameService.gameExists(game1.id()));
         assertTrue(gameService.gameExists(game2.id()));
         assertTrue(repo.get(game1.id()).isPresent());
@@ -54,15 +53,14 @@ public class GameServiceTests {
     }
 
     @Test
-    public void canJoinGame(){
+    public void canJoinGame() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
 
         var repo = new InMemoryGameRespository(db);
         var gameService = new GameService(repo);
 
         var game = gameService.createGame(new CreateGamePayload(
-            "The game"
-        ));
+                "The game"));
 
         gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "jonesy");
 
@@ -72,15 +70,14 @@ public class GameServiceTests {
     }
 
     @Test
-    public void cannotJoinGameIfAlreadyTaken(){
+    public void cannotJoinGameIfAlreadyTaken() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
 
         var repo = new InMemoryGameRespository(db);
         var gameService = new GameService(repo);
 
         var game = gameService.createGame(new CreateGamePayload(
-            "The game"
-        ));
+                "The game"));
 
         gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "jonesy");
 
@@ -89,7 +86,7 @@ public class GameServiceTests {
         assertTrue(gameService.isPositionAlreadyTaken(new JoinGamePayload("WHITE", game.id()), "jefferson"));
 
         gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "richard");
-        
+
         assertEquals(game.whiteUsername(), "jonesy");
     }
 }

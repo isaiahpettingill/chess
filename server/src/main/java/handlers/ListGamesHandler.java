@@ -24,20 +24,24 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
             return;
         }
 
-        final var games = this.gameService.listGames();
-        final var response = new ListGamesResponse(
-                games.stream()
-                        .map(x -> new ListGamesResponse.ListGamesGame(
-                            x.id(),
-                            x.whiteUsername(),
-                            x.blackUsername(),
-                            x.gameName()
-                        ))
-                        .collect(Collectors.toList()));
-        final var gson = new GsonBuilder().serializeNulls().create();
+        try {
+            final var games = this.gameService.listGames();
+            final var response = new ListGamesResponse(
+                    games.stream()
+                            .map(x -> new ListGamesResponse.ListGamesGame(
+                                    x.id(),
+                                    x.whiteUsername(),
+                                    x.blackUsername(),
+                                    x.gameName()))
+                            .collect(Collectors.toList()));
+            final var gson = new GsonBuilder().serializeNulls().create();
 
-        context.status(200);
-        context.result(gson.toJson(response));
+            context.status(200);
+            context.result(gson.toJson(response));
+        } catch (Exception ex) {
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
+        }
     }
 
     @Override

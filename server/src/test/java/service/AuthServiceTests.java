@@ -3,6 +3,7 @@ package service;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.*;
@@ -17,7 +18,7 @@ import models.User;
 public class AuthServiceTests {
 
     @Test
-    public void canAddAuthToken() {
+    public void canAddAuthToken() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
         final AuthService authService = new AuthService(authRepository, new InMemoryUserRepository(db));
@@ -28,7 +29,7 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void logoutWorks(){
+    public void logoutWorks() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
         final AuthService authService = new AuthService(authRepository, new InMemoryUserRepository(db));
@@ -39,9 +40,8 @@ public class AuthServiceTests {
         assertFalse(authRepository.get(token).isPresent());
     }
 
-    
     @Test
-    public void logoutSwallowsDuplicates(){
+    public void logoutSwallowsDuplicates() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
         final AuthService authService = new AuthService(authRepository, new InMemoryUserRepository(db));
@@ -50,16 +50,15 @@ public class AuthServiceTests {
         var token2 = UUID.randomUUID();
         authService.saveToken(token, "your mom");
         authService.saveToken(token2, "stacy's mom");
-        for (int i = 0; i < 1000; i++){
+        for (int i = 0; i < 1000; i++) {
             authService.logout(token);
         }
         assertFalse(authRepository.get(token).isPresent());
         assertTrue(authRepository.get(token2).isPresent());
     }
 
-
     @Test
-    public void cannotAddSameAuthTokenTwice() {
+    public void cannotAddSameAuthTokenTwice() throws DataAccessException, SQLException {
         final var db = new InMemoryDatabase();
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
         final AuthService authService = new AuthService(authRepository, new InMemoryUserRepository(db));
@@ -72,7 +71,7 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void getUserFromTokenWorks(){
+    public void getUserFromTokenWorks() throws DataAccessException, SQLException {
         var db = new InMemoryDatabase();
         db.addUser(new User(100, "bob", "asdf", "bob@jones.com"));
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
@@ -84,9 +83,9 @@ public class AuthServiceTests {
         assertTrue(user.isPresent());
         assertTrue(user.get().username().equals("bob"));
     }
-    
+
     @Test
-    public void getUserFromTokenDoesntCreateFakeUsers(){
+    public void getUserFromTokenDoesntCreateFakeUsers() throws DataAccessException, SQLException {
         var db = new InMemoryDatabase();
         db.users().add(new User(100, "bob", "asdf", "bob@jones.com"));
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
@@ -100,7 +99,7 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void validTokenIsValid(){
+    public void validTokenIsValid() throws DataAccessException, SQLException {
         var db = new InMemoryDatabase();
         db.users().add(new User(100, "bob", "asdf", "bob@jones.com"));
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);
@@ -113,7 +112,7 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void invalidTokenInvalid(){
+    public void invalidTokenInvalid() throws DataAccessException, SQLException {
         var db = new InMemoryDatabase();
         db.users().add(new User(100, "bob", "asdf", "bob@jones.com"));
         final InMemoryAuthRepository authRepository = new InMemoryAuthRepository(db);

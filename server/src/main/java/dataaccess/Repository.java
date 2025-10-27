@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -10,14 +11,14 @@ public interface Repository<T extends Model, K> {
         boolean where(T obj);
     }
 
-    Collection<T> list();
+    Collection<T> list() throws DataAccessException, SQLException ;
 
-    Optional<T> get(K id);
-    Optional<T> getBy(KeyGetter<T> getter);
+    Optional<T> get(K id) throws DataAccessException, SQLException ;
+    Optional<T> getBy(KeyGetter<T> getter) throws DataAccessException, SQLException ;
 
-    boolean exists(KeyGetter<T> getter);
+    boolean exists(KeyGetter<T> getter) throws DataAccessException, SQLException ;
 
-    T upsert(T model);
+    T upsert(T model) throws DataAccessException, SQLException ;
 
-    void delete(K id);
+    void delete(K id) throws DataAccessException, SQLException ;
 }

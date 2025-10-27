@@ -11,7 +11,7 @@ public final class LogoutHandler extends AuthorizedHandler implements Handler {
 
     @Override
     public void execute(Context context) {
-        if (!authorize(context)){
+        if (!authorize(context)) {
             return;
         }
 

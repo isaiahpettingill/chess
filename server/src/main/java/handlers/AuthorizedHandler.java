@@ -25,13 +25,19 @@ public abstract class AuthorizedHandler {
             return Optional.empty();
         }
     };
-    
+
     protected boolean authorize(Context context) {
-        final var auth = authToken(context);
-        if (auth == null || !auth.isPresent() || !this.authService.validToken(auth.get())) {
-            context.status(401);
-            context.result(HttpErrors.UNAUTHORIZED);
-            return false;
+
+        try {
+            final var auth = authToken(context);
+            if (auth == null || !auth.isPresent() || !this.authService.validToken(auth.get())) {
+                context.status(401);
+                context.result(HttpErrors.UNAUTHORIZED);
+                return false;
+            }
+        } catch (Exception ex) {
+            context.status(500);
+            context.result(HttpErrors.createErrorMessage(ex.getMessage()));
         }
         return true;
     }

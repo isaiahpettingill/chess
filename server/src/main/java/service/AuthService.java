@@ -1,9 +1,11 @@
 package service;
 
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import dataaccess.DataAccessException;
 import dataaccess.Repository;
 import dataaccess.inmemory.InMemoryAuthRepository;
 import dataaccess.inmemory.InMemoryUserRepository;
@@ -11,7 +13,6 @@ import dataaccess.inmemory.InMemoryUserRepository;
 import java.util.Random;
 import models.AuthToken;
 import models.User;
-
 
 public final class AuthService implements Service {
     private final Repository<AuthToken, UUID> authRepository;
@@ -22,17 +23,17 @@ public final class AuthService implements Service {
         this.userRepository = userRepository;
     }
 
-    public boolean validToken(UUID id){
+    public boolean validToken(UUID id) throws DataAccessException, SQLException {
         return this.authRepository.exists(x -> x.authToken().equals(id));
     }
 
-    private Optional<User> getByUsername(String username) {
+    private Optional<User> getByUsername(String username) throws DataAccessException, SQLException {
         return userRepository.getBy(x -> x.username().equals(username));
     }
 
-    public Optional<User> getUserFromToken(UUID id){
+    public Optional<User> getUserFromToken(UUID id) throws DataAccessException, SQLException {
         final var token = this.authRepository.get(id);
-        if (token.isPresent()){
+        if (token.isPresent()) {
             final var username = token.get().username();
             final var user = getByUsername(username);
             return user;
@@ -40,18 +41,16 @@ public final class AuthService implements Service {
         return Optional.empty();
     }
 
-    public void logout(UUID id){
+    public void logout(UUID id) throws DataAccessException, SQLException {
         this.authRepository.delete(id);
     }
 
-    public void saveToken(UUID token, String username){
+    public void saveToken(UUID token, String username) throws DataAccessException, SQLException {
         this.authRepository.upsert(
-            new AuthToken(
-                new Random().nextInt(0, Integer.MAX_VALUE),
-                username,
-                token, 
-                OffsetDateTime.now()
-            )
-        );
+                new AuthToken(
+                        new Random().nextInt(0, Integer.MAX_VALUE),
+                        username,
+                        token,
+                        OffsetDateTime.now()));
     }
 }
