@@ -19,7 +19,7 @@ public class Server {
         javalinServer = Javalin.create(config -> config.staticFiles.add("/web"));
 
         final var userRepository = new UserRepository();
-        final var authRepository = new AuthRepository(userRepository);
+        final var authRepository = new AuthRepository();
         final var gameRepository = new GameRepository();
 
         final var userService = new UserService(userRepository);
@@ -44,13 +44,6 @@ public class Server {
     }
 
     public int run(int desiredPort) {
-        try {
-            DatabaseManager.createDatabase();
-            DatabaseManager.runMigrations();
-        } catch (Exception ex) {
-            throw new RuntimeException("Could not connect to database: ", ex);
-        }
-
         javalinServer.start(desiredPort);
         return javalinServer.port();
     }

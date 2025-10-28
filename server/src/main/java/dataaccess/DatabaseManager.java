@@ -31,10 +31,28 @@ public final class DatabaseManager {
         }
     }
 
+    public static void testConnection() throws DataAccessException, SQLException {
+        try (final var connection = getConnection()) {
+            final var props = getPropertiesFromResources();
+            final var thedatabaseName = props.getProperty("db.name");
+            final var thedbUsername = props.getProperty("db.user");
+            final var thedbPassword = props.getProperty("db.password");
+            if (!thedatabaseName.equals(databaseName) || !thedbUsername.equals(dbUsername) || !thedbPassword.equals(dbPassword)){
+                throw new RuntimeException("Config does not match loaded values");
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
     public static void clearDb() throws DataAccessException, SQLException {
-        try(final var conn = getConnection()){
-            final var statement = conn.prepareStatement("truncate table users; truncate table authTokens; truncate table games;");
+        try (final var conn = getConnection()) {
+            final var statement = conn.prepareStatement("truncate table users");
             statement.execute();
+            final var statement2 = conn.prepareStatement("truncate table games");
+            statement2.execute();
+            final var statement3 = conn.prepareStatement("truncate table authTokens");
+            statement3.execute();
         }
     }
 
@@ -62,22 +80,27 @@ public final class DatabaseManager {
     }
 
     public static void runMigrations() throws SQLException, DataAccessException {
-        try(var conn = getConnection()){
+        try (var conn = getConnection()) {
             MigrationRunner.migrate(conn);
         }
-    }   
+    }
 
-    private static void loadPropertiesFromResources() {
+    private static Properties getPropertiesFromResources(){
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
             if (propStream == null) {
                 throw new Exception("Unable to load db.properties");
             }
             Properties props = new Properties();
             props.load(propStream);
-            loadProperties(props);
+            return props;
         } catch (Exception ex) {
             throw new RuntimeException("unable to process db.properties", ex);
         }
+    }
+
+    private static void loadPropertiesFromResources() {
+        final var props = getPropertiesFromResources();
+        loadProperties(props);
     }
 
     private static void loadProperties(Properties props) {

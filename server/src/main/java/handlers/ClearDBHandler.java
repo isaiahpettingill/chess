@@ -11,6 +11,7 @@ public final class ClearDBHandler implements Handler {
     @Override
     public void execute(Context context) {
         try {
+            DatabaseManager.testConnection();
             DatabaseManager.clearDb();
         } catch (Exception ex) {
             context.status(500);

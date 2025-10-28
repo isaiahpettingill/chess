@@ -1,7 +1,6 @@
 package service;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +11,7 @@ import java.util.Random;
 import models.AuthToken;
 import models.User;
 
-public final class AuthService implements Service {
+public final class AuthService {
     private final Repository<AuthToken, UUID> authRepository;
     private final Repository<User, Integer> userRepository;
 

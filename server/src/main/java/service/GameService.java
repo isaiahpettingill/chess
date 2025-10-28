@@ -9,7 +9,7 @@ import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 import models.Game;
 
-public final class GameService implements Service {
+public final class GameService {
     private final Repository<Game, Integer> gameRepository;
 
     public GameService(Repository<Game, Integer> gameRepository) {

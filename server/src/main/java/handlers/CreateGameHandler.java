@@ -3,6 +3,7 @@ package handlers;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import dataaccess.DatabaseManager;
 import dto.CreateGamePayload;
 import dto.CreateGameResponse;
 import io.javalin.http.Context;
@@ -25,6 +26,7 @@ public final class CreateGameHandler extends AuthorizedHandler implements Handle
         }
 
         try {
+            DatabaseManager.testConnection();
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), CreateGamePayload.class);
             if (!body.valid()){

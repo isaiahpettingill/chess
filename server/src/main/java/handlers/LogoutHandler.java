@@ -1,5 +1,6 @@
 package handlers;
 
+import dataaccess.DatabaseManager;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import service.AuthService;
@@ -16,6 +17,8 @@ public final class LogoutHandler extends AuthorizedHandler implements Handler {
         }
 
         try {
+            DatabaseManager.testConnection();
+
             final var token = authToken(context).get();
 
             this.authService.logout(token);

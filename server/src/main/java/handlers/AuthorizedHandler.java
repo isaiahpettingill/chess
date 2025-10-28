@@ -3,6 +3,7 @@ package handlers;
 import java.util.Optional;
 import java.util.UUID;
 
+import dataaccess.DatabaseManager;
 import io.javalin.http.Context;
 import service.AuthService;
 
@@ -27,8 +28,8 @@ public abstract class AuthorizedHandler {
     };
 
     protected boolean authorize(Context context) {
-
         try {
+            DatabaseManager.testConnection();
             final var auth = authToken(context);
             if (auth == null || !auth.isPresent() || !this.authService.validToken(auth.get())) {
                 context.status(401);

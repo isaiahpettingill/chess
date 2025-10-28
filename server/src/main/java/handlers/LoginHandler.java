@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import dataaccess.DatabaseManager;
 import dto.LoginPayload;
 import dto.LoginResponse;
 import io.javalin.http.Context;
@@ -24,6 +25,8 @@ public final class LoginHandler implements Handler {
     @Override
     public void execute(Context context) {
         try {
+            DatabaseManager.testConnection();
+
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), LoginPayload.class);
 

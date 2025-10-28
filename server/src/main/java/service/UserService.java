@@ -10,7 +10,7 @@ import dataaccess.Repository;
 import dto.RegisterPayload;
 import models.User;
 
-public final class UserService implements Service {
+public final class UserService {
     private final Repository<User, Integer> userRepository;
 
     public UserService(Repository<User, Integer> userRepository) {

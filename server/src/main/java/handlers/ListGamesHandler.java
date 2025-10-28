@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
 
+import dataaccess.DatabaseManager;
 import dto.ListGamesResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
@@ -25,6 +26,8 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
         }
 
         try {
+            DatabaseManager.testConnection();
+
             final var games = this.gameService.listGames();
             final var response = new ListGamesResponse(
                     games.stream()

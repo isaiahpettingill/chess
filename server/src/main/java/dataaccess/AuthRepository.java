@@ -2,7 +2,6 @@ package dataaccess;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -11,11 +10,6 @@ import java.util.UUID;
 import models.AuthToken;
 
 public class AuthRepository implements Repository<AuthToken, UUID> {
-    UserRepository userRepository;
-
-    public AuthRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public Collection<AuthToken> list() throws DataAccessException, SQLException {
