@@ -1,6 +1,7 @@
 package dataaccess;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -11,13 +12,13 @@ import models.Game;
 public class GameRepository implements Repository<Game, Integer> {
 
     @Override
-    public Collection<Game> list() throws DataAccessException, SQLException  {
-        try (final var connection = DatabaseManager.getConnection()){
-            final var statement = connection.prepareStatement("select * from users;");
+    public Collection<Game> list() throws DataAccessException, SQLException {
+        try (final var connection = DatabaseManager.getConnection()) {
+            final var statement = connection.prepareStatement("select gameId, gameName, whiteUsername, blackUsername, game from games;");
             final var result = statement.executeQuery();
             final var users = new ArrayList<Game>();
 
-            while (result.next()){
+            while (result.next()) {
                 final var id = result.getInt("gameId");
                 final var gameName = result.getString("gameName");
                 final var whiteUsername = result.getString("whiteUsername");
@@ -27,40 +28,97 @@ public class GameRepository implements Repository<Game, Integer> {
             }
 
             return users;
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             return Set.of();
         }
     }
 
     @Override
-    public Optional<Game> get(Integer id) throws DataAccessException, SQLException  {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    public Optional<Game> get(Integer id) throws DataAccessException, SQLException {
+        try (final var connection = DatabaseManager.getConnection()) {
+            final var statement = connection.prepareStatement("select gameId, gameName, whiteUsername, blackUsername, game from games where gameId = ?;");
+            statement.setInt(1, id);
+            final var result = statement.executeQuery();
+
+            if (!result.next()) {
+                return Optional.empty();
+            }
+
+            final var theId = result.getInt("gameId");
+            final var gameName = result.getString("gameName");
+            final var whiteUsername = result.getString("whiteUsername");
+            final var blackUsername = result.getString("blackUsername");
+            final var game = result.getString("game");
+
+            return Optional.of(new Game(theId, gameName, whiteUsername, blackUsername, game));
+        }
     }
 
     @Override
-    public boolean exists(KeyGetter<Game> getter) throws DataAccessException, SQLException  {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'exists'");
+    public boolean exists(KeyGetter<Game> getter) throws DataAccessException, SQLException {
+        return list().stream().anyMatch(getter::where);
     }
 
     @Override
-    public Game upsert(Game model) throws DataAccessException, SQLException  {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'upsert'");
+    public Game upsert(Game model) throws DataAccessException, SQLException {
+        if (model.id() != null) {
+            final var existing = get(model.id());
+            if (existing.isPresent()) {
+                return update(model);
+            } else {
+                return insert(model);
+            }
+        } else {
+            return insert(model);
+        }
+    }
+
+    private Game insert(Game game) throws DataAccessException, SQLException {
+        try (final var connection = DatabaseManager.getConnection()) {
+            final var statement = connection
+                    .prepareStatement("insert into games(gameName, whiteUsername, blackUsername, game) values (?, ?, ?, ?)",
+                            Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, game.gameName());
+            statement.setString(2, game.whiteUsername());
+            statement.setString(3, game.blackUsername());
+            statement.setString(4, game.game());
+            statement.executeUpdate();
+            final var keys = statement.getGeneratedKeys();
+            keys.next();
+            final var id = keys.getInt(1);
+            return new Game(id, game.gameName(), game.whiteUsername(), game.blackUsername(), game.game());
+        }
+    }
+
+    private Game update(Game game) throws DataAccessException, SQLException {
+        try (final var connection = DatabaseManager.getConnection()) {
+            final var statement = connection
+                    .prepareStatement(
+                            "update games set gameName = ?, whiteUsername = ?, blackUsername = ?, game = ? where gameId = ?");
+            statement.setString(1, game.gameName());
+            statement.setString(2, game.whiteUsername());
+            statement.setString(3, game.blackUsername());
+            statement.setString(4, game.game());
+            statement.setInt(5, game.id());
+            statement.executeUpdate();
+            return game;
+        }
     }
 
     @Override
-    public void delete(Integer id) throws DataAccessException, SQLException  {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public void delete(Integer id) throws DataAccessException, SQLException {
+        try (final var connection = DatabaseManager.getConnection()) {
+            final var statement = connection
+                    .prepareStatement(
+                            "delete from games where gameId = ?");
+            statement.setInt(1, id);
+            statement.execute();
+        }
     }
 
     @Override
-    public Optional<Game> getBy(KeyGetter<Game> getter) throws DataAccessException, SQLException  {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBy'");
+    public Optional<Game> getBy(KeyGetter<Game> getter) throws DataAccessException, SQLException {
+        return list().stream().filter(getter::where).findFirst();
     }
-    
+
 }

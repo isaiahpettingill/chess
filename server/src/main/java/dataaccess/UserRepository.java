@@ -1,6 +1,7 @@
 package dataaccess;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public class UserRepository implements Repository<User, Integer> {
     @Override
     public Collection<User> list() throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection.prepareStatement("select * from users;");
+            final var statement = connection.prepareStatement("select userId, username, passwordHash, emailAddress from users;");
             final var result = statement.executeQuery();
             final var users = new ArrayList<User>();
 
@@ -33,13 +34,14 @@ public class UserRepository implements Repository<User, Integer> {
     @Override
     public Optional<User> get(Integer id) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection.prepareStatement("select * from users where userId = ?;");
+            final var statement = connection.prepareStatement("select userId, username, passwordHash, emailAddress from users where userId = ?;");
             statement.setInt(1, id);
             final var result = statement.executeQuery();
 
             if (!result.next()) {
                 return Optional.empty();
             }
+
             final var theId = result.getInt("userId");
             final var username = result.getString("username");
             final var passwordHash = result.getString("passwordHash");
@@ -72,7 +74,8 @@ public class UserRepository implements Repository<User, Integer> {
     private User insert(User user) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
-                    .prepareStatement("insert into users(username, passwordHash, email) values (?, ?, ?)");
+                    .prepareStatement("insert into users(username, passwordHash, emailAddress) values (?, ?, ?)",
+                            Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.username());
             statement.setString(2, user.passwordHash());
             statement.setString(3, user.emailAddress());
@@ -87,7 +90,8 @@ public class UserRepository implements Repository<User, Integer> {
     private User update(User user) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
-                    .prepareStatement("update users set username = ?, passwordHash = ?, email = ? where userId = ?");
+                    .prepareStatement(
+                            "update users set username = ?, passwordHash = ?, emailAddress = ? where userId = ?");
             statement.setString(1, user.username());
             statement.setString(2, user.passwordHash());
             statement.setString(3, user.emailAddress());

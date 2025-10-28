@@ -1,14 +1,12 @@
 package service;
 
 import java.sql.SQLException;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import dataaccess.DataAccessException;
 import dataaccess.Repository;
-import dataaccess.inmemory.InMemoryAuthRepository;
-import dataaccess.inmemory.InMemoryUserRepository;
 
 import java.util.Random;
 import models.AuthToken;
@@ -50,7 +48,6 @@ public final class AuthService implements Service {
                 new AuthToken(
                         new Random().nextInt(0, Integer.MAX_VALUE),
                         username,
-                        token,
-                        OffsetDateTime.now()));
+                        token));
     }
 }

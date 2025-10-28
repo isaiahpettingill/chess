@@ -13,33 +13,24 @@ public class Migration0001 extends Migration {
             emailAddress varchar(512),
             primary key(userId)
         );
-        create unique index index_unique_user_username on users(emailAddress);
+        create unique index index_unique_user_username on users(username);
 
         create table if not exists authTokens(
             tokenId integer not null auto_increment,
-            userId integer not null,
-            token varchar(36) not null,
-            created timestamp,
-            primary key (tokenId),
-            constraint auth_token_user
-                foreign key (userId) references users (userId)
-                on delete cascade,
+            username varchar(2048) not null,
+            token char(36) not null,
+            primary key (tokenId)
         );
+        
         create unique index index_unique_token on authTokens(token);
 
         create table if not exists games(
             gameId integer not null auto_increment,
             gameName varchar(4096) not null,
-            whiteUserId integer null,
-            blackUserId integer null,
+            whiteUsername varchar(4096) null,
+            blackUsername varchar(4096) null,
             game text,
-            primary key (gameId),
-            constraint game_white_user 
-                foreign key (whiteUserId) references users (userId)
-                on delete set null,
-            constraint game_black_user
-                foreign key (blackUserId) references users (userId)
-                on delete set null
+            primary key (gameId)
         );
         """;
     }
@@ -48,9 +39,9 @@ public class Migration0001 extends Migration {
     public String down() {
         return """
         drop table games;
-        drop index index_unique_token;
+        drop index index_unique_token on authTokens;
         drop table authTokens;
-        drop index index_unique_user_username;
+        drop index index_unique_user_username on Users;
         drop table users;
         """;
     }
