@@ -3,6 +3,7 @@ package server;
 import java.util.Set;
 
 import dataaccess.AuthRepository;
+import dataaccess.DatabaseManager;
 import dataaccess.GameRepository;
 import dataaccess.UserRepository;
 import handlers.*;
@@ -39,6 +40,12 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.runMigrations();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
         javalinServer.start(desiredPort);
         return javalinServer.port();
     }
