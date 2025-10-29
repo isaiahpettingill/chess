@@ -9,17 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import models.User;
 
 public class UserRepositoryTests {
-    @BeforeAll
-    public void setUp() throws SQLException, DataAccessException {
-        DatabaseManager.createDatabase();
-    }
-
     @Test
     public void listThrowethNot() {
         final var repo = new UserRepository();
@@ -73,6 +67,14 @@ public class UserRepositoryTests {
         assertNotNull(user);
         var user2 = repo.get(user.id());
         assertNotNull(user2);
+    }
+
+    @Test
+    public void cantGetFakeUser() throws DataAccessException, SQLException {
+        final var repo = new UserRepository();
+        final var id1 = -1;
+        var user2 = repo.get(id1);
+        assertTrue(user2.isEmpty());
     }
 
     @Test

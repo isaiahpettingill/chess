@@ -9,7 +9,7 @@ import java.util.Set;
 
 import models.Game;
 
-public class GameRepository implements Repository<Game, Integer> {
+public class GameRepository extends AbstractRepository<Game> {
 
     @Override
     public Collection<Game> list() throws DataAccessException, SQLException {
@@ -37,7 +37,8 @@ public class GameRepository implements Repository<Game, Integer> {
     @Override
     public Optional<Game> get(Integer id) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection.prepareStatement("select gameId, gameName, whiteUsername, blackUsername, game from games where gameId = ?;");
+            final var statement = connection.prepareStatement(
+                    "select gameId, gameName, whiteUsername, blackUsername, game from games where gameId = ?;");
             statement.setInt(1, id);
             final var result = statement.executeQuery();
 
@@ -60,21 +61,7 @@ public class GameRepository implements Repository<Game, Integer> {
         return list().stream().anyMatch(getter::where);
     }
 
-    @Override
-    public Game upsert(Game model) throws DataAccessException, SQLException {
-        if (model.id() != null) {
-            final var existing = get(model.id());
-            if (existing.isPresent()) {
-                return update(model);
-            } else {
-                return insert(model);
-            }
-        } else {
-            return insert(model);
-        }
-    }
-
-    private Game insert(Game game) throws DataAccessException, SQLException {
+    protected Game insert(Game game) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var query = "insert into games(gameName, whiteUsername, blackUsername, game) values (?, ?, ?, ?)";
             final var statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -90,7 +77,7 @@ public class GameRepository implements Repository<Game, Integer> {
         }
     }
 
-    private Game update(Game game) throws DataAccessException, SQLException {
+    protected Game update(Game game) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
                     .prepareStatement(

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import models.User;
 
-public class UserRepository implements Repository<User, Integer> {
+public class UserRepository extends AbstractRepository<User> {
     @Override
     public Collection<User> list() throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
@@ -34,7 +34,8 @@ public class UserRepository implements Repository<User, Integer> {
     @Override
     public Optional<User> get(Integer id) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection.prepareStatement("select userId, username, passwordHash, emailAddress from users where userId = ?;");
+            final var statement = connection.prepareStatement(
+                    "select userId, username, passwordHash, emailAddress from users where userId = ?;");
             statement.setInt(1, id);
             final var result = statement.executeQuery();
 
@@ -57,21 +58,7 @@ public class UserRepository implements Repository<User, Integer> {
 
     }
 
-    @Override
-    public User upsert(User model) throws DataAccessException, SQLException {
-        if (model.id() != null) {
-            final var existing = get(model.id());
-            if (existing.isPresent()) {
-                return update(model);
-            } else {
-                return insert(model);
-            }
-        } else {
-            return insert(model);
-        }
-    }
-
-    private User insert(User user) throws DataAccessException, SQLException {
+    protected User insert(User user) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var query = "insert into users(username, passwordHash, emailAddress) values (?, ?, ?)";
             final var statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -86,7 +73,7 @@ public class UserRepository implements Repository<User, Integer> {
         }
     }
 
-    private User update(User user) throws DataAccessException, SQLException {
+    protected User update(User user) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
                     .prepareStatement(

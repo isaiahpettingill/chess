@@ -13,11 +13,6 @@ import org.junit.jupiter.api.*;
 import models.Game;
 
 public class GameRepositoryTests {
-    @BeforeAll
-    public void setUp() throws SQLException, DataAccessException {
-        DatabaseManager.createDatabase();
-    }
-
     @Test
     public void listThrowethNot() {
         final var repo = new GameRepository();
@@ -56,6 +51,14 @@ public class GameRepositoryTests {
         assertNotNull(game);
         var game2 = repo.get(game.id());
         assertNotNull(game2);
+    }
+
+    @Test
+    public void cantGetFakeGame() throws DataAccessException, SQLException {
+        final var repo = new GameRepository();
+        final var id1 = -1;
+        var game2 = repo.get(id1);
+        assertTrue(game2.isEmpty());
     }
 
     @Test

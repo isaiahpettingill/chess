@@ -10,9 +10,9 @@ import org.junit.jupiter.api.*;
 import models.AuthToken;
 
 public class AuthRepositoryTests {
-    @BeforeAll
-    public void setUp() throws SQLException, DataAccessException {
-        DatabaseManager.createDatabase();
+    @Test
+    public void clearDb(){
+        assertDoesNotThrow(() -> DatabaseManager.clearDb());
     }
 
     @Test
@@ -51,6 +51,13 @@ public class AuthRepositoryTests {
         assertNotNull(token);
         var token2 = repo.get(token.authToken());
         assertNotNull(token2);
+    }
+
+    @Test
+    public void noPuedeAccederTokenFalso() throws DataAccessException, SQLException {
+        final var repo = new AuthRepository();
+        var token2 = repo.get(UUID.randomUUID());
+        assertNull(token2);
     }
 
     @Test
