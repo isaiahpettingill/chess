@@ -27,7 +27,6 @@ public final class ListGamesHandler extends AuthorizedHandler implements Handler
 
         try {
             DatabaseManager.testConnection();
-
             final var games = this.gameService.listGames();
             final var response = new ListGamesResponse(
                     games.stream()

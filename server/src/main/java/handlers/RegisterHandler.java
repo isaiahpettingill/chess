@@ -5,7 +5,6 @@ import java.util.UUID;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import dataaccess.DatabaseManager;
 import dto.RegisterPayload;
 import dto.RegisterResponse;
 import io.javalin.http.Context;
@@ -25,8 +24,6 @@ public final class RegisterHandler implements Handler {
     public void execute(Context context) {
         final var gson = new Gson();
         try {
-            DatabaseManager.testConnection();
-
             final var body = gson.fromJson(context.body(), RegisterPayload.class);
 
             if (!body.valid()) {

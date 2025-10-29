@@ -33,17 +33,12 @@ public final class DatabaseManager {
 
     public static void testConnection() throws DataAccessException, SQLException {
         try (final var connection = getConnection()) {
-            final var props = getPropertiesFromResources();
-            final var thedatabaseName = props.getProperty("db.name");
-            final var thedbUsername = props.getProperty("db.user");
-            final var thedbPassword = props.getProperty("db.password");
-            if (!thedatabaseName.equals(databaseName) || !thedbUsername.equals(dbUsername) || !thedbPassword.equals(dbPassword)){
-                throw new RuntimeException("Config does not match loaded values");
+            final var result = connection.prepareStatement("select 1").executeQuery();
+            if (!result.next() || result.getInt(1) != 1){
+                throw new DataAccessException("Could not query database!");
             }
-        } catch (Exception ex) {
-            throw ex;
         }
-    }
+    }  
 
     public static void clearDb() throws DataAccessException, SQLException {
         try (final var conn = getConnection()) {

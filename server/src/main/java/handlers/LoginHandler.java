@@ -26,7 +26,6 @@ public final class LoginHandler implements Handler {
     public void execute(Context context) {
         try {
             DatabaseManager.testConnection();
-
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), LoginPayload.class);
 
@@ -60,7 +59,6 @@ public final class LoginHandler implements Handler {
     @Override
     public HandlerType getHttpMethod() {
         return HandlerType.POST;
-
     }
 
     @Override

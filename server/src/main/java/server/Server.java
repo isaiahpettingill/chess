@@ -3,12 +3,10 @@ package server;
 import java.util.Set;
 
 import dataaccess.AuthRepository;
-import dataaccess.DatabaseManager;
 import dataaccess.GameRepository;
 import dataaccess.UserRepository;
 import handlers.*;
 import io.javalin.*;
-import io.javalin.websocket.WsHandlerType;
 import service.*;
 
 public class Server {
@@ -38,9 +36,6 @@ public class Server {
         for (final var handler : handlers) {
             javalinServer.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
-
-        final var wsHandler = new PlayGameWsHandler();
-        javalinServer.addWsHandler(WsHandlerType.WEBSOCKET, PlayGameWsHandler.PATH, wsHandler::handler);
     }
 
     public int run(int desiredPort) {
