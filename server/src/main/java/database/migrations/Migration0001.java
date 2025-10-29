@@ -34,16 +34,5 @@ public class Migration0001 extends Migration {
         );
         """;
     }
-
-    @Override
-    public String down() {
-        return """
-        drop table games;
-        drop index index_unique_token on authTokens;
-        drop table authTokens;
-        drop index index_unique_user_username on Users;
-        drop table users;
-        """;
-    }
     
 }

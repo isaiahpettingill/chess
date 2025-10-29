@@ -8,15 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import models.Game;
 
 public class GameRepositoryTests {
-    @BeforeEach
+    @BeforeAll
     public void setUp() throws SQLException, DataAccessException {
-        DatabaseManager.clearDb();
+        DatabaseManager.createDatabase();
     }
 
     @Test
@@ -53,17 +52,17 @@ public class GameRepositoryTests {
     @Test
     public void canGetGame() throws DataAccessException, SQLException {
         final var repo = new GameRepository();
-        final var Game = repo.upsert(new Game(null, "bob2", "asdfasdfasf", "asdf@asdf.adsf", ""));
-        assertNotNull(Game);
-        var Game2 = repo.get(Game.id());
-        assertNotNull(Game2);
+        final var game = repo.upsert(new Game(null, "bob2", "asdfasdfasf", "asdf@asdf.adsf", ""));
+        assertNotNull(game);
+        var game2 = repo.get(game.id());
+        assertNotNull(game2);
     }
 
     @Test
     public void canDelete() throws DataAccessException, SQLException {
         final var repo = new GameRepository();
-        final var Game = repo.upsert(new Game(null, "bob3", "asdfasf", "asdfasdf", ""));
-        assertDoesNotThrow(() -> repo.delete(Game.id()));
+        final var game = repo.upsert(new Game(null, "bob3", "asdfasf", "asdfasdf", ""));
+        assertDoesNotThrow(() -> repo.delete(game.id()));
     }
 
     @Test

@@ -14,7 +14,8 @@ public class GameRepository implements Repository<Game, Integer> {
     @Override
     public Collection<Game> list() throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection.prepareStatement("select gameId, gameName, whiteUsername, blackUsername, game from games;");
+            final var statement = connection.prepareStatement(
+                    "select gameId, gameName, whiteUsername, blackUsername, game from games;");
             final var result = statement.executeQuery();
             final var users = new ArrayList<Game>();
 
@@ -75,9 +76,8 @@ public class GameRepository implements Repository<Game, Integer> {
 
     private Game insert(Game game) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection
-                    .prepareStatement("insert into games(gameName, whiteUsername, blackUsername, game) values (?, ?, ?, ?)",
-                            Statement.RETURN_GENERATED_KEYS);
+            final var query = "insert into games(gameName, whiteUsername, blackUsername, game) values (?, ?, ?, ?)";
+            final var statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, game.gameName());
             statement.setString(2, game.whiteUsername());
             statement.setString(3, game.blackUsername());

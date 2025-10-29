@@ -12,7 +12,7 @@ import models.AuthToken;
 public class AuthRepositoryTests {
     @BeforeAll
     public void setUp() throws SQLException, DataAccessException {
-        DatabaseManager.clearDb();
+        DatabaseManager.createDatabase();
     }
 
     @Test

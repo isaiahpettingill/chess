@@ -9,11 +9,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import models.User;
 
 public class UserRepositoryTests {
+    @BeforeAll
+    public void setUp() throws SQLException, DataAccessException {
+        DatabaseManager.createDatabase();
+    }
+
     @Test
     public void listThrowethNot() {
         final var repo = new UserRepository();
@@ -56,7 +62,7 @@ public class UserRepositoryTests {
         assertDoesNotThrow(
                 () -> repo.upsert(new User(token.id(), uuid2, "asfddasdfadf", "steve@steve.com")));
         assertTrue(repo.exists(x -> x.username().equals(uuid2)));
-        
+
     }
 
     @Test

@@ -73,9 +73,8 @@ public class UserRepository implements Repository<User, Integer> {
 
     private User insert(User user) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
-            final var statement = connection
-                    .prepareStatement("insert into users(username, passwordHash, emailAddress) values (?, ?, ?)",
-                            Statement.RETURN_GENERATED_KEYS);
+            final var query = "insert into users(username, passwordHash, emailAddress) values (?, ?, ?)";
+            final var statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.username());
             statement.setString(2, user.passwordHash());
             statement.setString(3, user.emailAddress());
