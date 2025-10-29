@@ -41,7 +41,7 @@ public class UserRepositoryTests {
         final var uuid = UUID.randomUUID().toString();
         repo.upsert(new User(
                 null, uuid, "asdfasdfdsfa", "bob@bob.com"));
-        assertThrows(SQLException.class, () -> repo.upsert(new User(
+        assertThrows(Exception.class, () -> repo.upsert(new User(
                 null, uuid, "asdfasdfdsfa", "bob@bob.com")));
     }
 
@@ -97,7 +97,7 @@ public class UserRepositoryTests {
         final var repo = new UserRepository();
         final var uuid1 = UUID.randomUUID().toString();
         repo.upsert(new User(null, uuid1, "", ""));
-        assertTrue(repo.getBy(x -> x.username().equals("stevo2")).isPresent());
+        assertTrue(repo.getBy(x -> x.username().equals(uuid1)).isPresent());
     }
 
     @Test

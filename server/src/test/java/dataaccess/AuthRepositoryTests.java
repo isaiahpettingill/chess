@@ -57,7 +57,7 @@ public class AuthRepositoryTests {
     public void noPuedeAccederTokenFalso() throws DataAccessException, SQLException {
         final var repo = new AuthRepository();
         var token2 = repo.get(UUID.randomUUID());
-        assertNull(token2);
+        assertTrue(token2.isEmpty());
     }
 
     @Test
