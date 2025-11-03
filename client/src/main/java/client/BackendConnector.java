@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import com.google.gson.Gson;
 
-public class BackendClient {
+public class BackendConnector {
     private final String baseurl;
     final static HttpClient http = HttpClient.newHttpClient();
     final static Gson gson = new Gson();
@@ -23,7 +23,7 @@ public class BackendClient {
         return auth.isPresent() ? auth.get() : "";
     }
 
-    public BackendClient(String baseurl) {
+    public BackendConnector(String baseurl) {
         this.baseurl = baseurl;
     }
 
