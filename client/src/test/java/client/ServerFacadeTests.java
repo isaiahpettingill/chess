@@ -197,7 +197,7 @@ public class ServerFacadeTests {
         final var result = connector.joinGame(null);
         assertEquals(result.status(), 400);
 
-        final var result2 = connector.joinGame(new JoinGamePayload());
+        final var result2 = connector.joinGame(new JoinGamePayload(null, null));
         assertEquals(result2.status(), 400);
 
         final var result3 = connector.joinGame(new JoinGamePayload("GREEN", id));
