@@ -17,6 +17,10 @@ public class BackendConnector {
     final static HttpClient http = HttpClient.newHttpClient();
     final static Gson gson = new Gson();
 
+    public static void close(){
+        http.close();
+    }
+
     private Optional<String> auth;
 
     private String getAuth() {
