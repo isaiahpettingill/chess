@@ -31,6 +31,10 @@ public class ServerFacade {
         this.baseurl = baseurl;
     }
 
+    public boolean loggedIn() {
+        return auth.isPresent();
+    }
+
     private static URI makeUri(String base, String path) {
         try {
             return new URI(base + "/" + path);
