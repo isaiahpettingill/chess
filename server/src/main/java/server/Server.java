@@ -17,22 +17,22 @@ import service.*;
 public class Server {
 
     private final Javalin javalinServer;
-    
-    public Server(boolean useInMemory){
+
+    public Server(boolean useInMemory) {
         javalinServer = Javalin.create(config -> config.staticFiles.add("/web"));
 
         final var db = useInMemory ? new InMemoryDatabase() : null;
 
         final var userRepository = useInMemory ? new InMemoryUserRepository(db) : new UserRepository();
         final var authRepository = useInMemory ? new InMemoryAuthRepository(db) : new AuthRepository();
-        final var gameRepository = useInMemory ? new InMemoryGameRespository(db) : new GameRepository(); 
-        
+        final var gameRepository = useInMemory ? new InMemoryGameRespository(db) : new GameRepository();
+
         final var userService = new UserService(userRepository);
         final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
         final Set<Handler> handlers = Set.of(
-                new ClearDBHandler(),
+                useInMemory ? new ClearDBHandler(db) : new ClearDBHandler(),
                 new CreateGameHandler(authService, gameService),
                 new JoinGameHandler(authService, gameService),
                 new ListGamesHandler(authService, gameService),

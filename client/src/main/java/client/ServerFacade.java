@@ -12,34 +12,37 @@ import java.util.Optional;
 
 import com.google.gson.Gson;
 
-public class BackendConnector {
+public class ServerFacade {
     private final String baseurl;
     final static HttpClient http = HttpClient.newHttpClient();
     final static Gson gson = new Gson();
 
-    public static void close(){
+    public static void close() {
         http.close();
     }
 
-    private Optional<String> auth;
+    private Optional<String> auth = Optional.empty();
 
     private String getAuth() {
-        return auth.isPresent() ? auth.get() : "";
+        return auth != null && auth.isPresent() ? auth.get() : "";
     }
 
-    public BackendConnector(String baseurl) {
+    public ServerFacade(String baseurl) {
         this.baseurl = baseurl;
     }
 
     private static URI makeUri(String base, String path) {
         try {
-            return new URI(base + path);
+            return new URI(base + "/" + path);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
     public ServerResponse<RegisterResponse> register(RegisterPayload payload) throws IOException, InterruptedException {
+        if (payload == null) {
+            return new ServerResponse<>(null, 400);
+        }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "user"))
                 .POST(BodyPublishers.ofString(gson.toJson(payload)))
                 .build();
@@ -53,6 +56,9 @@ public class BackendConnector {
     }
 
     public ServerResponse<LoginResponse> login(LoginPayload payload) throws IOException, InterruptedException {
+        if (payload == null) {
+            return new ServerResponse<>(null, 400);
+        }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "session"))
                 .POST(BodyPublishers.ofString(gson.toJson(payload)))
                 .build();
@@ -76,6 +82,9 @@ public class BackendConnector {
     }
 
     public ServerResponse<Void> joinGame(JoinGamePayload payload) throws IOException, InterruptedException {
+        if (payload == null) {
+            return new ServerResponse<>(null, 400);
+        }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
                 .PUT(BodyPublishers.ofString(gson.toJson(payload)))
                 .header("Authorization", getAuth())
@@ -87,6 +96,9 @@ public class BackendConnector {
 
     public ServerResponse<CreateGameResponse> createGame(CreateGamePayload payload)
             throws IOException, InterruptedException {
+        if (payload == null) {
+            return new ServerResponse<>(null, 400);
+        }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
                 .POST(BodyPublishers.ofString(gson.toJson(payload)))
                 .header("Authorization", getAuth())
