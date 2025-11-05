@@ -33,5 +33,8 @@ public final class Prompt {
             final var result = scanner.nextLine();
             handler.handleInput(result);
         }
+        catch (Exception ex){
+            throw new RuntimeException(ex);
+        }
     }
 }
