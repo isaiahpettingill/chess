@@ -1,13 +1,19 @@
 package ui;
 
-import java.util.Scanner;
+import java.io.Console;
 
 public final class Prompt {
+    private static Console console = System.console();
+
     private String promptText;
     private String promptSuffix = ">>>";
-    
+
     public interface PromptHandler {
         void handleInput(String input);
+    };
+
+    public interface IntPromptHandler {
+        void handleInput(int input);
     };
 
     public Prompt(String promptText) {
@@ -19,22 +25,35 @@ public final class Prompt {
         this.promptSuffix = promptSuffix;
     }
 
-    public void setPromptText(String text){
+    public void setPromptText(String text) {
         promptText = text;
     }
 
-    public void setPromptSuffix(String text){
+    public void setPromptSuffix(String text) {
         promptSuffix = text;
+    }
+
+    public void runInt(IntPromptHandler handler) {
+        boolean valid = false;
+        do {
+            System.out.printf("%s %s ", promptText, promptSuffix);
+            final var input = console.readLine();
+            try {
+                var integer = Integer.parseInt(input);
+                valid = true;
+                handler.handleInput(integer);
+            } catch (NumberFormatException nfe) {
+                if (input.trim().startsWith("q")) {
+                    break;
+                }
+                continue;
+            }
+        } while (!valid);
     }
 
     public void run(PromptHandler handler) {
         System.out.printf("%s %s ", promptText, promptSuffix);
-        try (final var scanner = new Scanner(System.in)) {
-            final var result = scanner.nextLine();
-            handler.handleInput(result);
-        }
-        catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        final var value = console.readLine();
+        handler.handleInput(value);
     }
 }
