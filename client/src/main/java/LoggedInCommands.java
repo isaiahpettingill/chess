@@ -142,8 +142,8 @@ final class LoggedInCommands {
                     CONSOLE.printf("Game: %s (id %d) [%s vs %s]\n", game.gameName(), game.gameID(),
                             game.whiteUsername(),
                             game.blackUsername());
-                    CONSOLE.printf(RESET_TEXT_COLOR);
                 }
+                CONSOLE.printf(RESET_TEXT_COLOR);
             }
 
         } catch (Exception ex) {
