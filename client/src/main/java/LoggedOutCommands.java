@@ -1,4 +1,5 @@
 import java.io.Console;
+import java.util.Random;
 
 import client.ServerFacade;
 import dto.LoginPayload;
@@ -42,47 +43,131 @@ final class LoggedOutCommands {
         });
     }
 
-    public void handleLoggedOut(int input) {
+    private void login() {
         try {
-            switch (input) {
-                case 1: {
-                    getUsernamePassword();
-                    var response = backend.login(new LoginPayload(username, password));
+            getUsernamePassword();
+            var response = backend.login(new LoginPayload(username, password));
 
-                    if (response.status() == 200) {
-                        setLoggedIn.set(true);
-                        password = null;
-                    } else {
-                        CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
-                    }
-                    break;
-                }
-                case 2: {
-                    getUsernamePassword();
-                    new Prompt("[Enter your email]").run(e -> {
-                        email = e;
-                    });
-                    var response = backend.register(new RegisterPayload(username, password, email));
-
-                    if (response.status() == 200) {
-                        setLoggedIn.set(true);
-                        password = null;
-                    } else {
-                        CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
-                    }
-                    break;
-                }
-                case 3:
-                    if (getLoggedIn.get()) {
-                        backend.logout();
-                    }
-                    setShouldContinue.set(false);
-                    break;
-                default:
-                    break;
+            if (response.status() == 200) {
+                setLoggedIn.set(true);
+                password = null;
+            } else {
+                CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
+
+    private void register() {
+        try {
+            getUsernamePassword();
+            new Prompt("[Enter your email]").run(e -> {
+                email = e;
+            });
+            var response = backend.register(new RegisterPayload(username, password, email));
+
+            if (response.status() == 200) {
+                setLoggedIn.set(true);
+                password = null;
+            } else {
+                CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void quit() {
+        try {
+            if (getLoggedIn.get()) {
+                backend.logout();
+            }
+            setShouldContinue.set(false);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void handleLoggedOut(int input) {
+        switch (input) {
+            case 0:
+                CONSOLE.printf("\tEnter a number to select one of the options.");
+                CONSOLE.printf("\tIf you lack an account, register. Otherwise, log in.");
+                CONSOLE.printf("\tDo not be stupid and delete the database.");
+                break;
+            case 1:
+                login();
+                break;
+            case 2:
+                register();
+                break;
+            case 3:
+                quit();
+                break;
+            case 4:
+                beStupid();
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private void beStupid() {
+        try {
+            var sure = CONSOLE.readLine("Are you sure? [y/N]");
+            if (!sure.toLowerCase().equals("y")) {
+                return;
+            }
+            sure = CONSOLE.readLine("Are you still sure? [y/N]");
+            if (!sure.toLowerCase().equals("y")) {
+                return;
+            }
+            CONSOLE.printf("This is a terrible idea.\n");
+            sure = CONSOLE.readLine("Are you sure you want to clear the whole db? [y/N]");
+            if (!sure.toLowerCase().equals("y")) {
+                return;
+            }
+            sure = CONSOLE.readLine("You are a terrible person. Do you still want to continue? [y/N]");
+            if (!sure.toLowerCase().equals("y")) {
+                return;
+            }
+            CONSOLE.printf("Clearing the database...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Considering life decisions...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Writing goodbyes to family members...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Telling my wife I loved her and will love her forever...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("This is taking longer than expected...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Oh my gosh you should press CTRL+C...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Thinking maybe I have a lot to live for and considering backing out...\n");
+            var doesContinue = new Random().nextInt(0, 10);
+            if (doesContinue < 7) {
+                CONSOLE.printf("I decided not to clear the database. Sorry for the inconvenience.\n");
+                return;
+            }
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Oh wait, no! The button worked?...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Saving your name to a backup location so we can blame you later...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            doesContinue = new Random().nextInt(0, 10);
+            if (doesContinue < 7) {
+                CONSOLE.printf("Hmm... Network issue. Sorry kid. Not really...\n");
+                setShouldContinue.set(false);
+                return;
+            }
+            backend.clearDb();
+            CONSOLE.printf("The database has been cleared. You will live forever in infamy.\n");
+            setShouldContinue.set(false);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 }
