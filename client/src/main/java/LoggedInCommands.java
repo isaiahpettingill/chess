@@ -81,7 +81,8 @@ final class LoggedInCommands {
             CONSOLE.printf("websocket not yet implemented! Will observe game: %d", gameIdInteger);
 
         } catch (NumberFormatException ex) {
-            CONSOLE.printf("Bro, the ID needs to be an integer dang it.");
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
+                    + RESET_TEXT_COLOR);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -90,7 +91,9 @@ final class LoggedInCommands {
     private void joinGame() {
         try {
             final var gameId = CONSOLE.readLine("[Game id]: ");
-            final var color = CONSOLE.readLine("[BLACK/WHITE]: ");
+            final var color = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
+                    + SET_TEXT_COLOR_BLACK + "BLACK"
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ");
 
             if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())) {
                 CONSOLE.printf(SET_TEXT_COLOR_RED + "\tColor must be BLACK or WHITE\n"
@@ -101,7 +104,7 @@ final class LoggedInCommands {
             var gameIdInteger = Integer.parseInt(gameId);
 
             backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameIdInteger));
-            CONSOLE.printf("success");
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
 
         } catch (NumberFormatException ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it." + RESET_TEXT_COLOR);
@@ -115,7 +118,7 @@ final class LoggedInCommands {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
             var id = game.body().gameID();
-            CONSOLE.printf("Game created. (ID: %d)\n", id);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %d)\n" + RESET_TEXT_COLOR, id);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
