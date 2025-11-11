@@ -1,3 +1,5 @@
+import java.io.Console;
+
 import client.ServerFacade;
 import dto.LoginPayload;
 import dto.RegisterPayload;
@@ -8,7 +10,9 @@ final class LoggedOutCommands {
     private String password;
     private String email;
 
-    public interface BooleanSetter{
+    private static final Console CONSOLE = System.console();
+
+    public interface BooleanSetter {
         void set(boolean val);
     }
 
@@ -16,13 +20,13 @@ final class LoggedOutCommands {
         boolean get();
     }
 
-
     private final ServerFacade backend;
     private final BooleanSetter setLoggedIn;
     private final BooleanGetter getLoggedIn;
     private final BooleanSetter setShouldContinue;
 
-    public LoggedOutCommands(ServerFacade serverFacade, BooleanSetter setLoggedIn, BooleanGetter getLoggedIn, BooleanSetter setShouldContinue){
+    public LoggedOutCommands(ServerFacade serverFacade, BooleanSetter setLoggedIn, BooleanGetter getLoggedIn,
+            BooleanSetter setShouldContinue) {
         backend = serverFacade;
         this.setLoggedIn = setLoggedIn;
         this.getLoggedIn = getLoggedIn;
@@ -41,21 +45,33 @@ final class LoggedOutCommands {
     public void handleLoggedOut(int input) {
         try {
             switch (input) {
-                case 1:
+                case 1: {
                     getUsernamePassword();
-                    backend.login(new LoginPayload(username, password));
-                    setLoggedIn.set(true);
-                    password = null;
+                    var response = backend.login(new LoginPayload(username, password));
+
+                    if (response.status() == 200) {
+                        setLoggedIn.set(true);
+                        password = null;
+                    } else {
+                        CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
+                    }
                     break;
-                case 2:
+                }
+                case 2: {
                     getUsernamePassword();
                     new Prompt("[Enter your email]").run(e -> {
                         email = e;
                     });
-                    backend.register(new RegisterPayload(username, password, email));
-                    setLoggedIn.set(true);
-                    password = null;
+                    var response = backend.register(new RegisterPayload(username, password, email));
+
+                    if (response.status() == 200) {
+                        setLoggedIn.set(true);
+                        password = null;
+                    } else {
+                        CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
+                    }
                     break;
+                }
                 case 3:
                     if (getLoggedIn.get()) {
                         backend.logout();

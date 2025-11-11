@@ -21,6 +21,6 @@ public final class Prompts {
             [5]: Dangerously clear everything in the database because why the heck not
             [6]: Quit
 
-            [LOGGED OUT]""";
+            [LOGGED IN]""";
 
 }

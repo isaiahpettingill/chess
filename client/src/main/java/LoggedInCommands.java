@@ -86,10 +86,18 @@ final class LoggedInCommands {
             Thread.sleep(new Random().nextInt(1000, 10000));
             CONSOLE.printf("Oh wait, no! The button worked?...\n");
             Thread.sleep(new Random().nextInt(1000, 10000));
+            CONSOLE.printf("Saving your name to a backup location so we can blame you later...\n");
+            Thread.sleep(new Random().nextInt(1000, 10000));
+            doesContinue = new Random().nextInt(0, 10);
+            if (doesContinue < 7) {
+                CONSOLE.printf("Hmm... Network issue. Sorry kid. Not really...\n");
+                setShouldContinue.set(false);
+                return;
+            }
             backend.clearDb();
             CONSOLE.printf("The database has been cleared. You will live forever in infamy.\n");
+            setShouldContinue.set(false);
         }
-
         catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -99,6 +107,7 @@ final class LoggedInCommands {
         try {
             backend.logout();
             setLoggedIn.set(false);
+            setShouldContinue.set(true);
             CONSOLE.printf("Logged out!\n");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
