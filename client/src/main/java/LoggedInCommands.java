@@ -1,9 +1,9 @@
 import java.io.Console;
-import java.util.Random;
 
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
+import ui.EscapeSequences;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
@@ -23,6 +23,9 @@ final class LoggedInCommands {
 
     public void handleLoggedIn(int input) {
         switch (input) {
+            case 0:
+                help();
+                break;
             case 1:
                 listGames();
                 break;
@@ -33,10 +36,10 @@ final class LoggedInCommands {
                 joinGame();
                 break;
             case 4:
-                logout();
+                observeGame();
                 break;
             case 5:
-                beStupid();
+                logout();
                 break;
             case 6:
                 setShouldContinue.set(false);
@@ -46,61 +49,16 @@ final class LoggedInCommands {
         }
     }
 
-    private void beStupid() {
-        try {
-            var sure = CONSOLE.readLine("Are you sure? [y/N]");
-            if (!sure.toLowerCase().equals("y")) {
-                return;
-            }
-            sure = CONSOLE.readLine("Are you still sure? [y/N]");
-            if (!sure.toLowerCase().equals("y")) {
-                return;
-            }
-            CONSOLE.printf("This is a terrible idea.\n");
-            sure = CONSOLE.readLine("Are you sure you want to clear the whole db? [y/N]");
-            if (!sure.toLowerCase().equals("y")) {
-                return;
-            }
-            sure = CONSOLE.readLine("You are a terrible person. Do you still want to continue? [y/N]");
-            if (!sure.toLowerCase().equals("y")) {
-                return;
-            }
-            CONSOLE.printf("Clearing the database...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Considering life decisions...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Writing goodbyes to family members...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Telling my wife I loved her and will love her forever...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("This is taking longer than expected...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Oh my gosh you should press CTRL+C...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Thinking maybe I have a lot to live for and considering backing out...\n");
-            var doesContinue = new Random().nextInt(0, 10);
-            if (doesContinue < 7) {
-                CONSOLE.printf("I decided not to clear the database. Sorry for the inconvenience.\n");
-                return;
-            }
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Oh wait, no! The button worked?...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            CONSOLE.printf("Saving your name to a backup location so we can blame you later...\n");
-            Thread.sleep(new Random().nextInt(1000, 10000));
-            doesContinue = new Random().nextInt(0, 10);
-            if (doesContinue < 7) {
-                CONSOLE.printf("Hmm... Network issue. Sorry kid. Not really...\n");
-                setShouldContinue.set(false);
-                return;
-            }
-            backend.clearDb();
-            CONSOLE.printf("The database has been cleared. You will live forever in infamy.\n");
-            setShouldContinue.set(false);
-        }
-        catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+    private void help(){
+        CONSOLE.printf(EscapeSequences.SET_TEXT_COLOR_RED);
+        CONSOLE.printf("\tEnter 0 to see this message\n");
+        CONSOLE.printf("\tEnter 1 to list all available games\n");
+        CONSOLE.printf("\tEnter 2 to create a new game\n");
+        CONSOLE.printf("\tEnter 3 to play a game over the network\n");
+        CONSOLE.printf("\tEnter 4 to observe a game over the network\n");
+        CONSOLE.printf("\tEnter 5 to sign out\n");
+        CONSOLE.printf("\tEnter 6 to close the application and clear credentials\n");
+        CONSOLE.printf(EscapeSequences.RESET_TEXT_COLOR);
     }
 
     private void logout() {
@@ -110,6 +68,22 @@ final class LoggedInCommands {
             setShouldContinue.set(true);
             CONSOLE.printf("Logged out!\n");
         } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void observeGame(){
+        try {
+            final var gameId = CONSOLE.readLine("[Game id]: ");
+
+            var gameIdInteger = Integer.parseInt(gameId);
+
+            CONSOLE.printf("websocket not yet implemented! Will observe game: %d", gameIdInteger);
+
+        } catch (NumberFormatException ex) {
+            CONSOLE.printf("Bro, the ID needs to be an integer dang it.");
+        } 
+        catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
