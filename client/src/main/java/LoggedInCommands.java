@@ -3,6 +3,7 @@ import java.util.Random;
 
 import client.ServerFacade;
 import dto.CreateGamePayload;
+import dto.JoinGamePayload;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
@@ -33,8 +34,10 @@ final class LoggedInCommands {
                 break;
             case 4:
                 logout();
+                break;
             case 5:
                 beStupid();
+                break;
             case 6:
                 setShouldContinue.set(false);
                 break;
@@ -103,7 +106,26 @@ final class LoggedInCommands {
     }
 
     private void joinGame() {
+        try {
+            final var gameId = console.readLine("[Game id]: ");
+            final var color = console.readLine("[BLACK/WHITE]: ");
 
+            if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())){
+                console.printf("Color must be BLACK or WHITE");
+                return;
+            }
+
+            var gameIdInteger = Integer.parseInt(gameId);
+
+            backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameIdInteger));
+            console.printf("success");
+
+        } catch (NumberFormatException ex) {
+            console.printf("Bro, the ID needs to be an integer dang it.");
+        } 
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private void createGame() {

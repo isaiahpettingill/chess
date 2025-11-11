@@ -12,7 +12,8 @@ public final class Main {
 
     private static LoggedOutCommands loggedOutCommands = new LoggedOutCommands(backend, li -> loggedIn = li,
             () -> loggedIn, x -> shouldContinue = x);
-    private static LoggedInCommands loggedInCommands = new LoggedInCommands(backend, x -> shouldContinue = x);
+    private static LoggedInCommands loggedInCommands = new LoggedInCommands(backend, x -> shouldContinue = x,
+            vx -> shouldContinue = vx);
 
     public static void main(String[] args) {
 
