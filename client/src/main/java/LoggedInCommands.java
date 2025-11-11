@@ -3,7 +3,7 @@ import java.io.Console;
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
-import ui.EscapeSequences;
+import static ui.EscapeSequences.*;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
@@ -49,8 +49,8 @@ final class LoggedInCommands {
         }
     }
 
-    private void help(){
-        CONSOLE.printf(EscapeSequences.SET_TEXT_COLOR_RED);
+    private void help() {
+        CONSOLE.printf(SET_TEXT_COLOR_GREEN);
         CONSOLE.printf("\tEnter 0 to see this message\n");
         CONSOLE.printf("\tEnter 1 to list all available games\n");
         CONSOLE.printf("\tEnter 2 to create a new game\n");
@@ -58,7 +58,7 @@ final class LoggedInCommands {
         CONSOLE.printf("\tEnter 4 to observe a game over the network\n");
         CONSOLE.printf("\tEnter 5 to sign out\n");
         CONSOLE.printf("\tEnter 6 to close the application and clear credentials\n");
-        CONSOLE.printf(EscapeSequences.RESET_TEXT_COLOR);
+        CONSOLE.printf(RESET_TEXT_COLOR);
     }
 
     private void logout() {
@@ -72,7 +72,7 @@ final class LoggedInCommands {
         }
     }
 
-    private void observeGame(){
+    private void observeGame() {
         try {
             final var gameId = CONSOLE.readLine("[Game id]: ");
 
@@ -82,8 +82,7 @@ final class LoggedInCommands {
 
         } catch (NumberFormatException ex) {
             CONSOLE.printf("Bro, the ID needs to be an integer dang it.");
-        } 
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -93,8 +92,9 @@ final class LoggedInCommands {
             final var gameId = CONSOLE.readLine("[Game id]: ");
             final var color = CONSOLE.readLine("[BLACK/WHITE]: ");
 
-            if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())){
-                CONSOLE.printf("Color must be BLACK or WHITE");
+            if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "\tColor must be BLACK or WHITE\n"
+                        + RESET_TEXT_COLOR);
                 return;
             }
 
@@ -104,9 +104,8 @@ final class LoggedInCommands {
             CONSOLE.printf("success");
 
         } catch (NumberFormatException ex) {
-            CONSOLE.printf("Bro, the ID needs to be an integer dang it.");
-        } 
-        catch (Exception ex) {
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it." + RESET_TEXT_COLOR);
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -128,9 +127,12 @@ final class LoggedInCommands {
             var games = backend.listGames();
 
             if (games.status() != 200) {
-                CONSOLE.printf("Error. Status %d\n", games.status());
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Error. Status %d\n"
+                        + RESET_TEXT_COLOR,
+                        games.status());
             } else {
                 final var allGames = games.body().games();
+                CONSOLE.printf(SET_TEXT_COLOR_GREEN);
                 if (allGames.size() == 0) {
                     CONSOLE.printf("No games! Create one to play.\n");
                     return;
@@ -140,6 +142,7 @@ final class LoggedInCommands {
                     CONSOLE.printf("Game: %s (id %d) [%s vs %s]\n", game.gameName(), game.gameID(),
                             game.whiteUsername(),
                             game.blackUsername());
+                    CONSOLE.printf(RESET_TEXT_COLOR);
                 }
             }
 
