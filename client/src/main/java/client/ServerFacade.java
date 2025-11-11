@@ -14,11 +14,11 @@ import com.google.gson.Gson;
 
 public class ServerFacade {
     private final String baseurl;
-    final static HttpClient http = HttpClient.newHttpClient();
-    final static Gson gson = new Gson();
+    private final static HttpClient HTTP = HttpClient.newHttpClient();
+    private final static Gson GSON = new Gson();
 
     public static void close() {
-        http.close();
+        HTTP.close();
     }
 
     private Optional<String> auth = Optional.empty();
@@ -29,10 +29,6 @@ public class ServerFacade {
 
     public ServerFacade(String baseurl) {
         this.baseurl = baseurl;
-    }
-
-    public boolean loggedIn() {
-        return auth.isPresent();
     }
 
     private static URI makeUri(String base, String path) {
@@ -48,11 +44,11 @@ public class ServerFacade {
             return new ServerResponse<>(null, 400);
         }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "user"))
-                .POST(BodyPublishers.ofString(gson.toJson(payload)))
+                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? gson.fromJson(res.body(), RegisterResponse.class) : null;
+        var body = status == 200 ? GSON.fromJson(res.body(), RegisterResponse.class) : null;
         if (status == 200 && body != null) {
             auth = Optional.of(body.authToken());
         }
@@ -64,11 +60,11 @@ public class ServerFacade {
             return new ServerResponse<>(null, 400);
         }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "session"))
-                .POST(BodyPublishers.ofString(gson.toJson(payload)))
+                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? gson.fromJson(res.body(), LoginResponse.class) : null;
+        var body = status == 200 ? GSON.fromJson(res.body(), LoginResponse.class) : null;
         if (status == 200 && body != null) {
             auth = Optional.of(body.authToken());
         }
@@ -80,7 +76,7 @@ public class ServerFacade {
                 .DELETE()
                 .header("Authorization", getAuth())
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
         return new ServerResponse<>(null, status);
     }
@@ -90,10 +86,10 @@ public class ServerFacade {
             return new ServerResponse<>(null, 400);
         }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
-                .PUT(BodyPublishers.ofString(gson.toJson(payload)))
+                .PUT(BodyPublishers.ofString(GSON.toJson(payload)))
                 .header("Authorization", getAuth())
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
         return new ServerResponse<>(null, status);
     }
@@ -104,12 +100,12 @@ public class ServerFacade {
             return new ServerResponse<>(null, 400);
         }
         var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
-                .POST(BodyPublishers.ofString(gson.toJson(payload)))
+                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
                 .header("Authorization", getAuth())
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? gson.fromJson(res.body(), CreateGameResponse.class) : null;
+        var body = status == 200 ? GSON.fromJson(res.body(), CreateGameResponse.class) : null;
         return new ServerResponse<>(body, status);
 
     }
@@ -118,7 +114,7 @@ public class ServerFacade {
         var req = HttpRequest.newBuilder(makeUri(baseurl, "db"))
                 .DELETE()
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
         return new ServerResponse<>(null, status);
     }
@@ -128,9 +124,9 @@ public class ServerFacade {
                 .GET()
                 .header("Authorization", getAuth())
                 .build();
-        var res = http.send(req, BodyHandlers.ofString());
+        var res = HTTP.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? gson.fromJson(res.body(), ListGamesResponse.class) : null;
+        var body = status == 200 ? GSON.fromJson(res.body(), ListGamesResponse.class) : null;
         return new ServerResponse<>(body, status);
     }
 }

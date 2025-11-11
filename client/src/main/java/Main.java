@@ -1,5 +1,4 @@
 import client.ServerFacade;
-import dto.*;
 import ui.Prompt;
 
 import static ui.Prompts.*;
