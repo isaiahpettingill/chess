@@ -125,7 +125,7 @@ final class LoggedOutCommands {
 
     private void beStupid() {
         try {
-            var sure = CONSOLE.readLine("Are you sure? [y/N]");
+            var sure = CONSOLE.readLine("Are you sure? [y/N]").trim();
             if (!sure.toLowerCase().equals("y")) {
                 if (sure.toLowerCase().equals("sudo delete everything")){
                     backend.clearDb();
@@ -134,16 +134,16 @@ final class LoggedOutCommands {
                 }
                 return;
             }
-            sure = CONSOLE.readLine("Are you still sure? [y/N]");
+            sure = CONSOLE.readLine("Are you still sure? [y/N]").trim();
             if (!sure.toLowerCase().equals("y")) {
                 return;
             }
             CONSOLE.printf("This is a terrible idea.\n");
-            sure = CONSOLE.readLine("Are you sure you want to clear the whole db? [y/N]");
+            sure = CONSOLE.readLine("Are you sure you want to clear the whole db? [y/N]").trim();
             if (!sure.toLowerCase().equals("y")) {
                 return;
             }
-            sure = CONSOLE.readLine("You are a terrible person. Do you still want to continue? [y/N]");
+            sure = CONSOLE.readLine("You are a terrible person. Do you still want to continue? [y/N]").trim();
             if (!sure.toLowerCase().equals("y")) {
                 return;
             }
