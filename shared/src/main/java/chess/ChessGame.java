@@ -189,8 +189,11 @@ public final class ChessGame {
     final var onlyKingIsThere = pieces.stream()
         .filter(x -> x.piece().getTeamColor() == teamColor)
         .count() == 1;
-    if (onlyKingIsThere){
-      final var king = switch(teamColor) { case WHITE -> getWhiteKing(board); case BLACK -> getBlackKing(board);};
+    if (onlyKingIsThere) {
+      final var king = switch (teamColor) {
+        case WHITE -> getWhiteKing(board);
+        case BLACK -> getBlackKing(board);
+      };
       final var kingMoves = king.piece().pieceMoves(board, king.pos());
       final var validMoves = kingMoves.stream().filter(x -> !kingWouldBeInCheck(x, teamColor)).count();
       return validMoves == 0;
@@ -241,5 +244,9 @@ public final class ChessGame {
         (object instanceof ChessGame cg)
             && (cg.getBoard().equals(board))
             && (cg.getTeamTurn().equals(teamTurn));
+  }
+
+  public String prettyPrint(boolean isWhite) {
+    return board.toPrettyString(isWhite);
   }
 }

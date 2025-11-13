@@ -1,6 +1,7 @@
 package client;
 
 import dto.*;
+import models.Game;
 
 import java.io.IOException;
 import java.net.URI;
@@ -68,6 +69,17 @@ public class ServerFacade {
         if (status == 200 && body != null) {
             auth = Optional.of(body.authToken());
         }
+        return new ServerResponse<>(body, status);
+    }
+
+    public ServerResponse<Game> getGame(int gameId) throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(makeUri(baseurl, "single-game?gameId=" + gameId))
+                .GET()
+                .header("Authorization", getAuth())
+                .build();
+        var res = HTTP.send(req, BodyHandlers.ofString());
+        var status = res.statusCode();
+        var body = status == 200 ? GSON.fromJson(res.body(), Game.class) : null;
         return new ServerResponse<>(body, status);
     }
 

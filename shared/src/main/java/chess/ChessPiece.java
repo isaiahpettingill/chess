@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Collection;
 import chess.ChessGame.TeamColor;
+import static ui.EscapeSequences.*;
+
 import java.util.stream.Collectors;
 import static chess.ChessRules.*;
 
@@ -87,6 +89,23 @@ public final class ChessPiece {
     }
     return caps;
   }
+
+  public String toPrettyString() {
+    if (type == null || color == null) {
+      return " ";
+    }
+    final var black = color.equals(TeamColor.BLACK);
+    var caps = switch (type) {
+      case KING -> black ? BLACK_KING : WHITE_KING;
+      case QUEEN -> black ? BLACK_QUEEN : WHITE_QUEEN;
+      case BISHOP -> black ? BLACK_BISHOP : WHITE_BISHOP;
+      case ROOK -> black ? BLACK_ROOK : WHITE_ROOK;
+      case PAWN -> black ? BLACK_PAWN : WHITE_PAWN;
+      case KNIGHT -> black ? BLACK_KING : WHITE_KNIGHT;
+    };
+    return caps;
+  }
+
 
   @Override
   public int hashCode() {

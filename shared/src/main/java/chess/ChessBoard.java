@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
-
+import static ui.EscapeSequences.*;
 import chess.ChessGame.TeamColor;
 
 /*
@@ -128,6 +128,44 @@ public final class ChessBoard {
         builder.append(piece == null ? ' ' : piece.toString());
         builder.append('|');
       }
+      builder.append('\n');
+    }
+    return builder.toString();
+  }
+
+  private static void whiteSquare(StringBuilder builder){
+    builder.append(SET_BG_COLOR_WHITE);
+    builder.append(SET_TEXT_COLOR_BLACK);
+  }
+
+  private static void blackSquare(StringBuilder builder){
+    builder.append(SET_BG_COLOR_BLACK);
+    builder.append(SET_TEXT_COLOR_WHITE);
+  }
+
+  public String toPrettyString(boolean reverse) {
+    var currentColor = reverse ? TeamColor.BLACK : TeamColor.WHITE;
+    var builder = new StringBuilder();
+    builder.append("\n\n");
+    final int start = reverse ? 8 : 1;
+    final int end = reverse ? 0 : 9;
+    final int modifier = reverse ? -1 : 1;
+    whiteSquare(builder);
+    for (int row = start; reverse && row > end || row < end; row += modifier) {
+      for (int col = start; reverse && col > end || col < end; col += modifier) {
+        if (currentColor == TeamColor.WHITE){
+          whiteSquare(builder);
+        }
+        else {
+          blackSquare(builder);
+        }
+        var piece = getPiece(new ChessPosition(row, col));
+        builder.append(piece == null ? "   " : piece.toPrettyString());
+        currentColor = currentColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+      }
+      currentColor = currentColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+      builder.append(RESET_BG_COLOR);
+      builder.append(RESET_TEXT_COLOR);
       builder.append('\n');
     }
     return builder.toString();

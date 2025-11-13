@@ -34,6 +34,7 @@ public class Server {
         final Set<Handler> handlers = Set.of(
                 useInMemory ? new ClearDBHandler(db) : new ClearDBHandler(),
                 new CreateGameHandler(authService, gameService),
+                new GetGameHandler(authService, gameService),
                 new JoinGameHandler(authService, gameService),
                 new ListGamesHandler(authService, gameService),
                 new LoginHandler(authService, userService),

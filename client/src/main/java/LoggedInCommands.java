@@ -1,9 +1,19 @@
+import static ui.EscapeSequences.OBFUSCATION_KEY;
+import static ui.EscapeSequences.RESET_BG_COLOR;
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_BG_COLOR_WHITE;
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+
 import java.io.Console;
 
+import com.google.gson.Gson;
+
+import chess.ChessGame;
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
-import static ui.EscapeSequences.*;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
@@ -47,6 +57,7 @@ final class LoggedInCommands {
             default:
                 return;
         }
+        CONSOLE.printf(RESET_TEXT_COLOR);
     }
 
     private void help() {
@@ -76,9 +87,19 @@ final class LoggedInCommands {
         try {
             final var gameId = CONSOLE.readLine("[Game id]: ");
 
-            var gameIdInteger = Integer.parseInt(gameId);
+            var gameIdInteger = Integer.parseInt(gameId, 36) ^ OBFUSCATION_KEY;
 
-            CONSOLE.printf("websocket not yet implemented! Will observe game: %d", gameIdInteger);
+            var game = backend.getGame(gameIdInteger);
+            if (game.status() != 200) {
+                CONSOLE.printf("FAILED TO FIND GAME");
+                return;
+            }
+
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
+
+            var chessGame = game.body().game();
+            var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
+            CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
 
         } catch (NumberFormatException ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
@@ -90,7 +111,7 @@ final class LoggedInCommands {
 
     private void joinGame() {
         try {
-            final var gameId = CONSOLE.readLine("[Game id]: ");
+            final var gameIdB64 = CONSOLE.readLine("[Game id]: ");
             final var color = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
                     + SET_TEXT_COLOR_BLACK + "BLACK"
                     + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ");
@@ -101,13 +122,26 @@ final class LoggedInCommands {
                 return;
             }
 
-            var gameIdInteger = Integer.parseInt(gameId);
+            var gameIdInteger = Integer.parseInt(gameIdB64, 36) ^ OBFUSCATION_KEY;
 
-            backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameIdInteger));
+            var game = backend.getGame(gameIdInteger);
+            if (game.status() != 200) {
+                CONSOLE.printf("FAILED TO FIND GAME");
+                return;
+            }
+            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameIdInteger));
+            if (result.status() != 200) {
+                CONSOLE.printf("FAILED TO JOIN GAME");
+                return;
+            }
+
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
 
+            var chessGame = game.body().game();
+            var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
+            CONSOLE.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
         } catch (NumberFormatException ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it." + RESET_TEXT_COLOR);
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Invalid ID" + RESET_TEXT_COLOR);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -117,8 +151,10 @@ final class LoggedInCommands {
         try {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
-            var id = game.body().gameID();
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %d)\n" + RESET_TEXT_COLOR, id);
+            var id = Integer.valueOf(game.body().gameID());
+            Integer garbage = id ^ OBFUSCATION_KEY;
+            String finalId = Integer.toString(garbage, 36);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, finalId);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -142,7 +178,7 @@ final class LoggedInCommands {
                 }
                 CONSOLE.printf("\n[GAMES]\n");
                 for (final var game : allGames) {
-                    CONSOLE.printf("Game: %s (id %d) [%s vs %s]\n", game.gameName(), game.gameID(),
+                    CONSOLE.printf("Game: %s [%s vs %s]\n", game.gameName(),
                             game.whiteUsername(),
                             game.blackUsername());
                 }

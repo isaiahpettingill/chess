@@ -2,7 +2,11 @@ package service;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Optional;
 
+import com.google.gson.Gson;
+
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.Repository;
 import dto.CreateGamePayload;
@@ -22,6 +26,10 @@ public final class GameService {
 
     public boolean gameExists(int gameId) throws DataAccessException, SQLException {
         return this.gameRepository.get(gameId).isPresent();
+    }
+
+    public Optional<Game> getGame(int gameId) throws DataAccessException, SQLException {
+        return this.gameRepository.get(gameId);
     }
 
     public boolean isPositionAlreadyTaken(JoinGamePayload payload, String username)
@@ -59,11 +67,13 @@ public final class GameService {
     }
 
     public Game createGame(CreateGamePayload game) throws DataAccessException, SQLException {
+        var thegame = new ChessGame();
+        var thegamestring = new Gson().toJson(thegame);
         return this.gameRepository.upsert(new Game(
                 null,
                 game.gameName(),
                 null,
                 null,
-                null));
+                thegamestring));
     }
 }

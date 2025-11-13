@@ -51,8 +51,11 @@ final class LoggedOutCommands {
             if (response.status() == 200) {
                 setLoggedIn.set(true);
                 password = null;
-            } else {
-                CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
+            } else if (response.status() == 401){
+                CONSOLE.printf("\n[ERROR]: Username or password is incorrect.\n");
+            }
+            else {
+                CONSOLE.printf("Sorry. Something went terribly wrong. Go play chess on chess.com");
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -70,8 +73,14 @@ final class LoggedOutCommands {
             if (response.status() == 200) {
                 setLoggedIn.set(true);
                 password = null;
-            } else {
-                CONSOLE.printf("\n[ERROR]: Dude, you did something wrong.\n");
+            } else if (response.status() == 403){
+                CONSOLE.printf("\n[ERROR]: Username already taken.\n");
+            } 
+            else if (response.status() == 401){
+                CONSOLE.printf("\n[ERROR]: Username or password is incorrect.\n");
+            }
+            else {
+                CONSOLE.printf("Sorry. Something went terribly wrong. Go play chess somewhere else or touch some grass or something.");
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
