@@ -127,6 +127,11 @@ final class LoggedOutCommands {
         try {
             var sure = CONSOLE.readLine("Are you sure? [y/N]");
             if (!sure.toLowerCase().equals("y")) {
+                if (sure.toLowerCase().equals("sudo delete everything")){
+                    backend.clearDb();
+                    CONSOLE.printf("DATABASE DELETED");
+                    return;
+                }
                 return;
             }
             sure = CONSOLE.readLine("Are you still sure? [y/N]");

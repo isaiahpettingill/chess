@@ -146,7 +146,7 @@ final class LoggedInCommands {
         try {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
-            var id = Integer.valueOf(game.body().gameID());
+            var id = game.body().gameID();
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, id);
 
         } catch (Exception ex) {

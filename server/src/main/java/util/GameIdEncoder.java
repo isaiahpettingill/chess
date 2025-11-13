@@ -13,12 +13,12 @@ public final class GameIdEncoder {
         final var new_key = gameId ^ OBFUSCATION_KEY;
         final var key_string = Integer.toString(new_key, 36);
         for (int i = 0; i<LEFT_PADDING; i++) {
-            final var thing = RANDOM.nextInt(0, 36);
+            final var thing = RANDOM.nextInt(0, 35);
             sb.append(Integer.toString(thing, 36));
         }
         sb.append(key_string);
         for (int i = 0; i < RIGHT_PADDING; i++){
-            final var junk = RANDOM.nextInt(0, 36);
+            final var junk = RANDOM.nextInt(0, 35);
             sb.append(Integer.toString(junk, 36));
         }
         return sb.toString();
