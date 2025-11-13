@@ -5,10 +5,8 @@ import com.google.gson.GsonBuilder;
 import dataaccess.DatabaseManager;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
-import models.Game;
 import service.AuthService;
 import service.GameService;
-import util.GameIdEncoder;
 
 public final class GetGameHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;
@@ -27,7 +25,7 @@ public final class GetGameHandler extends AuthorizedHandler implements Handler {
         try {
             DatabaseManager.testConnection();
             final var rawId = context.queryParam("gameId");
-            final var parsedId = GameIdEncoder.decode(rawId);
+            final var parsedId = Integer.parseInt(rawId);
             final var game = this.gameService.getGame(parsedId);
             final var response = game;
             if (game == null){

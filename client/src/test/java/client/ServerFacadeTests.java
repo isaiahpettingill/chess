@@ -192,17 +192,16 @@ public class ServerFacadeTests {
         connector.register(new RegisterPayload("james", "dewey", "asdf"));
         final var game = connector.createGame(new CreateGamePayload(
                 "your mom"));
-        final var id = game.body().gameID();        
-        
+        final var id = game.body().gameID();
+
         final var result = connector.joinGame(null);
         assertEquals(result.status(), 400);
 
-        final var result2 = connector.joinGame(new JoinGamePayload(null, null));
+        final var result2 = connector.joinGame(new JoinGamePayload(null, 0));
         assertEquals(result2.status(), 400);
 
         final var result3 = connector.joinGame(new JoinGamePayload("GREEN", id));
         assertEquals(result3.status(), 400);
     }
-
 
 }

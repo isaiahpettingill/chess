@@ -11,7 +11,6 @@ import dataaccess.inmemory.InMemoryDatabase;
 import dataaccess.inmemory.InMemoryGameRespository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
-import util.GameIdEncoder;
 
 public class GameServiceTests {
     @Test
@@ -43,9 +42,9 @@ public class GameServiceTests {
         var game2 = gameService.createGame(new CreateGamePayload(
                 "Your mom"));
 
-        gameService.joinGame(new JoinGamePayload("WHITE", GameIdEncoder.encode(game2.id())), "your mom");
+        gameService.joinGame(new JoinGamePayload("WHITE", game2.id()), "your mom");
 
-        gameService.joinGame(new JoinGamePayload("WHITE", GameIdEncoder.encode(game1.id())), "your mom");
+        gameService.joinGame(new JoinGamePayload("WHITE", game1.id()), "your mom");
 
         assertTrue(gameService.gameExists(game1.id()));
         assertTrue(gameService.gameExists(game2.id()));
@@ -63,7 +62,7 @@ public class GameServiceTests {
         var game = gameService.createGame(new CreateGamePayload(
                 "The game"));
 
-        gameService.joinGame(new JoinGamePayload("WHITE", GameIdEncoder.encode(game.id())), "jonesy");
+        gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "jonesy");
 
         game = repo.get(game.id()).get();
 
@@ -80,13 +79,13 @@ public class GameServiceTests {
         var game = gameService.createGame(new CreateGamePayload(
                 "The game"));
 
-        gameService.joinGame(new JoinGamePayload("WHITE", GameIdEncoder.encode(game.id())), "jonesy");
+        gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "jonesy");
 
         game = repo.get(game.id()).get();
 
-        assertTrue(gameService.isPositionAlreadyTaken(new JoinGamePayload("WHITE", GameIdEncoder.encode(game.id())), "jefferson"));
+        assertTrue(gameService.isPositionAlreadyTaken(new JoinGamePayload("WHITE", game.id()), "jefferson"));
 
-        gameService.joinGame(new JoinGamePayload("WHITE", GameIdEncoder.encode(game.id())), "richard");
+        gameService.joinGame(new JoinGamePayload("WHITE", game.id()), "richard");
 
         assertEquals(game.whiteUsername(), "jonesy");
     }

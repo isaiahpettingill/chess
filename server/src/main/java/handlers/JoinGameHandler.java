@@ -8,7 +8,6 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import service.AuthService;
 import service.GameService;
-import util.GameIdEncoder;
 
 public final class JoinGameHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;
@@ -27,7 +26,7 @@ public final class JoinGameHandler extends AuthorizedHandler implements Handler 
             final var gson = new Gson();
             final var body = gson.fromJson(context.body(), JoinGamePayload.class);
 
-            if (!body.valid() || !this.gameService.gameExists(GameIdEncoder.decode(body.gameID()))) {
+            if (!body.valid() || !this.gameService.gameExists(body.gameID())) {
                 context.status(400);
                 context.result(HttpErrors.BAD_REQUEST);
                 return;

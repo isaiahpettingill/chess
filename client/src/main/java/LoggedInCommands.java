@@ -13,6 +13,7 @@ import chess.ChessGame;
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
+import util.GameIdEncoder;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
@@ -124,7 +125,8 @@ final class LoggedInCommands {
                 CONSOLE.printf("FAILED TO FIND GAME");
                 return;
             }
-            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameId));
+            int decodedId = GameIdEncoder.decode(gameId);
+            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), decodedId));
             if (result.status() != 200) {
                 CONSOLE.printf("FAILED TO JOIN GAME");
                 return;
@@ -147,7 +149,7 @@ final class LoggedInCommands {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
             var id = game.body().gameID();
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, id);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, GameIdEncoder.encode(id));
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
