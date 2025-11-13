@@ -72,7 +72,7 @@ public class ServerFacade {
         return new ServerResponse<>(body, status);
     }
 
-    public ServerResponse<Game> getGame(int gameId) throws IOException, InterruptedException {
+    public ServerResponse<Game> getGame(String gameId) throws IOException, InterruptedException {
         var req = HttpRequest.newBuilder(makeUri(baseurl, "single-game?gameId=" + gameId))
                 .GET()
                 .header("Authorization", getAuth())

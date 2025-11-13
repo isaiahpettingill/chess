@@ -9,6 +9,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import service.AuthService;
 import service.GameService;
+import util.GameIdEncoder;
 
 public final class CreateGameHandler extends AuthorizedHandler implements Handler {
     private final GameService gameService;
@@ -40,7 +41,7 @@ public final class CreateGameHandler extends AuthorizedHandler implements Handle
                 context.result(HttpErrors.createErrorMessage("Could not create game"));
                 return;
             }
-            var reponse = new CreateGameResponse(game.id());
+            var reponse = new CreateGameResponse(GameIdEncoder.encode(game.id()));
 
             context.status(200);
             context.result(gson.toJson(reponse));

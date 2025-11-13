@@ -12,6 +12,7 @@ import dataaccess.Repository;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
 import models.Game;
+import util.GameIdEncoder;
 
 public final class GameService {
     private final Repository<Game, Integer> gameRepository;
@@ -34,7 +35,7 @@ public final class GameService {
 
     public boolean isPositionAlreadyTaken(JoinGamePayload payload, String username)
             throws DataAccessException, SQLException {
-        final var game = this.gameRepository.get(payload.gameID());
+        final var game = this.gameRepository.get(GameIdEncoder.decode(payload.gameID()));
         if (game.isPresent() && username != null) {
             if (payload.playerColor().equals(JoinGamePayload.WHITE)) {
                 return game.get().whiteUsername() != null;
@@ -46,7 +47,7 @@ public final class GameService {
     }
 
     public void joinGame(JoinGamePayload payload, String username) throws DataAccessException, SQLException {
-        final var game = this.gameRepository.get(payload.gameID());
+        final var game = this.gameRepository.get(GameIdEncoder.decode(payload.gameID()));
         if (game.isPresent()) {
             if (payload.playerColor().equals(JoinGamePayload.WHITE)) {
                 this.gameRepository.upsert(new Game(

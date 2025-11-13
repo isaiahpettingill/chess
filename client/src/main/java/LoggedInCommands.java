@@ -1,4 +1,3 @@
-import static ui.EscapeSequences.OBFUSCATION_KEY;
 import static ui.EscapeSequences.RESET_BG_COLOR;
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_BG_COLOR_WHITE;
@@ -87,9 +86,7 @@ final class LoggedInCommands {
         try {
             final var gameId = CONSOLE.readLine("[Game id]: ");
 
-            var gameIdInteger = Integer.parseInt(gameId, 36) ^ OBFUSCATION_KEY;
-
-            var game = backend.getGame(gameIdInteger);
+            var game = backend.getGame(gameId);
             if (game.status() != 200) {
                 CONSOLE.printf("FAILED TO FIND GAME");
                 return;
@@ -111,7 +108,7 @@ final class LoggedInCommands {
 
     private void joinGame() {
         try {
-            final var gameIdB64 = CONSOLE.readLine("[Game id]: ");
+            final var gameId = CONSOLE.readLine("[Game id]: ");
             final var color = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
                     + SET_TEXT_COLOR_BLACK + "BLACK"
                     + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ");
@@ -122,14 +119,12 @@ final class LoggedInCommands {
                 return;
             }
 
-            var gameIdInteger = Integer.parseInt(gameIdB64, 36) ^ OBFUSCATION_KEY;
-
-            var game = backend.getGame(gameIdInteger);
+            var game = backend.getGame(gameId);
             if (game.status() != 200) {
                 CONSOLE.printf("FAILED TO FIND GAME");
                 return;
             }
-            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameIdInteger));
+            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), gameId));
             if (result.status() != 200) {
                 CONSOLE.printf("FAILED TO JOIN GAME");
                 return;
@@ -152,9 +147,7 @@ final class LoggedInCommands {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
             var id = Integer.valueOf(game.body().gameID());
-            Integer garbage = id ^ OBFUSCATION_KEY;
-            String finalId = Integer.toString(garbage, 36);
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, finalId);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, id);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
