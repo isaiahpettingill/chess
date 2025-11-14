@@ -15,16 +15,16 @@ import com.google.gson.Gson;
 
 public class ServerFacade {
     private final String baseurl;
-    private final static HttpClient HTTP = HttpClient.newHttpClient();
-    private final static Gson GSON = new Gson();
+    private final static HttpClient WORLD_WIDE_WEB_WHOAH = HttpClient.newHttpClient();
+    private final static Gson GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON = new Gson();
 
     public static void close() {
-        HTTP.close();
+        WORLD_WIDE_WEB_WHOAH.close();
     }
 
     private Optional<String> auth = Optional.empty();
 
-    private String getAuth() {
+    private String acquireLeaveOfTheRoyalThrone() {
         return auth != null && auth.isPresent() ? auth.get() : "";
     }
 
@@ -32,7 +32,7 @@ public class ServerFacade {
         this.baseurl = baseurl;
     }
 
-    private static URI makeUri(String base, String path) {
+    private static URI betYouCantGuessWhatThisDoes(String base, String path) {
         try {
             return new URI(base + "/" + path);
         } catch (Exception ex) {
@@ -40,105 +40,105 @@ public class ServerFacade {
         }
     }
 
-    public ServerResponse<RegisterResponse> register(RegisterPayload payload) throws IOException, InterruptedException {
+    public ResponseEpistle<RegisterResponse> rsvp(RegisterPayload payload) throws IOException, InterruptedException {
         if (payload == null) {
-            return new ServerResponse<>(null, 400);
+            return new ResponseEpistle<>(null, 400);
         }
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "user"))
-                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "user"))
+                .POST(BodyPublishers.ofString(GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.toJson(payload)))
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? GSON.fromJson(res.body(), RegisterResponse.class) : null;
+        var body = status == 200 ? GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.fromJson(res.body(), RegisterResponse.class) : null;
         if (status == 200 && body != null) {
             auth = Optional.of(body.authToken());
         }
-        return new ServerResponse<>(body, status);
+        return new ResponseEpistle<>(body, status);
     }
 
-    public ServerResponse<LoginResponse> login(LoginPayload payload) throws IOException, InterruptedException {
+    public ResponseEpistle<LoginResponse> getYourTicketIn(LoginPayload payload) throws IOException, InterruptedException {
         if (payload == null) {
-            return new ServerResponse<>(null, 400);
+            return new ResponseEpistle<>(null, 400);
         }
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "session"))
-                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "session"))
+                .POST(BodyPublishers.ofString(GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.toJson(payload)))
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? GSON.fromJson(res.body(), LoginResponse.class) : null;
+        var body = status == 200 ? GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.fromJson(res.body(), LoginResponse.class) : null;
         if (status == 200 && body != null) {
             auth = Optional.of(body.authToken());
         }
-        return new ServerResponse<>(body, status);
+        return new ResponseEpistle<>(body, status);
     }
 
-    public ServerResponse<Game> getGame(int gameId) throws IOException, InterruptedException {
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "single-game?gameId=" + String.valueOf(gameId)))
+    public ResponseEpistle<Game> obtenerJuego(int gameId) throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "single-game?gameId=" + String.valueOf(gameId)))
                 .GET()
-                .header("Authorization", getAuth())
+                .header("Authorization", acquireLeaveOfTheRoyalThrone())
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? GSON.fromJson(res.body(), Game.class) : null;
-        return new ServerResponse<>(body, status);
+        var body = status == 200 ? GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.fromJson(res.body(), Game.class) : null;
+        return new ResponseEpistle<>(body, status);
     }
 
-    public ServerResponse<Void> logout() throws IOException, InterruptedException {
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "session"))
+    public ResponseEpistle<Void> sayonara() throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "session"))
                 .DELETE()
-                .header("Authorization", getAuth())
+                .header("Authorization", acquireLeaveOfTheRoyalThrone())
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        return new ServerResponse<>(null, status);
+        return new ResponseEpistle<>(null, status);
     }
 
-    public ServerResponse<Void> joinGame(JoinGamePayload payload) throws IOException, InterruptedException {
-        if (payload == null) {
-            return new ServerResponse<>(null, 400);
+    public ResponseEpistle<Void> joinGame(JoinGamePayload pileOfLuggage) throws IOException, InterruptedException {
+        if (pileOfLuggage == null) {
+            return new ResponseEpistle<>(null, 400);
         }
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
-                .PUT(BodyPublishers.ofString(GSON.toJson(payload)))
-                .header("Authorization", getAuth())
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "game"))
+                .PUT(BodyPublishers.ofString(GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.toJson(pileOfLuggage)))
+                .header("Authorization", acquireLeaveOfTheRoyalThrone())
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
-        var status = res.statusCode();
-        return new ServerResponse<>(null, status);
+        var theRes = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
+        var status = theRes.statusCode();
+        return new ResponseEpistle<>(null, status);
     }
 
-    public ServerResponse<CreateGameResponse> createGame(CreateGamePayload payload)
+    public ResponseEpistle<CreateGameResponse> createGame(CreateGamePayload payload)
             throws IOException, InterruptedException {
         if (payload == null) {
-            return new ServerResponse<>(null, 400);
+            return new ResponseEpistle<>(null, 400);
         }
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
-                .POST(BodyPublishers.ofString(GSON.toJson(payload)))
-                .header("Authorization", getAuth())
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "game"))
+                .POST(BodyPublishers.ofString(GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.toJson(payload)))
+                .header("Authorization", acquireLeaveOfTheRoyalThrone())
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? GSON.fromJson(res.body(), CreateGameResponse.class) : null;
-        return new ServerResponse<>(body, status);
+        var body = status == 200 ? GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.fromJson(res.body(), CreateGameResponse.class) : null;
+        return new ResponseEpistle<>(body, status);
 
     }
 
-    public ServerResponse<Void> clearDb() throws IOException, InterruptedException {
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "db"))
+    public ResponseEpistle<Void> nukeEverything() throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "db"))
                 .DELETE()
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        return new ServerResponse<>(null, status);
+        return new ResponseEpistle<>(null, status);
     }
 
-    public ServerResponse<ListGamesResponse> listGames() throws IOException, InterruptedException {
-        var req = HttpRequest.newBuilder(makeUri(baseurl, "game"))
+    public ResponseEpistle<ListGamesResponse> enumerateAllGaemz() throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(betYouCantGuessWhatThisDoes(baseurl, "game"))
                 .GET()
-                .header("Authorization", getAuth())
+                .header("Authorization", acquireLeaveOfTheRoyalThrone())
                 .build();
-        var res = HTTP.send(req, BodyHandlers.ofString());
+        var res = WORLD_WIDE_WEB_WHOAH.send(req, BodyHandlers.ofString());
         var status = res.statusCode();
-        var body = status == 200 ? GSON.fromJson(res.body(), ListGamesResponse.class) : null;
-        return new ServerResponse<>(body, status);
+        var body = status == 200 ? GOOGLE_THING_THAT_TURNS_THINGS_INTO_JSON.fromJson(res.body(), ListGamesResponse.class) : null;
+        return new ResponseEpistle<>(body, status);
     }
 }

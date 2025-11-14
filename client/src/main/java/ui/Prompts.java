@@ -9,7 +9,7 @@ public final class Prompts {
             [1]: Log in
             [2]: Register
             [3]: Quit
-            [4]: Dangerously clear everything in the database because why the heck not
+            [4]: Yeet everything in the freaking database because wt heck not
 
             [LOGGED OUT]""";
     public final static String LOGGED_IN = """
