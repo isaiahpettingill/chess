@@ -168,49 +168,43 @@ public final class ChessBoard {
     }
   }
 
-  private static TeamColor theOtherColor(TeamColor color) {
-    return (color == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK);
-  }
-
   private static String getRowLabel(int row, boolean reverse) {
-    // Yes, I'm sure there's a better way to do this. I don't freaking care.
-    return (reverse ? (char)((int)'I' - row) : (char)((int)'@' + row)) +  "  ";
+    int label = reverse ? (9 - row) : row;
+    return label + "  ";
   }
 
-  private static final String COLUMN_LABELS = "    1  2  3  4  5  6  7  8  \n";
+  private static final String COLUMN_LABELS_NORMAL = "    a  b  c  d  e  f  g  h  \n";
+  private static final String COLUMN_LABELS_REVERSE = "    h  g  f  e  d  c  b  a  \n";
 
   public String toPrettyString(boolean reverse) {
-    var currentColor = TeamColor.WHITE;
     var builder = new StringBuilder();
     builder.append("\n\n");
-    builder.append(COLUMN_LABELS);
-    whiteSquare(builder);
+    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
     var gson = new Gson();
     var theboard = gson.fromJson(gson.toJson(board), ChessPiece[][].class);
     if (reverse) {
       rotateBoard180Degrees(theboard);
     }
-    for (int row = 1; row < 9; row++) {
+    for (int row = 8; row >= 1; row--) {
       builder.append(RESET_BG_COLOR);
       builder.append(RESET_TEXT_COLOR);
       builder.append(getRowLabel(row, reverse));
       for (int col = 1; col < 9; col++) {
-        if (currentColor == TeamColor.WHITE) {
+        boolean isWhiteSquare = ((row + col) % 2) == 1;
+        if (isWhiteSquare) {
           whiteSquare(builder);
         } else {
           blackSquare(builder);
         }
         var piece = theboard[row][col];
         builder.append(piece == null ? "   " : piece.toPrettyString());
-        currentColor = theOtherColor(currentColor);
       }
-      currentColor = theOtherColor(currentColor);
       builder.append(RESET_BG_COLOR);
       builder.append(RESET_TEXT_COLOR);
       builder.append("  " + getRowLabel(row, reverse));
       builder.append('\n');
     }
-    builder.append(COLUMN_LABELS);
+    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
 
     return builder.toString();
   }

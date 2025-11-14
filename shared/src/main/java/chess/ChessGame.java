@@ -247,6 +247,6 @@ public final class ChessGame {
   }
 
   public String prettyPrint(boolean isWhite) {
-    return board.toPrettyString(isWhite);
+    return board.toPrettyString(!isWhite);
   }
 }

@@ -6,6 +6,9 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 
 import java.io.Console;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import com.google.gson.Gson;
 
@@ -13,13 +16,13 @@ import chess.ChessGame;
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
-import util.GameIdEncoder;
 
 final class LoggedInCommands {
     private final ServerFacade backend;
     private static final Console CONSOLE = System.console();
     private final BooleanSetter setShouldContinue;
     private final BooleanSetter setLoggedIn;
+    private final List<dto.ListGamesResponse.ListGamesGame> currentGames = new ArrayList<>();
 
     public LoggedInCommands(ServerFacade backend, BooleanSetter setShouldContinue, BooleanSetter setLoggedIn) {
         this.backend = backend;
@@ -80,87 +83,113 @@ final class LoggedInCommands {
             CONSOLE.printf("Logged out!\n");
         } catch (Exception ex) {
             CONSOLE.printf(ex.getMessage());
-            throw new RuntimeException(ex);
-
         }
     }
 
     private void observeGame() {
         try {
-            final var gameId = CONSOLE.readLine("[Game id]: ");
-            int decodedId = GameIdEncoder.decode(gameId);
-
-            var game = backend.getGame(decodedId);
-            if (game.status() != 200) {
-                CONSOLE.printf("FAILED TO FIND GAME");
+            final var gameIdStr = CONSOLE.readLine("[Game number]: ").trim();
+            if (gameIdStr.isEmpty()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!" + RESET_TEXT_COLOR);
                 return;
             }
-
+            int gameNum = Integer.parseInt(gameIdStr);
+            if (gameNum <= 0 || gameNum > currentGames.size()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
+                return;
+            }
+            int decodedId = currentGames.get(gameNum - 1).gameID();
+            var game = backend.getGame(decodedId);
+            if (game.status() != 200) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Yo, that game ain't real, bro. Check the number." + RESET_TEXT_COLOR);
+                return;
+            }
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
-
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
             CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
-
         } catch (NumberFormatException ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
-                    + RESET_TEXT_COLOR);
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {
-            CONSOLE.printf(ex.getMessage());
-            throw new RuntimeException(ex);
-
+            CONSOLE.printf(SET_TEXT_COLOR_RED + ex.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     private void joinGame() {
         try {
-            final var gameId = CONSOLE.readLine("[Game id]: ");
-            final var color = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
-                    + SET_TEXT_COLOR_BLACK + "BLACK"
-                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ");
-
-            if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "\tColor must be BLACK or WHITE\n"
-                        + RESET_TEXT_COLOR);
+            final var gameIdStr = CONSOLE.readLine("[Game number]: ").trim();
+            if (gameIdStr.isEmpty()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!" + RESET_TEXT_COLOR);
                 return;
             }
-
-            int decodedId = GameIdEncoder.decode(gameId);
-
+            final var colorStr = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
+                    + SET_TEXT_COLOR_BLACK + "BLACK"
+                    + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ").trim();
+            if (colorStr.isEmpty()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Dude, pick a color, BLACK or WHITE, bro!" + RESET_TEXT_COLOR);
+                return;
+            }
+            String color = colorStr.toUpperCase();
+            if (!"WHITE".equals(color) && !"BLACK".equals(color)) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Dude, color's gotta be BLACK or WHITE, bro." + RESET_TEXT_COLOR);
+                return;
+            }
+            int gameNum = Integer.parseInt(gameIdStr);
+            if (gameNum <= 0 || gameNum > currentGames.size()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
+                return;
+            }
+            int decodedId = currentGames.get(gameNum - 1).gameID();
             var game = backend.getGame(decodedId);
             if (game.status() != 200) {
-                CONSOLE.printf("FAILED TO FIND GAME");
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Game not found, bro. Try again." + RESET_TEXT_COLOR);
                 return;
             }
-            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), decodedId));
+            var result = backend.joinGame(new JoinGamePayload(color, decodedId));
             if (result.status() != 200) {
-                CONSOLE.printf("FAILED TO JOIN GAME");
+                if (result.status() == 403) {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, that spot's already taken!" + RESET_TEXT_COLOR);
+                } else if (result.status() == 401) {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
+                } else if (result.status() == 500) {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Server error, bro. Try again later." + RESET_TEXT_COLOR);
+                } else {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Couldn't join, status " + result.status() + RESET_TEXT_COLOR);
+                }
                 return;
             }
-
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
-
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            CONSOLE.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
+            CONSOLE.printf(asRealObject.prettyPrint(color.equals("WHITE")) + "\n");
+        } catch (NumberFormatException ex) {
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {
-            CONSOLE.printf(ex.getMessage());
-            throw new RuntimeException(ex);
-
+            CONSOLE.printf(SET_TEXT_COLOR_RED + ex.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     private void createGame() {
         try {
-            final var gameName = CONSOLE.readLine("[Game name]: ");
-            final var game = backend.createGame(new CreateGamePayload(gameName));
-            var id = game.body().gameID();
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR,
-                    GameIdEncoder.encode(id));
-
+            final var gameName = CONSOLE.readLine("[Game name]: ").trim();
+            if (gameName.isEmpty()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game name can't be empty, give it a name!" + RESET_TEXT_COLOR);
+                return;
+            }
+            var result = backend.createGame(new CreateGamePayload(gameName));
+            if (result.status() != 200) {
+                if (result.status() == 401) {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
+                } else if (result.status() == 500) {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Server error, bro. Try again later." + RESET_TEXT_COLOR);
+                } else {
+                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Couldn't create game, status " + result.status() + RESET_TEXT_COLOR);
+                }
+                return;
+            }
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created.\n" + RESET_TEXT_COLOR);
         } catch (Exception ex) {
-            CONSOLE.printf(ex.getMessage());
-            throw new RuntimeException(ex);
+            CONSOLE.printf(SET_TEXT_COLOR_RED + ex.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -174,26 +203,26 @@ final class LoggedInCommands {
                         games.status());
             } else {
                 final var allGames = games.body().games();
+                currentGames.clear();
+                currentGames.addAll(allGames);
+                currentGames.sort(Comparator.comparing(dto.ListGamesResponse.ListGamesGame::gameName));
                 CONSOLE.printf(SET_TEXT_COLOR_GREEN);
-                if (allGames.size() == 0) {
+                if (currentGames.size() == 0) {
                     CONSOLE.printf("No games! Create one to play.\n");
                     return;
                 }
-                int gameNum = 1;
                 CONSOLE.printf("\n[GAMES]\n");
-                for (final var game : allGames) {
-                    CONSOLE.printf(gameNum + ". Game: %s [%s vs %s]\n", game.gameName(),
+                for (int i = 0; i < currentGames.size(); i++) {
+                    final var game = currentGames.get(i);
+                    CONSOLE.printf((i+1) + ". Game: %s [%s vs %s]\n", game.gameName(),
                             game.whiteUsername(),
                             game.blackUsername());
                 }
                 CONSOLE.printf(RESET_TEXT_COLOR);
-                gameNum++;
             }
 
         } catch (Exception ex) {
             CONSOLE.printf(ex.getMessage());
-            throw new RuntimeException(ex);
-
         }
     }
 }
