@@ -37,25 +37,25 @@ public class ServerFacadeTests {
     @Order(1)
     @Test()
     public void testClearDbDoesNotThrow() throws IOException, InterruptedException {
-        assertEquals(connector.nukeEverything().status(), 200);
+        assertEquals(connector.clearDb().status(), 200);
     }
 
     @Order(2)
     @Test()
     public void clearDbWorks() throws IOException, InterruptedException {
-        connector.rsvp(new RegisterPayload(
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
-        connector.nukeEverything();
-        final var login = connector.getYourTicketIn(new LoginPayload("bob", "bob"));
+        connector.clearDb();
+        final var login = connector.login(new LoginPayload("bob", "bob"));
         assertEquals(login.status(), 401);
     }
 
     @Order(3)
     @Test()
     public void registerWorks() throws IOException, InterruptedException {
-        connector.rsvp(new RegisterPayload(
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
-        final var login = connector.getYourTicketIn(new LoginPayload("bob", "bob"));
+        final var login = connector.login(new LoginPayload("bob", "bob"));
         assertEquals(login.status(), 200);
 
     }
@@ -63,21 +63,21 @@ public class ServerFacadeTests {
     @Order(4)
     @Test()
     public void canHasToken() throws IOException, InterruptedException {
-        connector.rsvp(new RegisterPayload(
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
-        assertEquals(connector.enumerateAllGaemz().status(), 200);
+        assertEquals(connector.listGames().status(), 200);
     }
 
     @Order(5)
     @Test()
     public void canHasGame() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload(
+        connector.clearDb();
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
         final var result1 = connector.createGame(new CreateGamePayload(
                 "the game of destiny"));
         assertEquals(result1.status(), 200);
-        final var result = connector.enumerateAllGaemz();
+        final var result = connector.listGames();
         assertEquals(result.status(), 200);
         assertNotNull(result.body());
         final var theGameIsThere = result.body()
@@ -90,11 +90,11 @@ public class ServerFacadeTests {
     @Order(6)
     @Test()
     public void cantHasGame() throws IOException, InterruptedException {
-        connector.nukeEverything();
+        connector.clearDb();
         final var result1 = connector.createGame(new CreateGamePayload(
                 "the game of destiny"));
         assertEquals(result1.status(), 401);
-        final var result = connector.enumerateAllGaemz();
+        final var result = connector.listGames();
         assertEquals(result.status(), 401);
         assertNull(result.body());
     }
@@ -102,8 +102,8 @@ public class ServerFacadeTests {
     @Order(7)
     @Test()
     public void joinGameWorks() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload(
+        connector.clearDb();
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
         final var game = connector.createGame(new CreateGamePayload(
                 "your mom"));
@@ -111,21 +111,21 @@ public class ServerFacadeTests {
         final var id = game.body().gameID();
         final var result = connector.joinGame(new JoinGamePayload("WHITE", id));
         assertEquals(result.status(), 200);
-        final var games = connector.enumerateAllGaemz();
+        final var games = connector.listGames();
         assertTrue(games.body().games().stream().anyMatch(x -> "bob".equals(x.whiteUsername())));
     }
 
     @Order(8)
     @Test()
     public void joinGameForbidsJunk() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload(
+        connector.clearDb();
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
         final var game = connector.createGame(new CreateGamePayload(
                 "your mom"));
         final var id = game.body().gameID();
         connector.joinGame(new JoinGamePayload("WHITE", id));
-        connector.rsvp(new RegisterPayload(
+        connector.register(new RegisterPayload(
                 "clide", "clide", "clide"));
         final var result2 = connector.joinGame(new JoinGamePayload("WHITE", id));
         assertEquals(result2.status(), 403);
@@ -134,8 +134,8 @@ public class ServerFacadeTests {
     @Order(9)
     @Test()
     public void listGameListsGames() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload(
+        connector.clearDb();
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
         final var count = (new Random(150)).nextInt(100, 700);
         for (int i = 0; i < count; i++) {
@@ -143,7 +143,7 @@ public class ServerFacadeTests {
                     UUID.randomUUID().toString()));
             Thread.sleep(10);
         }
-        final var games = connector.enumerateAllGaemz();
+        final var games = connector.listGames();
         assertEquals(games.status(), 200);
         assertEquals(games.body().games().size(), count);
     }
@@ -151,36 +151,36 @@ public class ServerFacadeTests {
     @Order(10)
     @Test()
     public void logoutWorks() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload(
+        connector.clearDb();
+        connector.register(new RegisterPayload(
                 "bob", "bob", "bob"));
-        connector.sayonara();
-        final var result = connector.enumerateAllGaemz();
+        connector.logout();
+        final var result = connector.listGames();
         assertEquals(result.status(), 401);
     }
 
     @Order(11)
     @Test()
     public void registerThrowsAlreadyTaken() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload("james", "dewey", "asdf"));
-        final var result2 = connector.rsvp(new RegisterPayload("james", "asdfrt", "2323"));
+        connector.clearDb();
+        connector.register(new RegisterPayload("james", "dewey", "asdf"));
+        final var result2 = connector.register(new RegisterPayload("james", "asdfrt", "2323"));
         assertEquals(result2.status(), 403);
     }
 
     @Order(12)
     @Test()
     public void badRequestForBadUserInformation() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        final var result = connector.rsvp(new RegisterPayload(null, null, null));
+        connector.clearDb();
+        final var result = connector.register(new RegisterPayload(null, null, null));
         assertEquals(result.status(), 400);
     }
 
     @Order(13)
     @Test()
     public void badRequestForBadGame() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload("james", "dewey", "asdf"));
+        connector.clearDb();
+        connector.register(new RegisterPayload("james", "dewey", "asdf"));
         final var result = connector.createGame(new CreateGamePayload(null));
         assertEquals(result.status(), 400);
     }
@@ -188,8 +188,8 @@ public class ServerFacadeTests {
     @Order(14)
     @Test()
     public void badRequestForBadJoin() throws IOException, InterruptedException {
-        connector.nukeEverything();
-        connector.rsvp(new RegisterPayload("james", "dewey", "asdf"));
+        connector.clearDb();
+        connector.register(new RegisterPayload("james", "dewey", "asdf"));
         final var game = connector.createGame(new CreateGamePayload(
                 "your mom"));
         final var id = game.body().gameID();

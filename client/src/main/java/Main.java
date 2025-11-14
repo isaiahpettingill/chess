@@ -21,10 +21,10 @@ public final class Main {
         while (shouldContinue) {
             if (loggedIn) {
                 prompt.setPromptText(LOGGED_IN);
-                prompt.runButGetAnIntegerInsteadOfAString(loggedInCommands::handleLoggedIn);
+                prompt.runInt(loggedInCommands::handleLoggedIn);
             } else {
                 prompt.setPromptText(LOGGED_OUT);
-                prompt.runButGetAnIntegerInsteadOfAString(loggedOutCommands::handleLoggedOut);
+                prompt.runInt(loggedOutCommands::handleLoggedOut);
             }
         }
     }

@@ -16,13 +16,13 @@ import dto.JoinGamePayload;
 import util.GameIdEncoder;
 
 final class LoggedInCommands {
-    private final ServerFacade rearend;
-    private static final Console KHANSOUL = System.console();
+    private final ServerFacade backend;
+    private static final Console CONSOLE = System.console();
     private final BooleanSetter setShouldContinue;
     private final BooleanSetter setLoggedIn;
 
-    public LoggedInCommands(ServerFacade rearend, BooleanSetter setShouldContinue, BooleanSetter setLoggedIn) {
-        this.rearend = rearend;
+    public LoggedInCommands(ServerFacade backend, BooleanSetter setShouldContinue, BooleanSetter setLoggedIn) {
+        this.backend = backend;
         this.setShouldContinue = setShouldContinue;
         this.setLoggedIn = setLoggedIn;
     }
@@ -34,22 +34,22 @@ final class LoggedInCommands {
     public void handleLoggedIn(int input) {
         switch (input) {
             case 0:
-                youNeedHelpMan();
+                help();
                 break;
             case 1:
-                gimmeSumGaemz();
+                listGames();
                 break;
             case 2:
-                makeUpSomeStupidGame();
+                createGame();
                 break;
             case 3:
-                freakingJoinTheGameAlready();
+                joinGame();
                 break;
             case 4:
-                youWatchMePunk();
+                observeGame();
                 break;
             case 5:
-                crashOut();
+                logout();
                 break;
             case 6:
                 setShouldContinue.set(false);
@@ -57,142 +57,142 @@ final class LoggedInCommands {
             default:
                 return;
         }
-        KHANSOUL.printf(RESET_TEXT_COLOR);
+        CONSOLE.printf(RESET_TEXT_COLOR);
     }
 
-    private void youNeedHelpMan() {
-        KHANSOUL.printf(SET_TEXT_COLOR_GREEN);
-        KHANSOUL.printf("\tEnter 0 to see this message\n");
-        KHANSOUL.printf("\tEnter 1 to list all available games\n");
-        KHANSOUL.printf("\tEnter 2 to create a new game\n");
-        KHANSOUL.printf("\tEnter 3 to play a game over the network\n");
-        KHANSOUL.printf("\tEnter 4 to observe a game over the network\n");
-        KHANSOUL.printf("\tEnter 5 to sign out\n");
-        KHANSOUL.printf("\tEnter 6 to close the application and clear credentials\n");
-        KHANSOUL.printf(RESET_TEXT_COLOR);
+    private void help() {
+        CONSOLE.printf(SET_TEXT_COLOR_GREEN);
+        CONSOLE.printf("\tEnter 0 to see this message\n");
+        CONSOLE.printf("\tEnter 1 to list all available games\n");
+        CONSOLE.printf("\tEnter 2 to create a new game\n");
+        CONSOLE.printf("\tEnter 3 to play a game over the network\n");
+        CONSOLE.printf("\tEnter 4 to observe a game over the network\n");
+        CONSOLE.printf("\tEnter 5 to sign out\n");
+        CONSOLE.printf("\tEnter 6 to close the application and clear credentials\n");
+        CONSOLE.printf(RESET_TEXT_COLOR);
     }
 
-    private void crashOut() {
+    private void logout() {
         try {
-            rearend.sayonara();
+            backend.logout();
             setLoggedIn.set(false);
             setShouldContinue.set(true);
-            KHANSOUL.printf("Logged out!\n");
+            CONSOLE.printf("Logged out!\n");
         } catch (Exception ex) {
-            KHANSOUL.printf(ex.getMessage());
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
 
         }
     }
 
-    private void youWatchMePunk() {
+    private void observeGame() {
         try {
-            final var gameId = KHANSOUL.readLine("[Game id]: ");
+            final var gameId = CONSOLE.readLine("[Game id]: ");
             int decodedId = GameIdEncoder.decode(gameId);
 
-            var game = rearend.obtenerJuego(decodedId);
+            var game = backend.getGame(decodedId);
             if (game.status() != 200) {
-                KHANSOUL.printf("FAILED TO FIND GAME");
+                CONSOLE.printf("FAILED TO FIND GAME");
                 return;
             }
 
-            KHANSOUL.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
 
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            KHANSOUL.printf(asRealObject.prettyPrint(true) + "\n");
+            CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
 
         } catch (NumberFormatException ex) {
-            KHANSOUL.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
                     + RESET_TEXT_COLOR);
         } catch (Exception ex) {
-            KHANSOUL.printf(ex.getMessage());
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
 
         }
     }
 
-    private void freakingJoinTheGameAlready() {
+    private void joinGame() {
         try {
-            final var gameId = KHANSOUL.readLine("[Game id]: ");
-            final var color = KHANSOUL.readLine("[" + SET_BG_COLOR_WHITE
+            final var gameId = CONSOLE.readLine("[Game id]: ");
+            final var color = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
                     + SET_TEXT_COLOR_BLACK + "BLACK"
                     + RESET_BG_COLOR + RESET_TEXT_COLOR + "/" + "WHITE" + "]: ");
 
             if (!"WHITE".equals(color.toUpperCase()) && !"BLACK".equals(color.toUpperCase())) {
-                KHANSOUL.printf(SET_TEXT_COLOR_RED + "\tColor must be BLACK or WHITE\n"
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "\tColor must be BLACK or WHITE\n"
                         + RESET_TEXT_COLOR);
                 return;
             }
 
             int decodedId = GameIdEncoder.decode(gameId);
 
-            var game = rearend.obtenerJuego(decodedId);
+            var game = backend.getGame(decodedId);
             if (game.status() != 200) {
-                KHANSOUL.printf("FAILED TO FIND GAME");
+                CONSOLE.printf("FAILED TO FIND GAME");
                 return;
             }
-            var result = rearend.joinGame(new JoinGamePayload(color.toUpperCase(), decodedId));
+            var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), decodedId));
             if (result.status() != 200) {
-                KHANSOUL.printf("FAILED TO JOIN GAME");
+                CONSOLE.printf("FAILED TO JOIN GAME");
                 return;
             }
 
-            KHANSOUL.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
 
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            KHANSOUL.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
+            CONSOLE.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
         } catch (Exception ex) {
-            KHANSOUL.printf(ex.getMessage());
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
 
         }
     }
 
-    private void makeUpSomeStupidGame() {
+    private void createGame() {
         try {
-            final var gameName = KHANSOUL.readLine("[Game name]: ");
-            final var game = rearend.createGame(new CreateGamePayload(gameName));
+            final var gameName = CONSOLE.readLine("[Game name]: ");
+            final var game = backend.createGame(new CreateGamePayload(gameName));
             var id = game.body().gameID();
-            KHANSOUL.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR,
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR,
                     GameIdEncoder.encode(id));
 
         } catch (Exception ex) {
-            KHANSOUL.printf(ex.getMessage());
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
 
-    private void gimmeSumGaemz() {
+    private void listGames() {
         try {
-            var games = rearend.enumerateAllGaemz();
+            var games = backend.listGames();
 
             if (games.status() != 200) {
-                KHANSOUL.printf(SET_TEXT_COLOR_RED + "Error. Status %d\n"
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Error. Status %d\n"
                         + RESET_TEXT_COLOR,
                         games.status());
             } else {
                 final var allGames = games.body().games();
-                KHANSOUL.printf(SET_TEXT_COLOR_GREEN);
+                CONSOLE.printf(SET_TEXT_COLOR_GREEN);
                 if (allGames.size() == 0) {
-                    KHANSOUL.printf("No games! Create one to play.\n");
+                    CONSOLE.printf("No games! Create one to play.\n");
                     return;
                 }
                 int gameNum = 1;
-                KHANSOUL.printf("\n[GAMES]\n");
+                CONSOLE.printf("\n[GAMES]\n");
                 for (final var game : allGames) {
-                    KHANSOUL.printf(gameNum + ". Game: %s [%s vs %s]\n", game.gameName(),
+                    CONSOLE.printf(gameNum + ". Game: %s [%s vs %s]\n", game.gameName(),
                             game.whiteUsername(),
                             game.blackUsername());
                 }
-                KHANSOUL.printf(RESET_TEXT_COLOR);
+                CONSOLE.printf(RESET_TEXT_COLOR);
                 gameNum++;
             }
 
-        } catch (Exception yourEx) {
-            KHANSOUL.printf(yourEx.getMessage());
-            throw new RuntimeException(yourEx);
+        } catch (Exception ex) {
+            CONSOLE.printf(ex.getMessage());
+            throw new RuntimeException(ex);
 
         }
     }

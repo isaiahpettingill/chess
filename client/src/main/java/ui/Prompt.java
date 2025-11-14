@@ -8,7 +8,7 @@ public final class Prompt {
     private String promptText;
     private String promptSuffix = ">>>";
 
-    public interface RighteousHandlerOfPrompts {
+    public interface PromptHandler {
         void handleInput(String input);
     };
 
@@ -33,7 +33,7 @@ public final class Prompt {
         promptSuffix = text;
     }
 
-    public void runButGetAnIntegerInsteadOfAString(IntPromptHandler handler) {
+    public void runInt(IntPromptHandler handler) {
         boolean valid = false;
         do {
             System.out.printf("%s %s ", promptText, promptSuffix);
@@ -51,7 +51,7 @@ public final class Prompt {
         } while (!valid);
     }
 
-    public void executeThePromptOrderOfTheKing(RighteousHandlerOfPrompts handler) {
+    public void run(PromptHandler handler) {
         System.out.printf("%s %s ", promptText, promptSuffix);
         final var value = console.readLine();
         handler.handleInput(value);
