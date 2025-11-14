@@ -20,3 +20,5 @@ run-server:
 run-client-compiled: package
     java -jar client/target/client-jar-with-dependencies.jar
     
+run-packaged-server:
+    java -jar server/target/server.jar
