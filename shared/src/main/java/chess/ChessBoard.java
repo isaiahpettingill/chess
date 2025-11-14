@@ -2,7 +2,11 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Stream;
+
+import com.google.gson.Gson;
+
 import static ui.EscapeSequences.*;
 import chess.ChessGame.TeamColor;
 
@@ -133,41 +137,81 @@ public final class ChessBoard {
     return builder.toString();
   }
 
-  private static void whiteSquare(StringBuilder builder){
+  private static void whiteSquare(StringBuilder builder) {
     builder.append(SET_BG_COLOR_WHITE);
     builder.append(SET_TEXT_COLOR_BLACK);
   }
 
-  private static void blackSquare(StringBuilder builder){
+  private static void blackSquare(StringBuilder builder) {
     builder.append(SET_BG_COLOR_BLACK);
     builder.append(SET_TEXT_COLOR_WHITE);
   }
 
+  public static void rotateBoard180Degrees(ChessPiece[][] theboard) {
+    for (int i = 0; i < 2; i++) {
+      // transpose. Yeah, I know this could be done more efficiently but I don't care.
+      for (int row = 1; row < 9; row++) {
+        for (int col = row + 1; col < 9; col++) {
+          final var temp = theboard[row][col];
+          theboard[row][col] = theboard[col][row];
+          theboard[col][row] = temp;
+        }
+      }
+      // reverse each row. Yeah, I'm sure there's a better way.
+      for (int row = 1; row < 9; row++) {
+        ArrayList<ChessPiece> therow = new ArrayList<>(Arrays.asList(theboard[row]));
+        therow.add(null);
+        Collections.reverse(therow);
+        therow.removeLast();
+        theboard[row] = therow.toArray(new ChessPiece[therow.size()]);
+      }
+    }
+  }
+
+  private static TeamColor theOtherColor(TeamColor color) {
+    return (color == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK);
+  }
+
+  private static String getRowLabel(int row, boolean reverse) {
+    // Yes, I'm sure there's a better way to do this. I don't freaking care.
+    return (reverse ? (char)((int)'I' - row) : (char)((int)'@' + row)) +  "  ";
+  }
+
+  private static final String COLUMN_LABELS = "    1  2  3  4  5  6  7  8  \n";
+
   public String toPrettyString(boolean reverse) {
-    var currentColor = reverse ? TeamColor.BLACK : TeamColor.WHITE;
+    var currentColor = TeamColor.WHITE;
     var builder = new StringBuilder();
     builder.append("\n\n");
-    final int start = reverse ? 8 : 1;
-    final int end = reverse ? 0 : 9;
-    final int modifier = reverse ? -1 : 1;
+    builder.append(COLUMN_LABELS);
     whiteSquare(builder);
-    for (int row = start; reverse && row > end || row < end; row += modifier) {
-      for (int col = start; reverse && col > end || col < end; col += modifier) {
-        if (currentColor == TeamColor.WHITE){
-          whiteSquare(builder);
-        }
-        else {
-          blackSquare(builder);
-        }
-        var piece = getPiece(new ChessPosition(row, col));
-        builder.append(piece == null ? "   " : piece.toPrettyString());
-        currentColor = currentColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
-      }
-      currentColor = currentColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+    var gson = new Gson();
+    var theboard = gson.fromJson(gson.toJson(board), ChessPiece[][].class);
+    if (reverse) {
+      rotateBoard180Degrees(theboard);
+    }
+    for (int row = 1; row < 9; row++) {
       builder.append(RESET_BG_COLOR);
       builder.append(RESET_TEXT_COLOR);
+      builder.append(getRowLabel(row, reverse));
+      for (int col = 1; col < 9; col++) {
+        if (currentColor == TeamColor.WHITE) {
+          whiteSquare(builder);
+        } else {
+          blackSquare(builder);
+        }
+        var piece = theboard[row][col];
+        builder.append(piece == null ? "   " : piece.toPrettyString());
+        currentColor = theOtherColor(currentColor);
+      }
+      currentColor = theOtherColor(currentColor);
+      builder.append(RESET_BG_COLOR);
+      builder.append(RESET_TEXT_COLOR);
+      builder.append("  " + getRowLabel(row, reverse));
       builder.append('\n');
     }
+    builder.append(COLUMN_LABELS);
+
     return builder.toString();
   }
 

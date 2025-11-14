@@ -79,7 +79,9 @@ final class LoggedInCommands {
             setShouldContinue.set(true);
             CONSOLE.printf("Logged out!\n");
         } catch (Exception ex) {
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
+
         }
     }
 
@@ -100,9 +102,13 @@ final class LoggedInCommands {
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
             CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
 
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
                     + RESET_TEXT_COLOR);
+        } catch (Exception ex) {
+            CONSOLE.printf(ex.getMessage());
+            throw new RuntimeException(ex);
+
         }
     }
 
@@ -138,7 +144,9 @@ final class LoggedInCommands {
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
             CONSOLE.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
         } catch (Exception ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Invalid ID" + RESET_TEXT_COLOR);
+            CONSOLE.printf(ex.getMessage());
+            throw new RuntimeException(ex);
+
         }
     }
 
@@ -151,6 +159,7 @@ final class LoggedInCommands {
                     GameIdEncoder.encode(id));
 
         } catch (Exception ex) {
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -182,7 +191,9 @@ final class LoggedInCommands {
             }
 
         } catch (Exception ex) {
+            CONSOLE.printf(ex.getMessage());
             throw new RuntimeException(ex);
+
         }
     }
 }

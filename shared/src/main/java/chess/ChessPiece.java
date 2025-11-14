@@ -101,7 +101,7 @@ public final class ChessPiece {
       case BISHOP -> black ? BLACK_BISHOP : WHITE_BISHOP;
       case ROOK -> black ? BLACK_ROOK : WHITE_ROOK;
       case PAWN -> black ? BLACK_PAWN : WHITE_PAWN;
-      case KNIGHT -> black ? BLACK_KING : WHITE_KNIGHT;
+      case KNIGHT -> black ? BLACK_KNIGHT : WHITE_KNIGHT;
     };
     return caps;
   }
