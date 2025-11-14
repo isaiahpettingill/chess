@@ -86,8 +86,9 @@ final class LoggedInCommands {
     private void observeGame() {
         try {
             final var gameId = CONSOLE.readLine("[Game id]: ");
+            int decodedId = GameIdEncoder.decode(gameId);
 
-            var game = backend.getGame(gameId);
+            var game = backend.getGame(decodedId);
             if (game.status() != 200) {
                 CONSOLE.printf("FAILED TO FIND GAME");
                 return;
@@ -99,11 +100,9 @@ final class LoggedInCommands {
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
             CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
 
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the ID needs to be an integer dang it."
                     + RESET_TEXT_COLOR);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
         }
     }
 
@@ -120,12 +119,13 @@ final class LoggedInCommands {
                 return;
             }
 
-            var game = backend.getGame(gameId);
+            int decodedId = GameIdEncoder.decode(gameId);
+
+            var game = backend.getGame(decodedId);
             if (game.status() != 200) {
                 CONSOLE.printf("FAILED TO FIND GAME");
                 return;
             }
-            int decodedId = GameIdEncoder.decode(gameId);
             var result = backend.joinGame(new JoinGamePayload(color.toUpperCase(), decodedId));
             if (result.status() != 200) {
                 CONSOLE.printf("FAILED TO JOIN GAME");
@@ -137,10 +137,8 @@ final class LoggedInCommands {
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
             CONSOLE.printf(asRealObject.prettyPrint(color.toUpperCase().equals("WHITE")) + "\n");
-        } catch (NumberFormatException ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Invalid ID" + RESET_TEXT_COLOR);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            CONSOLE.printf(SET_TEXT_COLOR_RED + "Invalid ID" + RESET_TEXT_COLOR);
         }
     }
 
@@ -149,7 +147,8 @@ final class LoggedInCommands {
             final var gameName = CONSOLE.readLine("[Game name]: ");
             final var game = backend.createGame(new CreateGamePayload(gameName));
             var id = game.body().gameID();
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR, GameIdEncoder.encode(id));
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Game created. (ID: %s)\n" + RESET_TEXT_COLOR,
+                    GameIdEncoder.encode(id));
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
