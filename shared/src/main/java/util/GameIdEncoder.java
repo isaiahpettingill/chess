@@ -10,13 +10,13 @@ public final class GameIdEncoder {
 
     public static String encode(int gameId) {
         final var sb = new StringBuilder();
-        final var new_key = gameId ^ OBFUSCATION_KEY;
-        final var key_string = Integer.toString(new_key, 36);
+        final var newKey = gameId ^ OBFUSCATION_KEY;
+        final var keyString = Integer.toString(newKey, 36);
         for (int i = 0; i < LEFT_PADDING; i++) {
             final var thing = RANDOM.nextInt(0, 35);
             sb.append(Integer.toString(thing, 36));
         }
-        sb.append(key_string);
+        sb.append(keyString);
         for (int i = 0; i < RIGHT_PADDING; i++) {
             final var junk = RANDOM.nextInt(0, 35);
             sb.append(Integer.toString(junk, 36));

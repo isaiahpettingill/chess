@@ -170,13 +170,15 @@ final class LoggedInCommands {
                     CONSOLE.printf("No games! Create one to play.\n");
                     return;
                 }
+                int gameNum = 1;
                 CONSOLE.printf("\n[GAMES]\n");
                 for (final var game : allGames) {
-                    CONSOLE.printf("Game: %s [%s vs %s]\n", game.gameName(),
+                    CONSOLE.printf(gameNum + ". Game: %s [%s vs %s]\n", game.gameName(),
                             game.whiteUsername(),
                             game.blackUsername());
                 }
                 CONSOLE.printf(RESET_TEXT_COLOR);
+                gameNum++;
             }
 
         } catch (Exception ex) {
