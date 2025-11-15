@@ -101,9 +101,9 @@ final class LoggedOutCommands {
     public void handleLoggedOut(int input) {
         switch (input) {
             case 0:
-                CONSOLE.printf("\tEnter a number to select one of the options.");
-                CONSOLE.printf("\tIf you lack an account, register. Otherwise, log in.");
-                CONSOLE.printf("\tDo not be stupid and delete the database.");
+                CONSOLE.printf("\tEnter a number to select one of the options.\n");
+                CONSOLE.printf("\tIf you lack an account, register. Otherwise, log in.\n");
+                CONSOLE.printf("\tDo not be stupid and delete the database.\n");
                 break;
             case 1:
                 login();
