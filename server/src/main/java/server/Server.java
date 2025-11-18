@@ -1,9 +1,8 @@
 package server;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.google.gson.Gson;
 
 import dataaccess.AuthRepository;
 import dataaccess.DatabaseManager;
@@ -36,14 +35,8 @@ public class Server {
         final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
-        final Set<WsContext> sessions = ConcurrentHashMap.newKeySet();
-        final var gson = new Gson();
-        final var wsHandle = new WebSocketHandler(authService, gameService, (msg, ctx) -> {
-            for (final var session : sessions) {
-                if (session.equals(ctx)) { continue; }
-                session.send(gson.toJson(msg));
-            }
-        });
+        final Map<Integer, Set<WsContext>> allSessions = new ConcurrentHashMap<Integer, Set<WsContext>>();
+        final var wsHandle = new WebSocketHandler(authService, gameService, allSessions);
 
         final Set<Handler> handlers = Set.of(
                 useInMemory ? new ClearDBHandler(db) : new ClearDBHandler(),
@@ -61,16 +54,19 @@ public class Server {
 
         javalinServer.ws("/ws", cfg -> {
             cfg.onConnect(ctx -> {
-                sessions.add(ctx);
                 ctx.enableAutomaticPings();
             });
 
             cfg.onClose(ctx -> {
-                sessions.remove(ctx);
+                for (var k : allSessions.keySet()) {
+                    allSessions.get(k).remove(ctx);
+                }
             });
 
             cfg.onError(ctx -> {
-                sessions.remove(ctx);
+                for (var k : allSessions.keySet()) {
+                    allSessions.get(k).remove(ctx);
+                }
             });
 
             wsHandle.execute(cfg);

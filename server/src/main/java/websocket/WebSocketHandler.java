@@ -1,9 +1,12 @@
 package websocket;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -21,7 +24,6 @@ import models.User;
 import service.AuthService;
 import service.GameService;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessage.ErrorMessage;
 import websocket.messages.ServerMessage.LoadGameMessage;
 import websocket.messages.ServerMessage.NotificationMessage;
@@ -30,21 +32,59 @@ public class WebSocketHandler {
     private static final Gson GSON = new Gson();
     private final AuthService authService;
     private final GameService gameService;
-    private final NotifyAll notifier;
+    private final Map<Integer, Set<WsContext>> allSessions;
 
-    public interface NotifyAll {
-        void broadcast(ServerMessage msg, WsContext ctx);
-    }
-
-    public WebSocketHandler(AuthService authService, GameService gameService, NotifyAll notifyAll) {
+    public WebSocketHandler(AuthService authService, GameService gameService,
+            Map<Integer, Set<WsContext>> allSessions) {
         this.authService = authService;
         this.gameService = gameService;
-        this.notifier = notifyAll;
+        this.allSessions = allSessions;
     }
 
     private record UserAndGame(User user, Game game, Optional<TeamColor> playerColor, boolean isObserver,
             ChessGame gameContents) {
     };
+
+    private void notifyOthers(int gameID, String message, WsContext ctx) {
+        var sessions = allSessions.get(gameID);
+        if (sessions == null) {
+            return;
+        }
+        for (var session : sessions) {
+            if (session.equals(ctx)) {
+                continue;
+            }
+            session.send(GSON.toJson(new NotificationMessage(message)));
+        }
+    }
+
+    private void notifyAll(int gameID, String message) {
+        var sessions = allSessions.get(gameID);
+        if (sessions == null) {
+            return;
+        }
+        for (var session : sessions) {
+            session.send(GSON.toJson(new NotificationMessage(message)));
+        }
+    }
+
+    private void leaveSession(int gameID, WsContext session) {
+        var sessions = allSessions.get(gameID);
+        if (sessions == null) {
+            return;
+        }
+        sessions.remove(session);
+    }
+
+    private void addSession(int gameID, WsContext session) {
+        var sessions = allSessions.get(gameID);
+        if (sessions == null) {
+            final Set<WsContext> s = ConcurrentHashMap.newKeySet();
+            allSessions.put(gameID, s);
+            sessions = s;
+        }
+        sessions.add(session);
+    }
 
     private UserAndGame getUserAndGame(String authToken, int gameID)
             throws SQLException, DataAccessException, NoSuchElementException, JsonParseException, JsonSyntaxException {
@@ -68,20 +108,20 @@ public class WebSocketHandler {
         return new UserAndGame(user, game, teamColor, isObserver, theGame);
     }
 
-    private void sendNotification(String message, WsContext ctx) {
-        notifier.broadcast(new NotificationMessage(message), ctx);
-    }
-
     private void connect(String authToken, int gameID, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
             ctx.send(GSON.toJson(new LoadGameMessage(userAndGame.gameContents())));
-            sendNotification(userAndGame.user().username() + " joined the game "
+
+            addSession(gameID, ctx);
+
+            notifyOthers(gameID, userAndGame.user().username() + " joined the game "
                     + (userAndGame.isObserver()
                             ? "as observer."
                             : (userAndGame.playerColor().get() == TeamColor.WHITE
                                     ? "as white."
-                                    : "as black.")), ctx);
+                                    : "as black.")),
+                    ctx);
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -93,9 +133,19 @@ public class WebSocketHandler {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
             final var game = userAndGame.game();
+
+            if (userAndGame.isObserver()){
+                errorOut("Observers can't resign, silly.", ctx);
+                return;
+            }
+
+            if (userAndGame.game().isOver()){
+                errorOut("Game Over bro", ctx);
+                return;
+            }
+
             gameService.markFinished(game);
-            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " resigned. Game is over."), ctx);
-            ctx.closeSession();
+            notifyAll(gameID, userAndGame.user().username() + " resigned. Game is over.");
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -106,8 +156,14 @@ public class WebSocketHandler {
     private void move(String authToken, int gameID, ChessMove move, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
+            if (userAndGame.game().isOver()) {
+                errorOut("Game is over.", ctx);
+                return;
+            }
+
+            ctx.send(GSON.toJson(new LoadGameMessage(userAndGame.gameContents())));
             if (userAndGame.isObserver()) {
-                errorOut("Observers may not make moves.", ctx);
+                errorOut("Observers cannot move.", ctx);
                 return;
             }
 
@@ -118,8 +174,17 @@ public class WebSocketHandler {
                 return;
             }
 
-            game.makeMove(move);
+            if (game.getTeamTurn() != piece.getTeamColor()) {
+                errorOut("Not your turn", ctx);
+                return;
+            }
 
+            game.makeMove(move);
+            game.setTeamTurn(game.getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+
+            final var notification = userAndGame.playerColor() + " moved from "
+                    + move.getEndPosition() + " to " + move.getEndPosition();
+            notifyOthers(gameID, notification, ctx);
         } catch (InvalidMoveException ex) {
             errorOut("Invalid move! " + ex.getMessage(), ctx);
         } catch (NoSuchElementException ex) {
@@ -132,7 +197,8 @@ public class WebSocketHandler {
     private void leave(String authToken, int gameID, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
-            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " left the game."), ctx);
+            notifyOthers(gameID, userAndGame.user().username() + " left the game.", ctx);
+            leaveSession(gameID, ctx);
             ctx.closeSession();
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
