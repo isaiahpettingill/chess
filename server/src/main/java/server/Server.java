@@ -38,8 +38,9 @@ public class Server {
 
         final Set<WsContext> sessions = ConcurrentHashMap.newKeySet();
         final var gson = new Gson();
-        final var wsHandle = new WebSocketHandler(authService, gameService, msg -> {
+        final var wsHandle = new WebSocketHandler(authService, gameService, (msg, ctx) -> {
             for (final var session : sessions) {
+                if (session.equals(ctx)) { continue; }
                 session.send(gson.toJson(msg));
             }
         });

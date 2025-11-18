@@ -33,7 +33,7 @@ public class WebSocketHandler {
     private final NotifyAll notifier;
 
     public interface NotifyAll {
-        void broadcast(ServerMessage msg);
+        void broadcast(ServerMessage msg, WsContext ctx);
     }
 
     public WebSocketHandler(AuthService authService, GameService gameService, NotifyAll notifyAll) {
@@ -68,8 +68,8 @@ public class WebSocketHandler {
         return new UserAndGame(user, game, teamColor, isObserver, theGame);
     }
 
-    private void sendNotification(String message) {
-        notifier.broadcast(new NotificationMessage(message));
+    private void sendNotification(String message, WsContext ctx) {
+        notifier.broadcast(new NotificationMessage(message), ctx);
     }
 
     private void connect(String authToken, int gameID, WsContext ctx) {
@@ -81,7 +81,7 @@ public class WebSocketHandler {
                             ? "as observer."
                             : (userAndGame.playerColor().get() == TeamColor.WHITE
                                     ? "as white."
-                                    : "as black.")));
+                                    : "as black.")), ctx);
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -94,7 +94,7 @@ public class WebSocketHandler {
             final var userAndGame = getUserAndGame(authToken, gameID);
             final var game = userAndGame.game();
             gameService.markFinished(game);
-            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " resigned. Game is over."));
+            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " resigned. Game is over."), ctx);
             ctx.closeSession();
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
@@ -132,7 +132,7 @@ public class WebSocketHandler {
     private void leave(String authToken, int gameID, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
-            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " left the game."));
+            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " left the game."), ctx);
             ctx.closeSession();
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
