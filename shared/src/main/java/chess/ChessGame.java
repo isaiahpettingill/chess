@@ -1,9 +1,15 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import static ui.EscapeSequences.*;
+import com.google.gson.Gson;
 
 import chess.ChessBoard.PieceWithPosition;
 import chess.ChessPiece.PieceType;
@@ -246,7 +252,98 @@ public final class ChessGame {
             && (cg.getTeamTurn().equals(teamTurn));
   }
 
-  public String prettyPrint(boolean isWhite) {
-    return board.toPrettyString(!isWhite);
+  private static void whiteSquare(StringBuilder builder) {
+    builder.append(SET_BG_COLOR_WHITE);
+    builder.append(SET_TEXT_COLOR_BLACK);
+  }
+
+  private static void blackSquare(StringBuilder builder) {
+    builder.append(SET_BG_COLOR_BLACK);
+    builder.append(SET_TEXT_COLOR_WHITE);
+  }
+
+  public static void rotateBoard180Degrees(ChessPiece[][] theboard) {
+    for (int i = 0; i < 2; i++) {
+      // transpose. Yeah, I know this could be done more efficiently but I don't care.
+      for (int row = 1; row < 9; row++) {
+        for (int col = row + 1; col < 9; col++) {
+          final var temp = theboard[row][col];
+          theboard[row][col] = theboard[col][row];
+          theboard[col][row] = temp;
+        }
+      }
+      // reverse each row. Yeah, I'm sure there's a better way.
+      for (int row = 1; row < 9; row++) {
+        ArrayList<ChessPiece> therow = new ArrayList<>(Arrays.asList(theboard[row]));
+        therow.add(null);
+        Collections.reverse(therow);
+        therow.removeLast();
+        theboard[row] = therow.toArray(new ChessPiece[therow.size()]);
+      }
+    }
+  }
+
+  private static String getRowLabel(int row, boolean reverse) {
+    int label = reverse ? (9 - row) : row;
+    return label + "  ";
+  }
+
+  private static final String COLUMN_LABELS_NORMAL = "    a  b  c  d  e  f  g  h  \n";
+  private static final String COLUMN_LABELS_REVERSE = "    h  g  f  e  d  c  b  a  \n";
+
+  public String toPrettyString(boolean reverse){
+    return toPrettyString(reverse, Optional.empty());
+  }
+
+  public String toPrettyString(boolean reverse, Optional<ChessPosition> move) {
+    final var hasMove = move.isPresent();
+    var builder = new StringBuilder();
+    builder.append("\n\n");
+    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
+    var gson = new Gson();
+    var theboard = gson.fromJson(gson.toJson(board), ChessPiece[][].class);
+    if (reverse) {
+      rotateBoard180Degrees(theboard);
+    }
+    for (int row = 8; row >= 1; row--) {
+      builder.append(RESET_BG_COLOR);
+      builder.append(RESET_TEXT_COLOR);
+      builder.append(getRowLabel(row, reverse));
+      for (int col = 1; col < 9; col++) {
+        boolean isWhiteSquare = ((row + col) % 2) == 1;
+        final var isValidMove = hasMove
+            && validMoves(move.get()).contains(new ChessMove(move.get(), new ChessPosition(row, col)));
+        if (hasMove && new ChessPosition(row, col).equals(move.get())){
+          builder.append(SET_BG_COLOR_YELLOW);
+          builder.append(SET_TEXT_COLOR_LIGHT_GREY);
+          builder.append(SET_TEXT_BLINKING);
+        }
+        else if (isWhiteSquare) {
+          if (isValidMove) {
+            builder.append(SET_BG_COLOR_GREEN);
+            builder.append(SET_TEXT_COLOR_DARK_GREY);
+          } else {
+            whiteSquare(builder);
+          }
+        } else {
+          if (isValidMove) {
+            builder.append(SET_BG_COLOR_GREEN);
+            builder.append(SET_TEXT_COLOR_DARK_GREY);
+          } else {
+            blackSquare(builder);
+          }
+        }
+        var piece = theboard[row][col];
+        builder.append(piece == null ? "   " : piece.toPrettyString());
+        builder.append(RESET_TEXT_BLINKING);
+      }
+      builder.append(RESET_BG_COLOR);
+      builder.append(RESET_TEXT_COLOR);
+      builder.append("  " + getRowLabel(row, reverse));
+      builder.append('\n');
+    }
+    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
+
+    return builder.toString();
   }
 }

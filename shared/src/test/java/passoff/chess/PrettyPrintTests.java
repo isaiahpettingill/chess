@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
@@ -14,7 +14,7 @@ public final class PrettyPrintTests {
     
     @Test()
     public void testPrettyPrint(){
-        final var chess = new ChessBoard();
+        final var chess = new ChessGame();
         assertNotNull(chess.toPrettyString(false));
         assertNotNull(chess.toPrettyString(true));      
     }
@@ -24,7 +24,7 @@ public final class PrettyPrintTests {
         var board = new ChessPiece[9][9];
         var piece = new ChessPiece(TeamColor.WHITE, PieceType.QUEEN);
         board[1][1] = piece;
-        ChessBoard.rotateBoard180Degrees(board);
+        ChessGame.rotateBoard180Degrees(board);
         assertEquals(board[8][8], piece);
     }
 }

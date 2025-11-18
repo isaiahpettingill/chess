@@ -107,7 +107,7 @@ final class LoggedInCommands {
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            CONSOLE.printf(asRealObject.prettyPrint(true) + "\n");
+            CONSOLE.printf(asRealObject.toPrettyString(true) + "\n");
         } catch (NumberFormatException ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {
@@ -161,7 +161,7 @@ final class LoggedInCommands {
             CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
             var chessGame = game.body().game();
             var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            CONSOLE.printf(asRealObject.prettyPrint(color.equals("WHITE")) + "\n");
+            CONSOLE.printf(asRealObject.toPrettyString(color.equals("WHITE")) + "\n");
         } catch (NumberFormatException ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {

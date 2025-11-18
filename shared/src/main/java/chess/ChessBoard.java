@@ -2,12 +2,10 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.stream.Stream;
 
-import com.google.gson.Gson;
 
-import static ui.EscapeSequences.*;
 import chess.ChessGame.TeamColor;
 
 /*
@@ -134,78 +132,6 @@ public final class ChessBoard {
       }
       builder.append('\n');
     }
-    return builder.toString();
-  }
-
-  private static void whiteSquare(StringBuilder builder) {
-    builder.append(SET_BG_COLOR_WHITE);
-    builder.append(SET_TEXT_COLOR_BLACK);
-  }
-
-  private static void blackSquare(StringBuilder builder) {
-    builder.append(SET_BG_COLOR_BLACK);
-    builder.append(SET_TEXT_COLOR_WHITE);
-  }
-
-  public static void rotateBoard180Degrees(ChessPiece[][] theboard) {
-    for (int i = 0; i < 2; i++) {
-      // transpose. Yeah, I know this could be done more efficiently but I don't care.
-      for (int row = 1; row < 9; row++) {
-        for (int col = row + 1; col < 9; col++) {
-          final var temp = theboard[row][col];
-          theboard[row][col] = theboard[col][row];
-          theboard[col][row] = temp;
-        }
-      }
-      // reverse each row. Yeah, I'm sure there's a better way.
-      for (int row = 1; row < 9; row++) {
-        ArrayList<ChessPiece> therow = new ArrayList<>(Arrays.asList(theboard[row]));
-        therow.add(null);
-        Collections.reverse(therow);
-        therow.removeLast();
-        theboard[row] = therow.toArray(new ChessPiece[therow.size()]);
-      }
-    }
-  }
-
-  private static String getRowLabel(int row, boolean reverse) {
-    int label = reverse ? (9 - row) : row;
-    return label + "  ";
-  }
-
-  private static final String COLUMN_LABELS_NORMAL = "    a  b  c  d  e  f  g  h  \n";
-  private static final String COLUMN_LABELS_REVERSE = "    h  g  f  e  d  c  b  a  \n";
-
-  public String toPrettyString(boolean reverse) {
-    var builder = new StringBuilder();
-    builder.append("\n\n");
-    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
-    var gson = new Gson();
-    var theboard = gson.fromJson(gson.toJson(board), ChessPiece[][].class);
-    if (reverse) {
-      rotateBoard180Degrees(theboard);
-    }
-    for (int row = 8; row >= 1; row--) {
-      builder.append(RESET_BG_COLOR);
-      builder.append(RESET_TEXT_COLOR);
-      builder.append(getRowLabel(row, reverse));
-      for (int col = 1; col < 9; col++) {
-        boolean isWhiteSquare = ((row + col) % 2) == 1;
-        if (isWhiteSquare) {
-          whiteSquare(builder);
-        } else {
-          blackSquare(builder);
-        }
-        var piece = theboard[row][col];
-        builder.append(piece == null ? "   " : piece.toPrettyString());
-      }
-      builder.append(RESET_BG_COLOR);
-      builder.append(RESET_TEXT_COLOR);
-      builder.append("  " + getRowLabel(row, reverse));
-      builder.append('\n');
-    }
-    builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
-
     return builder.toString();
   }
 
