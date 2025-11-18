@@ -29,8 +29,9 @@ public final class GameService {
     }
 
     public void markFinished(Game game) throws DataAccessException, SQLException {
-        this.gameRepository.upsert(new Game(game.id(), game.gameName(), game.whiteUsername(), game.blackUsername(), game.game(),
-        true));
+        this.gameRepository
+                .upsert(new Game(game.id(), game.gameName(), game.whiteUsername(), game.blackUsername(), game.game(),
+                        true));
     }
 
     public Optional<Game> getGame(int gameId) throws DataAccessException, SQLException {

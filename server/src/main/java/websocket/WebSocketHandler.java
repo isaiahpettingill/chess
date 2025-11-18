@@ -10,6 +10,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import dataaccess.DataAccessException;
@@ -94,6 +95,7 @@ public class WebSocketHandler {
             final var game = userAndGame.game();
             gameService.markFinished(game);
             notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " resigned. Game is over."));
+            ctx.closeSession();
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -104,10 +106,24 @@ public class WebSocketHandler {
     private void move(String authToken, int gameID, ChessMove move, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
-            final var user = userAndGame.user();
-            final var game = userAndGame.game();
+            if (userAndGame.isObserver()) {
+                errorOut("Observers may not make moves.", ctx);
+                return;
+            }
+
+            final var game = userAndGame.gameContents();
+            final var piece = game.getBoard().getPiece(move.getStartPosition());
+            if (!piece.getTeamColor().equals(userAndGame.playerColor().get())) {
+                errorOut("You may only move pieces of your own color", ctx);
+                return;
+            }
+
+            game.makeMove(move);
+
+        } catch (InvalidMoveException ex) {
+            errorOut("Invalid move! " + ex.getMessage(), ctx);
         } catch (NoSuchElementException ex) {
-            errorOut("The provided auth token is invalid or the game does not exist.", ctx);
+            errorOut("The provided auth token is invalid, the game is corrupted, or the game does not exist.", ctx);
         } catch (Exception ex) {
             errorOut(ex.getMessage(), ctx);
         }
