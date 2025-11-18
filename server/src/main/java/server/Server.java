@@ -13,6 +13,7 @@ import dataaccess.inmemory.InMemoryUserRepository;
 import handlers.*;
 import io.javalin.*;
 import service.*;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -31,6 +32,8 @@ public class Server {
         final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
+        final var wsHandle = new WebSocketHandler();
+
         final Set<Handler> handlers = Set.of(
                 useInMemory ? new ClearDBHandler(db) : new ClearDBHandler(),
                 new CreateGameHandler(authService, gameService),
@@ -44,6 +47,8 @@ public class Server {
         for (final var handler : handlers) {
             javalinServer.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
+        
+        javalinServer.ws("/ws",  wsHandle::execute);
     }
 
     public Server() {
