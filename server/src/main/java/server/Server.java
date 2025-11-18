@@ -1,6 +1,9 @@
 package server;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.google.gson.Gson;
 
 import dataaccess.AuthRepository;
 import dataaccess.DatabaseManager;
@@ -12,8 +15,10 @@ import dataaccess.inmemory.InMemoryGameRespository;
 import dataaccess.inmemory.InMemoryUserRepository;
 import handlers.*;
 import io.javalin.*;
+import io.javalin.websocket.WsContext;
 import service.*;
 import websocket.WebSocketHandler;
+import websocket.messages.ServerMessage.ErrorMessage;
 
 public class Server {
 
@@ -32,7 +37,13 @@ public class Server {
         final var authService = new AuthService(authRepository, userRepository);
         final var gameService = new GameService(gameRepository);
 
-        final var wsHandle = new WebSocketHandler();
+        final Set<WsContext> sessions = ConcurrentHashMap.newKeySet();
+        final var gson = new Gson();
+        final var wsHandle = new WebSocketHandler(authService, gameService, msg -> {
+            for (final var session : sessions) {
+                session.send(gson.toJson(msg));
+            }
+        });
 
         final Set<Handler> handlers = Set.of(
                 useInMemory ? new ClearDBHandler(db) : new ClearDBHandler(),
@@ -47,8 +58,23 @@ public class Server {
         for (final var handler : handlers) {
             javalinServer.addHttpHandler(handler.getHttpMethod(), handler.getPath(), handler::execute);
         }
-        
-        javalinServer.ws("/ws",  wsHandle::execute);
+
+        javalinServer.ws("/ws", cfg -> {
+            cfg.onConnect(ctx -> {
+                sessions.add(ctx);
+                ctx.enableAutomaticPings();
+            });
+
+            cfg.onClose(ctx -> {
+                sessions.remove(ctx);
+            });
+
+            cfg.onError(ctx -> {
+                sessions.remove(ctx);
+            });
+            
+            wsHandle.execute(cfg);
+        });
     }
 
     public Server() {
