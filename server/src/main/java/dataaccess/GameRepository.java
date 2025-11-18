@@ -15,7 +15,7 @@ public class GameRepository extends AbstractRepository<Game> {
     public Collection<Game> list() throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection.prepareStatement(
-                    "select gameId, gameName, whiteUsername, blackUsername, game from games;");
+                    "select gameId, gameName, whiteUsername, blackUsername, isOver, game from games;");
             final var result = statement.executeQuery();
             final var users = new ArrayList<Game>();
 
@@ -25,7 +25,9 @@ public class GameRepository extends AbstractRepository<Game> {
                 final var whiteUsername = result.getString("whiteUsername");
                 final var blackUsername = result.getString("blackUsername");
                 final var game = result.getString("game");
-                users.add(new Game(id, gameName, whiteUsername, blackUsername, game));
+                final var isOver = result.getBoolean("isOver");
+
+                users.add(new Game(id, gameName, whiteUsername, blackUsername, game, isOver));
             }
 
             return users;
@@ -38,7 +40,7 @@ public class GameRepository extends AbstractRepository<Game> {
     public Optional<Game> get(Integer id) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection.prepareStatement(
-                    "select gameId, gameName, whiteUsername, blackUsername, game from games where gameId = ?;");
+                    "select gameId, gameName, whiteUsername, blackUsername, game, isOver, from games where gameId = ?;");
             statement.setInt(1, id);
             final var result = statement.executeQuery();
 
@@ -51,8 +53,9 @@ public class GameRepository extends AbstractRepository<Game> {
             final var whiteUsername = result.getString("whiteUsername");
             final var blackUsername = result.getString("blackUsername");
             final var game = result.getString("game");
+            final var isOver = result.getBoolean("isOver");
 
-            return Optional.of(new Game(theId, gameName, whiteUsername, blackUsername, game));
+            return Optional.of(new Game(theId, gameName, whiteUsername, blackUsername, game, isOver));
         }
     }
 
@@ -81,12 +84,13 @@ public class GameRepository extends AbstractRepository<Game> {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
                     .prepareStatement(
-                            "update games set gameName = ?, whiteUsername = ?, blackUsername = ?, game = ? where gameId = ?");
+                            "update games set gameName = ?, whiteUsername = ?, blackUsername = ?, game = ?, isOver = ?, where gameId = ?");
             statement.setString(1, game.gameName());
             statement.setString(2, game.whiteUsername());
             statement.setString(3, game.blackUsername());
             statement.setString(4, game.game());
             statement.setInt(5, game.id());
+            statement.setBoolean(6, game.isOver());
             statement.executeUpdate();
             return game;
         }

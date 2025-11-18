@@ -7,7 +7,8 @@ import database.migrations.*;
 
 public final class MigrationRunner {
     private static final List<Migration> MIGRATIONS = List.of(
-        new Migration0001()
+        new Migration0001(),
+        new Migration0002()
     );
 
     public static final void migrate(Connection connection) throws SQLException {

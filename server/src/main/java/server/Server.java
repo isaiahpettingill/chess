@@ -18,7 +18,6 @@ import io.javalin.*;
 import io.javalin.websocket.WsContext;
 import service.*;
 import websocket.WebSocketHandler;
-import websocket.messages.ServerMessage.ErrorMessage;
 
 public class Server {
 
@@ -72,7 +71,7 @@ public class Server {
             cfg.onError(ctx -> {
                 sessions.remove(ctx);
             });
-            
+
             wsHandle.execute(cfg);
         });
     }

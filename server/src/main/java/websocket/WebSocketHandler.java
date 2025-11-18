@@ -1,7 +1,6 @@
 package websocket;
 
 import java.sql.SQLException;
-import java.time.format.TextStyle;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -92,7 +91,9 @@ public class WebSocketHandler {
     private void resign(String authToken, int gameID, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
-            
+            final var game = userAndGame.game();
+            gameService.markFinished(game);
+            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " resigned. Game is over."));
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -112,11 +113,11 @@ public class WebSocketHandler {
         }
     }
 
-    private void leave(String authToken, int gameID, ChessMove move, WsContext ctx) {
+    private void leave(String authToken, int gameID, WsContext ctx) {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
-            final var user = userAndGame.user();
-            final var game = userAndGame.game();
+            notifier.broadcast(new NotificationMessage(userAndGame.user().username() + " left the game."));
+            ctx.closeSession();
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -144,6 +145,7 @@ public class WebSocketHandler {
                 move(message.getAuthToken(), message.getGameID(), message.chessMove(), ctx);
                 break;
             case LEAVE:
+                leave(message.getAuthToken(), message.getGameID(), ctx);
                 break;
             default:
                 break;
