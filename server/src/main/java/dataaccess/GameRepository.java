@@ -40,7 +40,7 @@ public class GameRepository extends AbstractRepository<Game> {
     public Optional<Game> get(Integer id) throws DataAccessException, SQLException {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection.prepareStatement(
-                    "select gameId, gameName, whiteUsername, blackUsername, game, isOver, from games where gameId = ?;");
+                    "select gameId, gameName, whiteUsername, blackUsername, game, isOver from games where gameId = ?;");
             statement.setInt(1, id);
             final var result = statement.executeQuery();
 
@@ -84,7 +84,7 @@ public class GameRepository extends AbstractRepository<Game> {
         try (final var connection = DatabaseManager.getConnection()) {
             final var statement = connection
                     .prepareStatement(
-                            "update games set gameName = ?, whiteUsername = ?, blackUsername = ?, game = ?, isOver = ?, where gameId = ?");
+                            "update games set gameName = ?, whiteUsername = ?, blackUsername = ?, game = ?, isOver = ? where gameId = ?");
             statement.setString(1, game.gameName());
             statement.setString(2, game.whiteUsername());
             statement.setString(3, game.blackUsername());
