@@ -1,10 +1,15 @@
 package client;
 
 import dto.*;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 import models.Game;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -140,5 +145,11 @@ public class ServerFacade {
         var status = res.statusCode();
         var body = status == 200 ? GSON.fromJson(res.body(), ListGamesResponse.class) : null;
         return new ServerResponse<>(body, status);
+    }
+
+    public Session connectToWebSocket() throws URISyntaxException, IOException, DeploymentException {
+        URI uri = new URI(baseurl+"/ws");
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        return container.connectToServer(this, uri);
     }
 }
