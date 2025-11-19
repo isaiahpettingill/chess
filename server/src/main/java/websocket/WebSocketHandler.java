@@ -181,6 +181,7 @@ public class WebSocketHandler {
 
             game.makeMove(move);
             game.setTeamTurn(game.getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+            gameService.updateGame(gameID, game);
 
             final var notification = userAndGame.playerColor() + " moved from "
                     + move.getEndPosition() + " to " + move.getEndPosition();

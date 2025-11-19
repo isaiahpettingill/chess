@@ -26,8 +26,8 @@ public class UserGameCommand {
         this.gameID = gameID;
     }
 
-    public UserGameCommand(CommandType commandType, String authToken, int gameID, ChessMove move) {
-        this(commandType, authToken, gameID);
+    public UserGameCommand(String authToken, int gameID, ChessMove move) {
+        this(CommandType.MAKE_MOVE, authToken, gameID);
         this.move = move;
     }
 

@@ -82,4 +82,11 @@ public final class GameService {
                 null,
                 thegamestring));
     }
+
+    public void updateGame(int gameID, ChessGame theGame) throws SQLException, DataAccessException {
+        final var game = getGame(gameID).get();
+
+        gameRepository.upsert(new Game(gameID, game.gameName(), game.whiteUsername(), game.blackUsername(),
+                new Gson().toJson(game), game.isOver()));
+    }
 }
