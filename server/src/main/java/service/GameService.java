@@ -72,6 +72,27 @@ public final class GameService {
         }
     }
 
+    public void removeUserFromGame(int gameID, String username) throws DataAccessException, SQLException {
+        final var game = this.gameRepository.get(gameID);
+        if (game.isPresent()) {
+            if (game.get().whiteUsername() != null && game.get().whiteUsername().equals(username)) {
+                this.gameRepository.upsert(new Game(
+                        game.get().id(),
+                        game.get().gameName(),
+                        null,
+                        game.get().blackUsername(),
+                        game.get().game()));
+            } else if (game.get().blackUsername() != null && game.get().blackUsername().equals(username)) {
+                this.gameRepository.upsert(new Game(
+                        game.get().id(),
+                        game.get().gameName(),
+                        game.get().whiteUsername(),
+                        null,
+                        game.get().game()));
+            }
+        }
+    }
+
     public Game createGame(CreateGamePayload game) throws DataAccessException, SQLException {
         var thegame = new ChessGame();
         var thegamestring = new Gson().toJson(thegame);

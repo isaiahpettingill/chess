@@ -58,13 +58,13 @@ public class WebSocketHandler {
         }
     }
 
-    private void notifyAll(int gameID, String message) {
+    private void loadGameAll(int gameID, ChessGame game) {
         var sessions = allSessions.get(gameID);
         if (sessions == null) {
             return;
         }
         for (var session : sessions) {
-            session.send(GSON.toJson(new NotificationMessage(message)));
+            session.send(GSON.toJson(new LoadGameMessage(game)));
         }
     }
 
@@ -145,7 +145,7 @@ public class WebSocketHandler {
             }
 
             gameService.markFinished(game);
-            notifyAll(gameID, userAndGame.user().username() + " resigned. Game is over.");
+            notifyOthers(gameID, userAndGame.user().username() + " resigned. Game is over.", ctx);
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -182,6 +182,7 @@ public class WebSocketHandler {
             game.makeMove(move);
             game.setTeamTurn(game.getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
             gameService.updateGame(gameID, game);
+            loadGameAll(gameID, game);
 
             final var notification = userAndGame.playerColor() + " moved from "
                     + move.getEndPosition() + " to " + move.getEndPosition();
@@ -199,6 +200,7 @@ public class WebSocketHandler {
         try {
             final var userAndGame = getUserAndGame(authToken, gameID);
             notifyOthers(gameID, userAndGame.user().username() + " left the game.", ctx);
+            gameService.removeUserFromGame(gameID, userAndGame.user().username());
             leaveSession(gameID, ctx);
             ctx.closeSession();
         } catch (NoSuchElementException ex) {

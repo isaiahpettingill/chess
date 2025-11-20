@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.google.gson.Gson;
 
-import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import client.ServerFacade;
 import dto.CreateGamePayload;
