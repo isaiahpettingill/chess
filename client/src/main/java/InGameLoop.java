@@ -1,5 +1,4 @@
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
-import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+import static ui.EscapeSequences.*;
 
 import java.io.Console;
 import java.io.IOException;
@@ -43,6 +42,7 @@ public class InGameLoop {
     private final int gameID;
     private boolean preview = false;
     private boolean boardRendered = false;
+    private boolean isPlayer = false;
 
     private void move(WebSocketClient connection) throws IOException {
         final var p0 = CONSOLE.readLine("Starting position (chess notation, i.e., 'A1', 'B2'): ");
@@ -50,14 +50,14 @@ public class InGameLoop {
         final var p0Parsed = ChessPosition.fromChessNotation(p0);
         final var p1Parsed = ChessPosition.fromChessNotation(p1);
         if (p0Parsed.isEmpty() || p1Parsed.isEmpty()) {
-            CONSOLE.printf("Invalid move! Use correct chess notation.");
+            System.out.println("Invalid move! Use correct chess notation.");
             return;
         }
 
         final var chessMove = new ChessMove(p0Parsed.get(), p1Parsed.get());
         final var validMoves = game.validMoves(p0Parsed.get());
         if (!validMoves.contains(chessMove)) {
-            CONSOLE.printf("Invalid move! That piece can't move there.");
+            System.out.println("Invalid move! That piece can't move there.");
             return;
         }
 
@@ -69,23 +69,23 @@ public class InGameLoop {
     private void resign(WebSocketClient connection) throws IOException {
         connection.send(GSON.toJson(
                 new UserGameCommand(CommandType.RESIGN, authToken, gameID)));
-        CONSOLE.printf("You have resigned the game.\n");
+        System.out.println("You have resigned the game.\n");
     }
 
     private void previewMove(WebSocketClient connection) throws IOException {
         final var startPosition = CONSOLE.readLine("Starting position (chess notation, e.g., A2): ");
         final var pos0 = ChessPosition.fromChessNotation(startPosition);
         if (pos0.isEmpty()) {
-            CONSOLE.printf("Invalid position! Use correct chess notation.");
+            System.out.println("Invalid position! Use correct chess notation.");
             return;
         }
         final var piece = game.getBoard().getPiece(pos0.get());
         if (piece == null) {
-            CONSOLE.printf("No piece at that position!");
+            System.out.println("No piece at that position!");
             return;
         }
-        if (piece.getTeamColor() != color) {
-            CONSOLE.printf("That's not your piece!");
+        if (isPlayer && piece.getTeamColor() != color) {
+            System.out.println("That's not your piece!");
             return;
         }
 
@@ -94,7 +94,7 @@ public class InGameLoop {
             errorMessage = "No valid moves for that piece!";
         }
 
-        CONSOLE.printf(game.toPrettyString(color == TeamColor.BLACK, pos0));
+        System.out.println(game.toPrettyString(color == TeamColor.BLACK, pos0));
         notificationMessage = "Valid moves for that piece: " + validMoves.stream()
                 .map(m -> m.getEndPosition().toString())
                 .reduce((a, b) -> a + ", " + b)
@@ -102,28 +102,35 @@ public class InGameLoop {
         preview = true;
     }
 
-    private String buildPrompt(boolean isPlayer) {
-        StringBuilder prompt = new StringBuilder();
-        if (isPlayer) {
-            prompt.append("[m]: move\t");
-            prompt.append("[r]: resign\t");
-        }
-        prompt.append("[l] leave\t[p]: preview move\t[f]: refresh board\n");
-        return prompt.toString();
+    private void notificationPrint(){
+        System.out.print(ERASE_SCREEN);
+        printData();
+        prompt();
     }
 
-    private boolean handleAction(String action, WebSocketClient webSocketClient, boolean isPlayer) throws IOException {
+    private void prompt() {
+        StringBuilder thePrompt = new StringBuilder();
+        if (isPlayer) {
+            thePrompt.append("[m]: move\t");
+            thePrompt.append("[r]: resign\t");
+        }
+        thePrompt.append("[l] leave\t[p]: preview move\t[f]: refresh board\n");
+        System.out.println(thePrompt.toString());
+
+    }
+
+    private boolean handleAction(String action, WebSocketClient webSocketClient) throws IOException {
         switch (action.toLowerCase()) {
             case "m":
                 if (!isPlayer) {
-                    CONSOLE.printf("Invalid Action\n");
+                    System.out.println("Invalid Action\n");
                     return false;
                 }
                 move(webSocketClient);
                 return false;
             case "r":
                 if (!isPlayer) {
-                    CONSOLE.printf("Invalid Action\n");
+                    System.out.println("Invalid Action\n");
                     return false;
                 }
                 resign(webSocketClient);
@@ -137,7 +144,7 @@ public class InGameLoop {
             case "f":
                 return false;
             default:
-                CONSOLE.printf("Invalid Action\n");
+                System.out.println("Invalid Action\n");
                 return false;
         }
     }
@@ -159,43 +166,42 @@ public class InGameLoop {
                 case ERROR:
                     final var err = GSON.fromJson(message, ErrorMessage.class);
                     errorMessage = err.errorMessage();
-                    CONSOLE.printf(errorMessage + "\n");
+                    notificationPrint();
                     break;
                 case NOTIFICATION:
                     final var notification = GSON.fromJson(message, NotificationMessage.class);
                     notificationMessage = notification.message();
-                    CONSOLE.printf(notificationMessage + "\n");
+                    notificationPrint();
                     break;
                 case LOAD_GAME:
                     final var theGame = GSON.fromJson(message, LoadGameMessage.class);
                     game = theGame.game();
                     boardRendered = true;
+                    notificationPrint();
                     break;
             }
         } catch (JsonSyntaxException ex) {
-            CONSOLE.printf("ERROR: Server sent invalid message.");
+            System.out.println("ERROR: Server sent invalid message.");
         }
     }
 
     public void printData() {
         if (game != null) {
             if (!preview) {
-                CONSOLE.printf(game.toPrettyString(color == TeamColor.BLACK));
+                System.out.print(game.toPrettyString(color == TeamColor.BLACK));
             }
-            CONSOLE.printf("\nIt's %s's turn.\n", game.getTeamTurn());
+            System.out.printf("\nIt's %s's turn.\n", game.getTeamTurn());
             preview = false;
         }
         if (errorMessage != null) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "ERROR: %s\n" + RESET_TEXT_COLOR, errorMessage);
-            errorMessage = null;
+            System.out.printf(SET_TEXT_COLOR_RED + "ERROR: %s\n" + RESET_TEXT_COLOR, errorMessage);
         }
         if (notificationMessage != null) {
-            CONSOLE.printf(notificationMessage + "\n");
-            notificationMessage = null;
+            System.out.println(notificationMessage + "\n");
         }
     }
 
-    private void runGameLoop(boolean isPlayer) {
+    private void runGameLoop() {
         try {
             webSocketClient = backend.webSocketClient(this::onMessage);
             connect(webSocketClient);
@@ -204,9 +210,9 @@ public class InGameLoop {
             loop: do {
                 printData();
                 if (boardRendered) {
-                    CONSOLE.printf(buildPrompt(isPlayer));
-                    final var action = CONSOLE.readLine("ACTION: ");
-                    if (handleAction(action, webSocketClient, isPlayer)) {
+                    prompt();
+                    final var action = CONSOLE.readLine();
+                    if (handleAction(action, webSocketClient)) {
                         break loop;
                     }
                 } else {
@@ -214,17 +220,19 @@ public class InGameLoop {
                 }
             } while (!shouldQuit);
         } catch (JsonSyntaxException ex) {
-            CONSOLE.printf("ERROR: Server sent invalid message.");
+            System.out.println("ERROR: Server sent invalid message.\n");
         } catch (Exception ex) {
-            CONSOLE.printf("Something went terribly wrong!\n");
+            System.out.println("Something went terribly wrong!\n");
         }
     }
 
     public void observe() {
-        runGameLoop(false);
+        isPlayer = false;
+        runGameLoop();
     }
 
     public void play() {
-        runGameLoop(true);
+        isPlayer = true;
+        runGameLoop();
     }
 }

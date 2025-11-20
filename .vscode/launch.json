@@ -7,9 +7,14 @@
         {
             "name": "Client & Server",
             "configurations": ["Client", "Server"]
+        },
+        {
+            "name": "Phase 6",
+            "configurations": ["Client", "Server", "Client", "Client"]
         }
     ],
     "configurations": [
+
         {
             "type": "java",
             "name": "Current File",
