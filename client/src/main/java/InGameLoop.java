@@ -61,6 +61,7 @@ public class InGameLoop {
             return;
         }
 
+        boardRendered = false;
         connection.send(GSON.toJson(
                 new UserGameCommand(authToken, gameID, chessMove)));
     }

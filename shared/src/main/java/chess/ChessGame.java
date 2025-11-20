@@ -291,17 +291,13 @@ public final class ChessGame {
   private static final String COLUMN_LABELS_NORMAL = "    a  b  c  d  e  f  g  h  \n";
   private static final String COLUMN_LABELS_REVERSE = "    h  g  f  e  d  c  b  a  \n";
 
-  public String toPrettyString(boolean reverse){
+  public String toPrettyString(boolean reverse) {
     return toPrettyString(reverse, Optional.empty());
   }
 
   public String toPrettyString(boolean reverse, Optional<ChessPosition> move) {
     final var hasMove = move.isPresent();
     var builder = new StringBuilder();
-    var theMove = move;
-    if (hasMove && reverse){
-      theMove = Optional.of(new ChessPosition(9 - move.get().row(), 9 - move.get().col()));
-    }
     builder.append("\n\n");
     builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
     var gson = new Gson();
@@ -315,14 +311,15 @@ public final class ChessGame {
       builder.append(getRowLabel(row, reverse));
       for (int col = 1; col < 9; col++) {
         boolean isWhiteSquare = ((row + col) % 2) == 1;
+        final var currentPosition = reverse ?  new ChessPosition(9 - row, 9 - col) : new ChessPosition(row, col);
         final var isValidMove = hasMove
-            && validMoves(theMove.get()).contains(new ChessMove(theMove.get(), new ChessPosition(row, col)));
-        if (hasMove && new ChessPosition(row, col).equals(theMove.get())){
+            && validMoves(move.get()).contains(
+                new ChessMove(move.get(), currentPosition));
+        if (hasMove && currentPosition.equals(move.get())) {
           builder.append(SET_BG_COLOR_YELLOW);
-          builder.append(SET_TEXT_COLOR_LIGHT_GREY);
+          builder.append(SET_TEXT_COLOR_DARK_GREY);
           builder.append(SET_TEXT_BLINKING);
-        }
-        else if (isWhiteSquare) {
+        } else if (isWhiteSquare) {
           if (isValidMove) {
             builder.append(SET_BG_COLOR_GREEN);
             builder.append(SET_TEXT_COLOR_DARK_GREY);
@@ -331,8 +328,8 @@ public final class ChessGame {
           }
         } else {
           if (isValidMove) {
-            builder.append(SET_BG_COLOR_GREEN);
-            builder.append(SET_TEXT_COLOR_DARK_GREY);
+            builder.append(SET_BG_COLOR_DARK_GREEN);
+            builder.append(SET_TEXT_COLOR_LIGHT_GREY);
           } else {
             blackSquare(builder);
           }

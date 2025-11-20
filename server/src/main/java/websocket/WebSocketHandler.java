@@ -58,7 +58,19 @@ public class WebSocketHandler {
         }
     }
 
-    private void loadGameAll(int gameID, ChessGame game) {
+    private void notifyAll(int gameID, String message, WsContext ctx) {
+        var sessions = allSessions.get(gameID);
+        if (sessions == null) {
+            return;
+        }
+        for (var session : sessions) {
+
+            session.send(GSON.toJson(new NotificationMessage(message)));
+        }
+    }
+
+    private void loadGameAll(int gameID, ChessGame game) throws DataAccessException, SQLException {
+        game = GSON.fromJson(gameService.getGame(gameID).get().game(), ChessGame.class);
         var sessions = allSessions.get(gameID);
         if (sessions == null) {
             return;
@@ -134,18 +146,18 @@ public class WebSocketHandler {
             final var userAndGame = getUserAndGame(authToken, gameID);
             final var game = userAndGame.game();
 
-            if (userAndGame.isObserver()){
+            if (userAndGame.isObserver()) {
                 errorOut("Observers can't resign, silly.", ctx);
                 return;
             }
 
-            if (userAndGame.game().isOver()){
+            if (userAndGame.game().isOver()) {
                 errorOut("Game Over bro", ctx);
                 return;
             }
 
             gameService.markFinished(game);
-            notifyOthers(gameID, userAndGame.user().username() + " resigned. Game is over.", ctx);
+            notifyAll(gameID, userAndGame.user().username() + " resigned. Game is over.", ctx);
         } catch (NoSuchElementException ex) {
             errorOut("The provided auth token is invalid or the game does not exist.", ctx);
         } catch (Exception ex) {
@@ -161,7 +173,6 @@ public class WebSocketHandler {
                 return;
             }
 
-            ctx.send(GSON.toJson(new LoadGameMessage(userAndGame.gameContents())));
             if (userAndGame.isObserver()) {
                 errorOut("Observers cannot move.", ctx);
                 return;
@@ -174,19 +185,29 @@ public class WebSocketHandler {
                 return;
             }
 
-            if (game.getTeamTurn() != piece.getTeamColor()) {
+            if (game.getTeamTurn() != userAndGame.playerColor().get()) {
                 errorOut("Not your turn", ctx);
                 return;
             }
 
             game.makeMove(move);
-            game.setTeamTurn(game.getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
             gameService.updateGame(gameID, game);
+            final var notification = userAndGame.playerColor() + " moved from "
+                    + move.getStartPosition() + " to " + move.getEndPosition();
+            notifyOthers(gameID, notification, ctx);
+
+            if (game.isInCheckmate(TeamColor.WHITE)) {
+                gameService.markFinished(userAndGame.game());
+                notifyAll(gameID, "Checkmate! Game is over. Black wins", ctx);
+            } else if (game.isInCheckmate(TeamColor.BLACK)) {
+                gameService.markFinished(userAndGame.game());
+                notifyAll(gameID, "Checkmate! Game is over. White wins", ctx);
+            } else if (game.isInStalemate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
+                gameService.markFinished(userAndGame.game());
+                notifyAll(gameID, "Stalemate! Game is over.", ctx);
+            }
             loadGameAll(gameID, game);
 
-            final var notification = userAndGame.playerColor() + " moved from "
-                    + move.getEndPosition() + " to " + move.getEndPosition();
-            notifyOthers(gameID, notification, ctx);
         } catch (InvalidMoveException ex) {
             errorOut("Invalid move! " + ex.getMessage(), ctx);
         } catch (NoSuchElementException ex) {

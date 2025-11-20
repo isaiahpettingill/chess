@@ -8,10 +8,11 @@ public class Migration0001 extends Migration {
         return """
         create table if not exists users(
             userId integer not null auto_increment,
-            username varchar(2048),
-            passwordHash varchar(1024),
-            emailAddress varchar(512),
-            primary key(userId)
+            username varchar(255) not null,
+            passwordHash varchar(1024) not null,
+            emailAddress varchar(512) not null,
+            primary key(userId),
+            unique key(username)
         );
         create unique index index_unique_user_username on users(username);
 
