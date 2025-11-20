@@ -102,6 +102,46 @@ public class InGameLoop {
         preview = true;
     }
 
+    private String buildPrompt(boolean isPlayer) {
+        StringBuilder prompt = new StringBuilder();
+        if (isPlayer) {
+            prompt.append("[m]: move\t");
+            prompt.append("[r]: resign\t");
+        }
+        prompt.append("[l] leave\t[p]: preview move\t[f]: refresh board\n");
+        return prompt.toString();
+    }
+
+    private boolean handleAction(String action, WebSocketClient webSocketClient, boolean isPlayer) throws IOException {
+        switch (action.toLowerCase()) {
+            case "m":
+                if (!isPlayer) {
+                    CONSOLE.printf("Invalid Action\n");
+                    return false;
+                }
+                move(webSocketClient);
+                return false;
+            case "r":
+                if (!isPlayer) {
+                    CONSOLE.printf("Invalid Action\n");
+                    return false;
+                }
+                resign(webSocketClient);
+                return true;
+            case "l":
+                leave(webSocketClient);
+                return true;
+            case "p":
+                previewMove(webSocketClient);
+                return false;
+            case "f":
+                return false;
+            default:
+                CONSOLE.printf("Invalid Action\n");
+                return false;
+        }
+    }
+
     private void leave(WebSocketClient connection) throws IOException {
         connection.send(GSON.toJson(
                 new UserGameCommand(CommandType.LEAVE, authToken, gameID)));
@@ -155,7 +195,7 @@ public class InGameLoop {
         }
     }
 
-    private void runGameLoop(boolean canMove, boolean canResign) {
+    private void runGameLoop(boolean isPlayer) {
         try {
             webSocketClient = backend.webSocketClient(this::onMessage);
             connect(webSocketClient);
@@ -164,40 +204,10 @@ public class InGameLoop {
             loop: do {
                 printData();
                 if (boardRendered) {
-                    StringBuilder prompt = new StringBuilder();
-                    if (canMove) prompt.append("[m]: move\t");
-                    if (canResign) prompt.append("[r]: resign\t");
-                    prompt.append("[l] leave\t[p]: preview move\t[f]: refresh board\n");
-                    CONSOLE.printf(prompt.toString());
+                    CONSOLE.printf(buildPrompt(isPlayer));
                     final var action = CONSOLE.readLine("ACTION: ");
-                    switch (action.toLowerCase()) {
-                        case "m":
-                            if (canMove) {
-                                move(webSocketClient);
-                                break;
-                            } else {
-                                CONSOLE.printf("Invalid Action\n");
-                                continue loop;
-                            }
-                        case "r":
-                            if (canResign) {
-                                resign(webSocketClient);
-                                break loop;
-                            } else {
-                                CONSOLE.printf("Invalid Action\n");
-                                continue loop;
-                            }
-                        case "l":
-                            leave(webSocketClient);
-                            break loop;
-                        case "p":
-                            previewMove(webSocketClient);
-                            break;
-                        case "f":
-                            continue loop;
-                        default:
-                            CONSOLE.printf("Invalid Action\n");
-                            continue loop;
+                    if (handleAction(action, webSocketClient, isPlayer)) {
+                        break loop;
                     }
                 } else {
                     Thread.sleep(5);
@@ -211,10 +221,10 @@ public class InGameLoop {
     }
 
     public void observe() {
-        runGameLoop(false, false);
+        runGameLoop(false);
     }
 
     public void play() {
-        runGameLoop(true, true);
+        runGameLoop(true);
     }
 }
