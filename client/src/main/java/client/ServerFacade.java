@@ -29,6 +29,17 @@ public class ServerFacade {
         return auth != null && auth.isPresent() ? auth.get() : "";
     }
 
+    public ServerResponse<String> getCurrentUser() throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(makeUri(baseurl, "whoami"))
+                .GET()
+                .header("Authorization", getAuth())
+                .build();
+        var res = HTTP.send(req, BodyHandlers.ofString());
+        var status = res.statusCode();
+        var body = status == 200 ? res.body() : null;
+        return new ServerResponse<>(body, status);
+    }
+
     public ServerFacade(String baseurl) {
         this.baseurl = baseurl;
     }

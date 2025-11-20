@@ -46,6 +46,7 @@ public class Server {
                 new ListGamesHandler(authService, gameService),
                 new LoginHandler(authService, userService),
                 new LogoutHandler(authService),
+                new WhoamiHandler(authService),
                 new RegisterHandler(userService, authService));
 
         for (final var handler : handlers) {

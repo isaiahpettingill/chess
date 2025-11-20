@@ -149,6 +149,33 @@ final class LoggedInCommands {
                 CONSOLE.printf(SET_TEXT_COLOR_RED + "Game not found, bro. Try again." + RESET_TEXT_COLOR);
                 return;
             }
+
+            if (game.body().whiteUsername() != null && "WHITE".equals(color)) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, that spot's already taken!" + RESET_TEXT_COLOR);
+                return;
+            }
+
+            if (game.body().isOver()) {
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, that game's already over!" + RESET_TEXT_COLOR);
+                return;
+            }
+
+            final var currentUser = backend.getCurrentUser().body();
+
+            if (game.body().blackUsername() != null && currentUser != null && !game.body().isOver()
+                    && game.body().blackUsername().equals(currentUser) && "BLACK".equals(color)) {
+                CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Joined game.\n" + RESET_TEXT_COLOR);
+                new InGameLoop(backend, decodedId, TeamColor.valueOf(color)).play();
+                return;
+            }
+
+            if (game.body().whiteUsername() != null && currentUser != null && !game.body().isOver()
+                    && game.body().whiteUsername().equals(currentUser) && "WHITE".equals(color)) {
+                CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Joined game.\n" + RESET_TEXT_COLOR);
+                new InGameLoop(backend, decodedId, TeamColor.valueOf(color)).play();
+                return;
+            }
+
             var result = backend.joinGame(new JoinGamePayload(color, decodedId));
             if (result.status() != 200) {
                 if (result.status() == 403) {

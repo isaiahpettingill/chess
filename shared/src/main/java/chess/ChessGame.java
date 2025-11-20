@@ -298,10 +298,14 @@ public final class ChessGame {
   public String toPrettyString(boolean reverse, Optional<ChessPosition> move) {
     final var hasMove = move.isPresent();
     var builder = new StringBuilder();
+    var theMove = move;
+    if (hasMove && reverse){
+      theMove = Optional.of(new ChessPosition(9 - move.get().row(), 9 - move.get().col()));
+    }
     builder.append("\n\n");
     builder.append(reverse ? COLUMN_LABELS_REVERSE : COLUMN_LABELS_NORMAL);
     var gson = new Gson();
-    var theboard = gson.fromJson(gson.toJson(board), ChessPiece[][].class);
+    var theboard = gson.fromJson(gson.toJson(board.rawBoard()), ChessPiece[][].class);
     if (reverse) {
       rotateBoard180Degrees(theboard);
     }
@@ -312,8 +316,8 @@ public final class ChessGame {
       for (int col = 1; col < 9; col++) {
         boolean isWhiteSquare = ((row + col) % 2) == 1;
         final var isValidMove = hasMove
-            && validMoves(move.get()).contains(new ChessMove(move.get(), new ChessPosition(row, col)));
-        if (hasMove && new ChessPosition(row, col).equals(move.get())){
+            && validMoves(theMove.get()).contains(new ChessMove(theMove.get(), new ChessPosition(row, col)));
+        if (hasMove && new ChessPosition(row, col).equals(theMove.get())){
           builder.append(SET_BG_COLOR_YELLOW);
           builder.append(SET_TEXT_COLOR_LIGHT_GREY);
           builder.append(SET_TEXT_BLINKING);

@@ -17,6 +17,10 @@ import chess.ChessGame.TeamColor;
 public final class ChessBoard {
   private ChessPiece[][] board;
 
+  public ChessPiece[][] rawBoard() {
+    return board;
+  }
+
   public ChessBoard() {
     board = new ChessPiece[9][9];
   }
