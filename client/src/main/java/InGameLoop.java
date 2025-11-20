@@ -155,19 +155,38 @@ public class InGameLoop {
         }
     }
 
-    public void observe() {
+    private void runGameLoop(boolean canMove, boolean canResign) {
         try {
             webSocketClient = backend.webSocketClient(this::onMessage);
             connect(webSocketClient);
-
             var shouldQuit = false;
 
             loop: do {
                 printData();
                 if (boardRendered) {
-                    CONSOLE.printf("[l] leave\t[p]: preview move\t[f]: refresh board\n");
+                    StringBuilder prompt = new StringBuilder();
+                    if (canMove) prompt.append("[m]: move\t");
+                    if (canResign) prompt.append("[r]: resign\t");
+                    prompt.append("[l] leave\t[p]: preview move\t[f]: refresh board\n");
+                    CONSOLE.printf(prompt.toString());
                     final var action = CONSOLE.readLine("ACTION: ");
                     switch (action.toLowerCase()) {
+                        case "m":
+                            if (canMove) {
+                                move(webSocketClient);
+                                break;
+                            } else {
+                                CONSOLE.printf("Invalid Action\n");
+                                continue loop;
+                            }
+                        case "r":
+                            if (canResign) {
+                                resign(webSocketClient);
+                                break loop;
+                            } else {
+                                CONSOLE.printf("Invalid Action\n");
+                                continue loop;
+                            }
                         case "l":
                             leave(webSocketClient);
                             break loop;
@@ -191,44 +210,11 @@ public class InGameLoop {
         }
     }
 
-    public void play() {
-        try {
-            webSocketClient = backend.webSocketClient(this::onMessage);
-            connect(webSocketClient);
-            var shouldQuit = false;
+    public void observe() {
+        runGameLoop(false, false);
+    }
 
-            loop: do {
-                printData();
-                if (boardRendered) {
-                    CONSOLE.printf("[m]: move\t[r]: resign\t[l] leave\t[p]: preview move\t[f]: refresh board\n");
-                    final var action = CONSOLE.readLine("ACTION: ");
-                    switch (action.toLowerCase()) {
-                        case "m":
-                            move(webSocketClient);
-                            break;
-                        case "r":
-                            resign(webSocketClient);
-                            break loop;
-                        case "l":
-                            leave(webSocketClient);
-                            break loop;
-                        case "p":
-                            previewMove(webSocketClient);
-                            break;
-                        case "f":
-                            continue loop;
-                        default:
-                            CONSOLE.printf("Invalid Action\n");
-                            continue loop;
-                    }
-                } else {
-                    Thread.sleep(5);
-                }
-            } while (!shouldQuit);
-        } catch (JsonSyntaxException ex) {
-            CONSOLE.printf("ERROR: Server sent invalid message.");
-        } catch (Exception ex) {
-            CONSOLE.printf("Something went terribly wrong!\n");
-        }
+    public void play() {
+        runGameLoop(true, true);
     }
 }

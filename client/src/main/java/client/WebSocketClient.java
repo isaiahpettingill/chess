@@ -15,10 +15,12 @@ public class WebSocketClient {
         this.ws = HTTP.newWebSocketBuilder()
             .buildAsync(URI.create(uri), new Listener(){
                 StringBuilder buffer = new StringBuilder();
+                @Override
                 public void onOpen(WebSocket w) {
                     w.request(1);
                 }
 
+                @Override
                 public CompletionStage<?> onText(WebSocket w, CharSequence data, boolean last) {
                     buffer.append(data);
                     if (last) {

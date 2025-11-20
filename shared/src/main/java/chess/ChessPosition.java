@@ -56,9 +56,9 @@ public final record ChessPosition(int row, int col) {
         return col;
     }
 
-    private static final String letterMap = " abcdefgh";
+    private static final String LETTER_MAP = " abcdefgh";
 
     public String toString() {
-        return letterMap.charAt(col) + row + "";
+        return LETTER_MAP.charAt(col) + row + "";
     }
 }

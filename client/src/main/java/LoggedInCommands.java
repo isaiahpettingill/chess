@@ -106,7 +106,7 @@ final class LoggedInCommands {
                         SET_TEXT_COLOR_RED + "Yo, that game ain't real, bro. Check the number." + RESET_TEXT_COLOR);
                 return;
             }
-            new InGameLoop(backend, decodedId, TeamColor.WHITE).play();
+            new InGameLoop(backend, decodedId, TeamColor.WHITE).observe();
         } catch (NumberFormatException ex) {
             CONSOLE.printf(
                     SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
