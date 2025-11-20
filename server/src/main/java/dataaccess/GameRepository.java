@@ -89,8 +89,8 @@ public class GameRepository extends AbstractRepository<Game> {
             statement.setString(2, game.whiteUsername());
             statement.setString(3, game.blackUsername());
             statement.setString(4, game.game());
-            statement.setInt(5, game.id());
-            statement.setBoolean(6, game.isOver());
+            statement.setBoolean(5, game.isOver());
+            statement.setInt(6, game.id());
             statement.executeUpdate();
             return game;
         }

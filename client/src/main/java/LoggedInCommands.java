@@ -13,6 +13,7 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import client.ServerFacade;
 import dto.CreateGamePayload;
 import dto.JoinGamePayload;
@@ -90,26 +91,27 @@ final class LoggedInCommands {
         try {
             final var gameIdStr = CONSOLE.readLine("[Game number]: ").trim();
             if (gameIdStr.isEmpty()) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!" + RESET_TEXT_COLOR);
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!"
+                        + RESET_TEXT_COLOR);
                 return;
             }
             int gameNum = Integer.parseInt(gameIdStr);
             if (gameNum <= 0 || gameNum > currentGames.size()) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
+                CONSOLE.printf(
+                        SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
                 return;
             }
             int decodedId = currentGames.get(gameNum - 1).gameID();
             var game = backend.getGame(decodedId);
             if (game.status() != 200) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Yo, that game ain't real, bro. Check the number." + RESET_TEXT_COLOR);
+                CONSOLE.printf(
+                        SET_TEXT_COLOR_RED + "Yo, that game ain't real, bro. Check the number." + RESET_TEXT_COLOR);
                 return;
             }
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
-            var chessGame = game.body().game();
-            var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            CONSOLE.printf(asRealObject.toPrettyString(true) + "\n");
+            new InGameLoop(backend, decodedId, TeamColor.WHITE).play();
         } catch (NumberFormatException ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
+            CONSOLE.printf(
+                    SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + ex.getMessage() + RESET_TEXT_COLOR);
         }
@@ -119,7 +121,8 @@ final class LoggedInCommands {
         try {
             final var gameIdStr = CONSOLE.readLine("[Game number]: ").trim();
             if (gameIdStr.isEmpty()) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!" + RESET_TEXT_COLOR);
+                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, you gotta enter a game number, don't leave it blank!"
+                        + RESET_TEXT_COLOR);
                 return;
             }
             final var colorStr = CONSOLE.readLine("[" + SET_BG_COLOR_WHITE
@@ -136,7 +139,8 @@ final class LoggedInCommands {
             }
             int gameNum = Integer.parseInt(gameIdStr);
             if (gameNum <= 0 || gameNum > currentGames.size()) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
+                CONSOLE.printf(
+                        SET_TEXT_COLOR_RED + "Bro, game number outta range, list the games first!" + RESET_TEXT_COLOR);
                 return;
             }
             int decodedId = currentGames.get(gameNum - 1).gameID();
@@ -150,7 +154,8 @@ final class LoggedInCommands {
                 if (result.status() == 403) {
                     CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, that spot's already taken!" + RESET_TEXT_COLOR);
                 } else if (result.status() == 401) {
-                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
+                    CONSOLE.printf(
+                            SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
                 } else if (result.status() == 500) {
                     CONSOLE.printf(SET_TEXT_COLOR_RED + "Server error, bro. Try again later." + RESET_TEXT_COLOR);
                 } else {
@@ -158,12 +163,11 @@ final class LoggedInCommands {
                 }
                 return;
             }
-            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "success" + RESET_TEXT_COLOR);
-            var chessGame = game.body().game();
-            var asRealObject = new Gson().fromJson(chessGame, ChessGame.class);
-            CONSOLE.printf(asRealObject.toPrettyString(color.equals("WHITE")) + "\n");
+            CONSOLE.printf(SET_TEXT_COLOR_GREEN + "Joined game.\n" + RESET_TEXT_COLOR);
+            new InGameLoop(backend, decodedId, TeamColor.valueOf(color)).play();
         } catch (NumberFormatException ex) {
-            CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
+            CONSOLE.printf(
+                    SET_TEXT_COLOR_RED + "Bro, the game number needs to be an integer dang it." + RESET_TEXT_COLOR);
         } catch (Exception ex) {
             CONSOLE.printf(SET_TEXT_COLOR_RED + ex.getMessage() + RESET_TEXT_COLOR);
         }
@@ -173,17 +177,20 @@ final class LoggedInCommands {
         try {
             final var gameName = CONSOLE.readLine("[Game name]: ").trim();
             if (gameName.isEmpty()) {
-                CONSOLE.printf(SET_TEXT_COLOR_RED + "Bro, game name can't be empty, give it a name!" + RESET_TEXT_COLOR);
+                CONSOLE.printf(
+                        SET_TEXT_COLOR_RED + "Bro, game name can't be empty, give it a name!" + RESET_TEXT_COLOR);
                 return;
             }
             var result = backend.createGame(new CreateGamePayload(gameName));
             if (result.status() != 200) {
                 if (result.status() == 401) {
-                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
+                    CONSOLE.printf(
+                            SET_TEXT_COLOR_RED + "Unauthorized, bro. You sure you're logged in?" + RESET_TEXT_COLOR);
                 } else if (result.status() == 500) {
                     CONSOLE.printf(SET_TEXT_COLOR_RED + "Server error, bro. Try again later." + RESET_TEXT_COLOR);
                 } else {
-                    CONSOLE.printf(SET_TEXT_COLOR_RED + "Couldn't create game, status " + result.status() + RESET_TEXT_COLOR);
+                    CONSOLE.printf(
+                            SET_TEXT_COLOR_RED + "Couldn't create game, status " + result.status() + RESET_TEXT_COLOR);
                 }
                 return;
             }
@@ -214,7 +221,7 @@ final class LoggedInCommands {
                 CONSOLE.printf("\n[GAMES]\n");
                 for (int i = 0; i < currentGames.size(); i++) {
                     final var game = currentGames.get(i);
-                    CONSOLE.printf((i+1) + ". Game: %s [%s vs %s]\n", game.gameName(),
+                    CONSOLE.printf((i + 1) + ". Game: %s [%s vs %s]\n", game.gameName(),
                             game.whiteUsername(),
                             game.blackUsername());
                 }

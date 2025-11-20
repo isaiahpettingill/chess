@@ -1,20 +1,16 @@
 package client;
 
 import dto.*;
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
 import models.Game;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.google.gson.Gson;
 
@@ -29,7 +25,7 @@ public class ServerFacade {
 
     private Optional<String> auth = Optional.empty();
 
-    private String getAuth() {
+    public String getAuth() {
         return auth != null && auth.isPresent() ? auth.get() : "";
     }
 
@@ -147,9 +143,8 @@ public class ServerFacade {
         return new ServerResponse<>(body, status);
     }
 
-    public Session connectToWebSocket() throws URISyntaxException, IOException, DeploymentException {
-        URI uri = new URI(baseurl+"/ws");
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        return container.connectToServer(this, uri);
+
+    public WebSocketClient webSocketClient(Consumer<String> onMessage) {
+        return new WebSocketClient(baseurl.replace("http", "ws") + "/ws", onMessage);
     }
 }
