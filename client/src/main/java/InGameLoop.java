@@ -41,7 +41,6 @@ public class InGameLoop {
     private final String authToken;
     private final int gameID;
     private boolean preview = false;
-    private boolean boardRendered = false;
     private boolean isPlayer = false;
 
     private void move(WebSocketClient connection) throws IOException {
@@ -61,7 +60,6 @@ public class InGameLoop {
             return;
         }
 
-        boardRendered = false;
         connection.send(GSON.toJson(
                 new UserGameCommand(authToken, gameID, chessMove)));
     }
@@ -102,7 +100,7 @@ public class InGameLoop {
         preview = true;
     }
 
-    private void notificationPrint(){
+    private void notificationPrint() {
         System.out.print(ERASE_SCREEN);
         printData();
         prompt();
@@ -124,14 +122,14 @@ public class InGameLoop {
             case "m":
                 if (!isPlayer) {
                     System.out.println("Invalid Action\n");
-                    return false;
+                    return true;
                 }
                 move(webSocketClient);
                 return false;
             case "r":
                 if (!isPlayer) {
                     System.out.println("Invalid Action\n");
-                    return false;
+                    return true;
                 }
                 resign(webSocketClient);
                 return true;
@@ -176,7 +174,6 @@ public class InGameLoop {
                 case LOAD_GAME:
                     final var theGame = GSON.fromJson(message, LoadGameMessage.class);
                     game = theGame.game();
-                    boardRendered = true;
                     notificationPrint();
                     break;
             }
@@ -209,15 +206,12 @@ public class InGameLoop {
 
             loop: do {
                 printData();
-                if (boardRendered) {
-                    prompt();
-                    final var action = CONSOLE.readLine();
-                    if (handleAction(action, webSocketClient)) {
-                        break loop;
-                    }
-                } else {
-                    Thread.sleep(5);
+                prompt();
+                final var action = CONSOLE.readLine();
+                if (handleAction(action, webSocketClient)) {
+                    break loop;
                 }
+
             } while (!shouldQuit);
         } catch (JsonSyntaxException ex) {
             System.out.println("ERROR: Server sent invalid message.\n");
