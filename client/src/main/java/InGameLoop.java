@@ -36,7 +36,9 @@ public class InGameLoop {
 
     private final TeamColor color;
     private String errorMessage;
+    private byte errorAge = 0;
     private String notificationMessage;
+    private byte notificationAge = 0;
     private ChessGame game;
     private final String authToken;
     private final int gameID;
@@ -49,14 +51,14 @@ public class InGameLoop {
         final var p0Parsed = ChessPosition.fromChessNotation(p0);
         final var p1Parsed = ChessPosition.fromChessNotation(p1);
         if (p0Parsed.isEmpty() || p1Parsed.isEmpty()) {
-            System.out.println("Invalid move! Use correct chess notation.");
+            errorMessage = "Invalid move! Use correct chess notation.";
             return;
         }
 
         final var chessMove = new ChessMove(p0Parsed.get(), p1Parsed.get());
         final var validMoves = game.validMoves(p0Parsed.get());
         if (!validMoves.contains(chessMove)) {
-            System.out.println("Invalid move! That piece can't move there.");
+            errorMessage = "Invalid move! That piece can't move there.";
             return;
         }
 
@@ -74,16 +76,16 @@ public class InGameLoop {
         final var startPosition = CONSOLE.readLine("Starting position (chess notation, e.g., A2): ");
         final var pos0 = ChessPosition.fromChessNotation(startPosition);
         if (pos0.isEmpty()) {
-            System.out.println("Invalid position! Use correct chess notation.");
+            errorMessage = "Invalid position! Use correct chess notation.";
             return;
         }
         final var piece = game.getBoard().getPiece(pos0.get());
         if (piece == null) {
-            System.out.println("No piece at that position!");
+            errorMessage = "No piece at that position!";
             return;
         }
         if (isPlayer && piece.getTeamColor() != color) {
-            System.out.println("That's not your piece!");
+            errorMessage = "That's not your piece!";
             return;
         }
 
@@ -150,6 +152,7 @@ public class InGameLoop {
     private void leave(WebSocketClient connection) throws IOException {
         connection.send(GSON.toJson(
                 new UserGameCommand(CommandType.LEAVE, authToken, gameID)));
+        connection.close();
     }
 
     private void connect(WebSocketClient connection) throws IOException {
@@ -162,11 +165,13 @@ public class InGameLoop {
             final var contents = GSON.fromJson(message, ServerMessage.class);
             switch (contents.getServerMessageType()) {
                 case ERROR:
+                    errorAge = 0;
                     final var err = GSON.fromJson(message, ErrorMessage.class);
                     errorMessage = err.errorMessage();
                     notificationPrint();
                     break;
                 case NOTIFICATION:
+                    notificationAge = 0;
                     final var notification = GSON.fromJson(message, NotificationMessage.class);
                     notificationMessage = notification.message();
                     notificationPrint();
@@ -188,13 +193,30 @@ public class InGameLoop {
                 System.out.print(game.toPrettyString(color == TeamColor.BLACK));
             }
             System.out.printf("\nIt's %s's turn.\n", game.getTeamTurn());
+            if (game.getTeamTurn().equals(color)){
+                System.out.println("(It is your turn)");
+            }
             preview = false;
+
+            if (game.isInCheck(color)){
+                System.out.println("WARNING: you are in check");
+            }
         }
         if (errorMessage != null) {
             System.out.printf(SET_TEXT_COLOR_RED + "ERROR: %s\n" + RESET_TEXT_COLOR, errorMessage);
         }
         if (notificationMessage != null) {
             System.out.println(notificationMessage + "\n");
+        }
+        if (errorAge > 2) {
+            errorMessage = null;
+        } else {
+            errorAge++;
+        }
+        if (notificationAge > 2) {
+            notificationMessage = null;
+        } else {
+            notificationAge++;
         }
     }
 
@@ -214,9 +236,9 @@ public class InGameLoop {
 
             } while (!shouldQuit);
         } catch (JsonSyntaxException ex) {
-            System.out.println("ERROR: Server sent invalid message.\n");
+            errorMessage = "ERROR: Server sent invalid message.\n";
         } catch (Exception ex) {
-            System.out.println("Something went terribly wrong!\n");
+            errorMessage = "Something went terribly wrong!\n";
         }
     }
 

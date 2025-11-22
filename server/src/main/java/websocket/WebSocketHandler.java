@@ -192,7 +192,7 @@ public class WebSocketHandler {
 
             game.makeMove(move);
             gameService.updateGame(gameID, game);
-            final var notification = userAndGame.playerColor() + " moved from "
+            final var notification = userAndGame.playerColor().get() + " moved from "
                     + move.getStartPosition() + " to " + move.getEndPosition();
             notifyOthers(gameID, notification, ctx);
 
