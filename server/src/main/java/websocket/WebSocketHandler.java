@@ -196,6 +196,13 @@ public class WebSocketHandler {
                     + move.getStartPosition() + " to " + move.getEndPosition();
             notifyOthers(gameID, notification, ctx);
 
+            if (game.isInCheck(TeamColor.WHITE)) {
+                notifyAll(gameID, "White is in check", ctx);
+            } else if (game.isInCheck(TeamColor.BLACK)) {
+                notifyAll(gameID, "Black is in check", ctx);
+            }
+
+            loadGameAll(gameID, game);
             if (game.isInCheckmate(TeamColor.WHITE)) {
                 gameService.markFinished(userAndGame.game());
                 notifyAll(gameID, "Checkmate! Game is over. Black wins", ctx);
@@ -206,7 +213,7 @@ public class WebSocketHandler {
                 gameService.markFinished(userAndGame.game());
                 notifyAll(gameID, "Stalemate! Game is over.", ctx);
             }
-            loadGameAll(gameID, game);
+
 
         } catch (InvalidMoveException ex) {
             errorOut("Invalid move! " + ex.getMessage(), ctx);

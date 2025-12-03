@@ -11,6 +11,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
+import chess.ChessPiece.PieceType;
 import client.ServerFacade;
 import client.WebSocketClient;
 import websocket.commands.UserGameCommand;
@@ -55,8 +56,38 @@ public class InGameLoop {
             return;
         }
 
-        final var chessMove = new ChessMove(p0Parsed.get(), p1Parsed.get());
+        var chessMove = new ChessMove(p0Parsed.get(), p1Parsed.get());
         final var validMoves = game.validMoves(p0Parsed.get());
+
+        final boolean isPromotion = validMoves.stream().map(x -> x.getEndPosition())
+                .filter(x -> x.equals(p1Parsed.get())).count() > 1;
+        if (isPromotion) {
+            final var piece = CONSOLE
+                    .readLine("PROMOTION:\n[p]: stay pawn\n[q]: queen\n[k]: knight\n[b]: bishop\n[r]: rook\n")
+                    .toLowerCase().trim();
+            PieceType piece2 = PieceType.PAWN;
+            switch (piece) {
+                case "p":
+                    break;
+                case "q":
+                    piece2 = PieceType.QUEEN;
+                    break;
+                case "r":
+                    piece2 = PieceType.ROOK;
+                    break;
+                case "k":
+                    piece2 = PieceType.KNIGHT;
+                    break;
+                case "b":
+                    piece2 = PieceType.BISHOP;
+                    break;
+                default:
+                    errorMessage = "Unknown option: " + piece;
+                    return;
+            }
+            chessMove = new ChessMove(chessMove.getStartPosition(), chessMove.getEndPosition(), piece2);
+        }
+
         if (!validMoves.contains(chessMove)) {
             errorMessage = "Invalid move! That piece can't move there.";
             return;
@@ -67,9 +98,13 @@ public class InGameLoop {
     }
 
     private void resign(WebSocketClient connection) throws IOException {
-        connection.send(GSON.toJson(
-                new UserGameCommand(CommandType.RESIGN, authToken, gameID)));
-        System.out.println("You have resigned the game.\n");
+        System.out.println("Are you sure?\n");
+        final var yes = CONSOLE.readLine().trim().toLowerCase();
+        if ("y".equals(yes)) {
+            connection.send(GSON.toJson(
+                    new UserGameCommand(CommandType.RESIGN, authToken, gameID)));
+            System.out.println("You have resigned the game.\n");
+        }
     }
 
     private void previewMove(WebSocketClient connection) throws IOException {
@@ -193,22 +228,18 @@ public class InGameLoop {
                 System.out.print(game.toPrettyString(color == TeamColor.BLACK));
             }
             System.out.printf("\nIt's %s's turn.\n", game.getTeamTurn());
-            if (game.getTeamTurn().equals(color)){
+            if (game.getTeamTurn().equals(color)) {
                 System.out.println("(It is your turn)");
             }
             preview = false;
-
-            if (game.isInCheck(color)){
-                System.out.println("WARNING: you are in check");
-            }
         }
         if (errorMessage != null) {
-            System.out.printf(SET_TEXT_COLOR_RED + "ERROR: %s\n" + RESET_TEXT_COLOR, errorMessage);
+            System.out.printf(SET_TEXT_COLOR_RED + "%s\n" + RESET_TEXT_COLOR, errorMessage);
         }
         if (notificationMessage != null) {
             System.out.println(notificationMessage + "\n");
         }
-        if (errorAge > 2) {
+        if (errorAge > 1) {
             errorMessage = null;
         } else {
             errorAge++;
@@ -229,7 +260,7 @@ public class InGameLoop {
             loop: do {
                 printData();
                 prompt();
-                final var action = CONSOLE.readLine();
+                final var action = CONSOLE.readLine().trim();
                 if (handleAction(action, webSocketClient)) {
                     break loop;
                 }

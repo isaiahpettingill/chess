@@ -1,0 +1,4 @@
+* checkmate board should print the move
+* resign has confirmation message
+* check notify all clients
+* promotion piece
